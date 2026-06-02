@@ -14,7 +14,7 @@
         <div class="auth-card neon-border">
             <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
             <h2 class="cyber-title">CRAFTMEET MULTIVERSE</h2>
-            <p>Connect to the premium Sri Lankan gaming hub. Tactical chat, streams, and private grids await.</p>
+            <p>Connect to the premium Sri Lankan gaming hub. Tactical chat, voice grids, and private channels await.</p>
             <button id="login-btn" onclick="loginWithGoogle()">
                 <i class="fa-brands fa-google"></i> INITIALIZE SYSTEM WITH GOOGLE
             </button>
@@ -42,6 +42,7 @@
                     <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
                     <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
                     <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
+                    <li class="room-item" id="room-apex" onclick="switchRoom('apex')"><i class="fa-solid fa-person-rifle"></i> <span>apex-legends</span></li>
                 </ul>
             </div>
 
@@ -92,16 +93,20 @@
         </main>
 
         <section class="right-panel">
-            <div class="video-section-box">
+            
+            <div class="voice-section-box">
                 <div class="panel-header">
-                    <div class="header-title"><i class="fa-solid fa-display cyber-glow-text"></i><h2 class="room-header-text">Tactical Stream</h2></div>
+                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Voice Comms</h2></div>
                 </div>
-                <div class="video-frame-container">
-                    <div class="video-placeholder" id="video-loading">
-                        <i class="fa-solid fa-circle-notch fa-spin cyber-glow-text"></i>
-                        <p>SYNCING LIVE SQUAD INTERCOM...</p>
+                <div class="voice-status-container">
+                    <div class="voice-status-card neon-border">
+                        <div class="voice-pulse-icon active-pulse">
+                            <i class="fa-solid fa-radio"></i>
+                        </div>
+                        <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
+                        <p>Voice link fully operational. Use your microphone to communicate.</p>
                     </div>
-                    <iframe id="jitsi-conference-frame" allow="camera; microphone; fullscreen; display-capture; autoplay"></iframe>
+                    <iframe id="jitsi-voice-frame" allow="microphone; autoplay" class="hidden-voice-frame"></iframe>
                 </div>
             </div>
 
