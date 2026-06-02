@@ -1,4 +1,4 @@
-// Firebase Live Configuration
+// Firebase Live Configuration WITH YOUR OWN DETALS
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
     authDomain: "craftmeet-bea37.firebaseapp.com",
