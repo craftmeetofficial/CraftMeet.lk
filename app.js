@@ -19,6 +19,7 @@ let currentUser = null;
 let currentRoom = "global"; 
 let isInitialLoad = true; 
 let typingTimeout = null;
+let isMuted = false; // State holder for Client Microphone status
 
 // Audio Generator Engine for Message Sound (No external asset files required)
 function playIncomingSound() {
@@ -28,8 +29,8 @@ function playIncomingSound() {
         const gainNode = audioCtx.createGain();
         
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 Cyber Note
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 High Note
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); 
         
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
@@ -70,7 +71,6 @@ function loginWithGoogle() {
     });
 }
 
-// User Logout Logic
 function logout() {
     auth.signOut();
 }
@@ -129,6 +129,41 @@ function listenToTyping(roomName) {
     });
 }
 
+// HARD MUTE CONTROLLER: Dynamic Web Audio Frame State Injector Matrix
+function toggleVoiceMute() {
+    isMuted = !isMuted;
+    
+    const muteBtn = document.getElementById('comms-mute-btn');
+    const btnIcon = document.getElementById('mute-btn-icon');
+    const btnText = document.getElementById('mute-btn-text');
+    const pulseNode = document.getElementById('voice-pulse-node');
+    const statusIcon = document.getElementById('voice-status-icon');
+    const statusDesc = document.getElementById('voice-status-desc');
+
+    if (isMuted) {
+        // UI Visual Update to MUTED state
+        muteBtn.className = "comms-mute-btn muted";
+        btnIcon.className = "fa-solid fa-microphone-lines-slash";
+        btnText.innerText = "UNMUTE MIC";
+        
+        pulseNode.className = "voice-pulse-icon muted-pulse";
+        statusIcon.className = "fa-solid fa-microphone-slash";
+        statusDesc.innerText = "Transmission terminated. Your microphone is locked.";
+    } else {
+        // UI Visual Update to LIVE state
+        muteBtn.className = "comms-mute-btn unmuted";
+        btnIcon.className = "fa-solid fa-microphone-lines";
+        btnText.innerText = "MUTE MIC";
+        
+        pulseNode.className = "voice-pulse-icon active-pulse";
+        statusIcon.className = "fa-solid fa-microphone";
+        statusDesc.innerText = "Voice link fully operational. Transmission is currently LIVE.";
+    }
+
+    // Hot-swap stream parameters inside the active IFrame container
+    initVoiceConference(currentRoom);
+}
+
 // Interactive Realtime Auto Search Module for YouTubers Panel Grid
 function searchYT(channelName) {
     const query = encodeURIComponent(channelName + " gaming youtube");
@@ -136,9 +171,8 @@ function searchYT(channelName) {
     window.open(searchUrl, '_blank');
 }
 
-// Dynamic Tier Lock Protection Alert Execution Call
 function triggerMembershipAlert() {
-    alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels directly into this grid, purchase the Extended Space Tier.\n\nFee: $2.00 USD / Month\nStatus: Pending gateway webhook confirmation.");
+    alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels directly into this grid, purchase the Extended Space Tier.\n\nFee: $2.00 USD / Month");
 }
 
 // Global Client Application Router Navigation Matrix
@@ -223,15 +257,14 @@ function loadMessages(roomName) {
     });
 }
 
-// FIXED: Exclusive Room-by-Room Dynamic VOICE ONLY Router Module (Video Turned Off Automatically)
+// Exclusive Room-by-Room Dynamic VOICE ONLY Router Module with Dynamic Hardware State Switcher
 function initVoiceConference(roomName) {
     if (!currentUser) return;
     
-    // Generate isolated session strings based on room context
     const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
     
-    // Jitsi voice config URL injection to completely disable video arrays and toolbar UI blocks
-    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=false&config.videoQA.disabled=true&config.startAudioMuted=999`;
+    // Core Logic Injection: startWithAudioMuted parameters are hot-swapped based on isMuted boolean array
+    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
     
     const iframe = document.getElementById('jitsi-voice-frame');
     iframe.src = voiceServerUrl;
