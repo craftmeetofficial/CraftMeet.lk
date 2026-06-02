@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftMeet Ultra | Chat & Video Workspace</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card">
+            <i class="fa-solid fa-comments-toggle logo-icon"></i>
+            <h2>CraftMeet Ultra</h2>
+            <p>Connect with your team instantly via real-time chat and HD video calls.</p>
+            <button id="login-btn" onclick="loginWithGoogle()">
+                <i class="fa-brands fa-google"></i> Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-cubes"></i> Workspace</h3>
+            </div>
+            <div class="user-profile">
+                <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                <div class="user-info">
+                    <h4 id="user-display-name">Loading...</h4>
+                    <span class="status-online"><i class="fa-solid fa-circle"></i> Online</span>
+                </div>
+            </div>
+            <div class="menu-section">
+                <p class="section-title">CHANNELS</p>
+                <ul class="room-list">
+                    <li class="room-item active" onclick="switchRoom('global')"><i class="fa-solid fa-hashtag"></i> global-chat</li>
+                    <li class="room-item" onclick="switchRoom('dev')"><i class="fa-solid fa-hashtag"></i> developers</li>
+                    <li class="room-item" onclick="switchRoom('random')"><i class="fa-solid fa-hashtag"></i> random-talk</li>
+                </ul>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </aside>
+
+        <main class="chat-wrapper">
+            <div class="main-header">
+                <h2 id="current-room-title"><i class="fa-solid fa-hashtag"></i> global-chat</h2>
+            </div>
+            <div class="messages-display" id="chat-messages"></div>
+            <div class="message-input-box">
+                <input type="text" id="message-input" placeholder="Message to channel..." onkeypress="checkEnter(event)">
+                <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </main>
+
+        <section class="video-wrapper">
+            <div class="main-header">
+                <h2><i class="fa-solid fa-video"></i> HD Video Room</h2>
+            </div>
+            <div class="video-frame-container">
+                <iframe id="jitsi-conference-frame" allow="camera; microphone; fullscreen; display-capture; autoplay"></iframe>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
