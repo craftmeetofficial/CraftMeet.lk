@@ -94,15 +94,26 @@ body {
 .send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; font-size: 1rem; }
 .send-btn:hover { color: #fff; }
 
-/* Right Panel: Voice Layout Styles */
+/* Right Panel: Voice Control Grid Styles */
 .right-panel { flex: 1.4; display: flex; flex-direction: column; background: #040508; overflow-y: auto; }
-.voice-section-box { height: 35%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
-.voice-status-container { flex: 1; padding: 20px; display: flex; justify-content: center; align-items: center; background: #020204; }
-.voice-status-card { background: #0a0c16; padding: 20px; border-radius: 8px; text-align: center; width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.voice-pulse-icon { width: 50px; height: 50px; background: rgba(0, 240, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--neon-cyan); font-size: 1.3rem; border: 1px solid var(--neon-cyan); }
+.voice-section-box { height: 42%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
+.voice-status-container { flex: 1; padding: 15px; display: flex; justify-content: center; align-items: center; background: #020204; }
+.voice-status-card { background: #0a0c16; padding: 20px; border-radius: 8px; text-align: center; width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.voice-pulse-icon { width: 46px; height: 46px; background: rgba(0, 240, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--neon-cyan); font-size: 1.2rem; border: 1px solid var(--neon-cyan); transition: 0.2s; }
 .active-pulse { animation: voiceGlowPulse 1.5s infinite ease-in-out; }
+.muted-pulse { background: rgba(255, 0, 127, 0.1) !important; color: var(--neon-magenta) !important; border-color: var(--neon-magenta) !important; animation: none !important; box-shadow: none !important; }
+
 .voice-status-card h3 { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: #fff; letter-spacing: 1px; text-transform: uppercase; }
 .voice-status-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
+
+/* High-Tech Tactical Mute Switch Assembly */
+.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 1px; }
+.comms-mute-btn.unmuted { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.1); }
+.comms-mute-btn.unmuted:hover { background: rgba(0, 240, 255, 0.08); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
+.comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); box-shadow: 0 0 10px rgba(255, 0, 127, 0.1); }
+.comms-mute-btn.muted:hover { background: rgba(255, 0, 127, 0.08); box-shadow: 0 0 15px rgba(255, 0, 127, 0.2); }
+
 .hidden-voice-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 /* SRI LANKAN STREAMERS INTEGRATED GRID HUD AESTHETICS */
