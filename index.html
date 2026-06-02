@@ -100,11 +100,16 @@
                 </div>
                 <div class="voice-status-container">
                     <div class="voice-status-card neon-border">
-                        <div class="voice-pulse-icon active-pulse">
-                            <i class="fa-solid fa-radio"></i>
+                        <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
+                            <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
                         </div>
                         <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
-                        <p>Voice link fully operational. Use your microphone to communicate.</p>
+                        
+                        <button id="comms-mute-btn" class="comms-mute-btn unmuted" onclick="toggleVoiceMute()">
+                            <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
+                        </button>
+
+                        <p id="voice-status-desc">Voice link fully operational. Transmission is currently LIVE.</p>
                     </div>
                     <iframe id="jitsi-voice-frame" allow="microphone; autoplay" class="hidden-voice-frame"></iframe>
                 </div>
