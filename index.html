@@ -13,31 +13,69 @@
     <div id="auth-screen" class="auth-overlay">
         <div class="auth-card neon-border">
             <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
-            <h2 class="cyber-title">CRAFTMEET MULTIVERSE</h2>
-            <p>Connect to the premium Sri Lankan gaming hub. Tactical chat, voice grids, and private channels await.</p>
-            <button id="login-btn" onclick="loginWithGoogle()">
-                <i class="fa-brands fa-google"></i> INITIALIZE SYSTEM WITH GOOGLE
-            </button>
+            <h2 class="cyber-title" id="auth-title">WELCOME BACK!</h2>
+            <p id="auth-subtitle">We're so excited to see you again!</p>
+            
+            <div class="auth-form-container">
+                <div class="form-group" id="reg-username-group" style="display: none;">
+                    <label>GAMERTAG (USERNAME) <span class="req-star">*</span></label>
+                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight">
+                </div>
+                
+                <div class="form-group">
+                    <label>EMAIL ADDRESS <span class="req-star">*</span></label>
+                    <input type="email" id="auth-email" placeholder="name@domain.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>PASSWORD <span class="req-star">*</span></label>
+                    <input type="password" id="auth-password" placeholder="••••••••">
+                </div>
+
+                <div id="reg-extras" style="display: none;">
+                    <div class="form-group">
+                        <label>AVATAR IMAGE URL</label>
+                        <input type="text" id="auth-avatar" placeholder="Paste image link here...">
+                    </div>
+                    <div class="form-group">
+                        <label>ABOUT ME</label>
+                        <textarea id="auth-bio" rows="2" placeholder="Tell the squad about yourself..."></textarea>
+                    </div>
+                </div>
+
+                <button id="main-auth-btn" onclick="handlePrimaryAuth()" class="cyber-action-btn">Log In</button>
+                
+                <div class="auth-switcher">
+                    <span id="switch-text">Need an account?</span> 
+                    <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)">Register</a>
+                </div>
+
+                <div class="auth-divider"><span>OR</span></div>
+
+                <button id="login-btn" onclick="loginWithGoogle()">
+                    <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
+                </button>
+            </div>
         </div>
     </div>
 
     <div id="profile-modal" class="modal-overlay hidden">
         <div class="modal-card neon-border-magenta">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT USER PROFILE</h3>
+                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> DISCORD PROFILE CARD</h3>
                 <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>// PROFILE PICTURE URL</label>
-                    <input type="text" id="profile-pic-input" placeholder="Paste custom image URL here...">
+                    <label>// AVATAR URL</label>
+                    <input type="text" id="profile-pic-input" placeholder="Image Link...">
                 </div>
                 <div class="form-group">
-                    <label>// TACTICAL BIO</label>
-                    <textarea id="profile-bio-input" rows="3" placeholder="Tell the squad about yourself..."></textarea>
+                    <label>// ABOUT ME</label>
+                    <textarea id="profile-bio-input" rows="3" placeholder="Bio..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>// MAIN GAME TACTICAL SPECIALTY</label>
+                    <label>// MAIN GAME</label>
                     <select id="profile-game-input">
                         <option value="Multi-Game Athlete">Multi-Game Athlete</option>
                         <option value="Minecraft Builder">Minecraft Builder</option>
@@ -46,7 +84,7 @@
                     </select>
                 </div>
                 <button class="save-profile-btn" onclick="saveUserProfile()">
-                    <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
+                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
                 </button>
             </div>
         </div>
@@ -89,12 +127,12 @@
                 </ul>
             </div>
 
-            <div class="user-profile-footer" onclick="toggleProfileModal()" title="Click to Edit Profile">
+            <div class="user-profile-footer" onclick="toggleProfileModal()" title="Click to View/Edit Profile">
                 <div class="user-meta">
                     <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
                     <div class="user-details">
                         <h4 id="user-display-name">Loading...</h4>
-                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
+                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> System Syncing...</span>
                     </div>
                 </div>
                 <button class="icon-logout-btn" onclick="event.stopPropagation(); logout();" title="Logout"><i class="fa-solid fa-power-off"></i></button>
@@ -124,7 +162,6 @@
         </main>
 
         <section class="right-panel">
-            
             <div class="voice-section-box">
                 <div class="panel-header">
                     <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Voice Comms</h2></div>
@@ -151,7 +188,6 @@
                     <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
                 </div>
                 <div class="hub-content">
-                    
                     <div class="game-yt-box">
                         <h4>// APEX LEGENDS</h4>
                         <div class="yt-buttons-grid">
@@ -197,7 +233,6 @@
                             <i class="fa-solid fa-cart-shopping"></i> GET MEMBERSHIP — $2 / MO
                         </button>
                     </div>
-
                 </div>
             </div>
         </section>
