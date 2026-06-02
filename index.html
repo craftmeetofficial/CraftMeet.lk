@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftMeet Nexus | Gaming Workspace</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card neon-border">
+            <div class="brand-logo gaming-glow">
+                <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <h2 class="cyber-title">CRAFTMEET NEXUS</h2>
+            <p>Enter the ultimate gaming workspace. Connect with your squad via real-time tactical chat and HD video streams.</p>
+            <button id="login-btn" onclick="loginWithGoogle()">
+                <i class="fa-brands fa-google"></i> LINK SYSTEM WITH GOOGLE
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <i class="fa-solid fa-crosshairs cyber-glow-text"></i>
+                    <span class="cyber-title-short">NEXUS HQ</span>
+                </div>
+            </div>
+            
+            <div class="menu-section">
+                <p class="section-title">// TACTICAL CHANNELS</p>
+                <ul class="room-list">
+                    <li class="room-item active" onclick="switchRoom('global')">
+                        <i class="fa-solid fa-headset"></i> <span>lobby-chat</span>
+                    </li>
+                    <li class="room-item" onclick="switchRoom('dev')">
+                        <i class="fa-solid fa-terminal"></i> <span>scrim-plans</span>
+                    </li>
+                    <li class="room-item" onclick="switchRoom('random')">
+                        <i class="fa-solid fa-trophy"></i> <span>clutch-clips</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-profile-footer">
+                <div class="user-meta">
+                    <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                    <div class="user-details">
+                        <h4 id="user-display-name">Loading...</h4>
+                        <span class="status-tag"><span class="dot-neon"></span> READY</span>
+                    </div>
+                </div>
+                <button class="icon-logout-btn" onclick="logout()" title="Disconnect">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="chat-wrapper">
+            <div class="panel-header">
+                <div class="header-title">
+                    <i class="fa-solid fa-satellite-dish cyber-glow-text"></i>
+                    <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
+                </div>
+            </div>
+            <div class="messages-display" id="chat-messages"></div>
+            <div class="message-input-box">
+                <div class="input-container neon-border-soft">
+                    <input type="text" id="message-input" placeholder="Transmit message to squad..." onkeypress="checkEnter(event)">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fa-solid fa-gun"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <section class="video-wrapper">
+            <div class="panel-header">
+                <div class="header-title">
+                    <i class="fa-solid fa-display cyber-glow-text"></i>
+                    <h2 class="room-header-text">Squad Video Feed</h2>
+                </div>
+            </div>
+            <div class="video-frame-container">
+                <div class="video-placeholder" id="video-loading">
+                    <i class="fa-solid fa-circle-notch fa-spin cyber-glow-text"></i>
+                    <p>INITIALIZING TACTICAL VIDEO LINK...</p>
+                </div>
+                <iframe id="jitsi-conference-frame" allow="camera; microphone; fullscreen; display-capture; autoplay"></iframe>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
