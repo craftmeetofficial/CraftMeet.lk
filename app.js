@@ -1,4 +1,4 @@
-// Firebase Production Realtime Configuration With Your Credentials Embedded
+// Firebase Live Config
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
     authDomain: "craftmeet-bea37.firebaseapp.com",
@@ -10,7 +10,6 @@ const firebaseConfig = {
     measurementId: "G-JPF9GEPXSJ"
 };
 
-// Initialize Identity Matrix Compat Layer Nodes
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
@@ -20,40 +19,109 @@ let currentRoom = "global";
 let isInitialLoad = true; 
 let typingTimeout = null;
 let isMuted = false; 
+let isRegisterMode = false; // State to track Sign In vs Sign Up
 
-// Audio Generator Engine for Message Sound
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); 
-        
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch (e) {
-        console.log("Audio node allocation bypassed:", e);
+        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
+    } catch (e) { console.log(e); }
+}
+
+// Toggle between Login and Discord Style Register Form
+function toggleAuthMode(e) {
+    e.preventDefault();
+    isRegisterMode = !isRegisterMode;
+    
+    const title = document.getElementById('auth-title');
+    const subtitle = document.getElementById('auth-subtitle');
+    const mainBtn = document.getElementById('main-auth-btn');
+    const switchLink = document.getElementById('switch-auth-link');
+    const switchText = document.getElementById('switch-text');
+    
+    const usernameGroup = document.getElementById('reg-username-group');
+    const regExtras = document.getElementById('reg-extras');
+
+    if (isRegisterMode) {
+        title.innerText = "CREATE AN ACCOUNT";
+        subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
+        mainBtn.innerText = "Continue & Register";
+        switchText.innerText = "Already have an account?";
+        switchLink.innerText = "Log In";
+        usernameGroup.style.display = "flex";
+        regExtras.style.display = "block";
+    } else {
+        title.innerText = "WELCOME BACK!";
+        subtitle.innerText = "We're so excited to see you again!";
+        mainBtn.innerText = "Log In";
+        switchText.innerText = "Need an account?";
+        switchLink.innerText = "Register";
+        usernameGroup.style.display = "none";
+        regExtras.style.display = "none";
     }
 }
 
-// Active Core State Auth Engine Listener Block
+// Primary Auth Controller (Login or Register Routing)
+function handlePrimaryAuth() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value.trim();
+    const avatar = document.getElementById('auth-avatar').value.trim();
+    const bio = document.getElementById('auth-bio').value.trim();
+
+    if (!email || !password) {
+        alert("Please fill in all required fields.");
+        return;
+    }
+
+    if (isRegisterMode) {
+        if (!username) { alert("Please choose a Gamertag/Username."); return; }
+        
+        // Create custom email/password user profile
+        auth.createUserWithEmailAndPassword(email, password).then(credential => {
+            const user = credential.user;
+            
+            // Update native display name
+            user.updateProfile({
+                displayName: username,
+                photoURL: avatar || 'https://via.placeholder.com/40'
+            }).then(() => {
+                // Save custom About Me and Game profile details into RTDB
+                db.ref(`users/${user.uid}`).set({
+                    name: username,
+                    profilePic: avatar || 'https://via.placeholder.com/40',
+                    bio: bio || "No bio written yet.",
+                    gameSpecialty: "Multi-Game Athlete"
+                }).then(() => {
+                    location.reload(); // Refresh to clean state sync
+                });
+            });
+        }).catch(err => alert("Registration Fault: " + err.message));
+    } else {
+        // Core Sign In Method
+        auth.signInWithEmailAndPassword(email, password).catch(err => {
+            alert("Login Fault: " + err.message);
+        });
+    }
+}
+
+// Global Auth State Monitor Core Component
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
         document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('user-display-name').innerText = user.displayName;
+        document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
         
-        // Listen to custom profile updates from Firebase Realtime Database
         syncUserProfileData(user);
-
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
@@ -65,7 +133,6 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Realtime User Custom Profile Synchronization Hub
 function syncUserProfileData(user) {
     db.ref(`users/${user.uid}`).on('value', snapshot => {
         const data = snapshot.val();
@@ -76,7 +143,6 @@ function syncUserProfileData(user) {
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
-            // Auto fill inputs inside modal for smooth editing
             document.getElementById('profile-pic-input').value = data.profilePic || '';
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
@@ -87,72 +153,50 @@ function syncUserProfileData(user) {
     });
 }
 
-// Modal Toggle Window Logic
 function toggleProfileModal() {
-    const modal = document.getElementById('profile-modal');
-    modal.classList.toggle('hidden');
+    document.getElementById('profile-modal').classList.toggle('hidden');
 }
 
-// Save Custom Profile Logic to Firebase Nodes Matrix
 function saveUserProfile() {
     if (!currentUser) return;
-
     const customPic = document.getElementById('profile-pic-input').value.trim();
     const customBio = document.getElementById('profile-bio-input').value.trim();
     const customGame = document.getElementById('profile-game-input').value;
 
-    db.ref(`users/${currentUser.uid}`).set({
-        name: currentUser.displayName,
+    db.ref(`users/${currentUser.uid}`).update({
         profilePic: customPic || currentUser.photoURL,
         bio: customBio,
-        gameSpecialty: customGame,
-        lastUpdated: Date.now()
-    }).then(() => {
-        toggleProfileModal();
-    }).catch(err => {
-        alert("Profile Update Failed: " + err.message);
-    });
+        gameSpecialty: customGame
+    }).then(() => { toggleProfileModal(); })
+      .catch(err => { alert("Update Error: " + err.message); });
 }
 
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => {
-        alert("Transmission Fault: " + err.message);
-    });
+    auth.signInWithPopup(provider).catch(err => { alert("Google Fault: " + err.message); });
 }
 
-function logout() {
-    auth.signOut();
-}
+function logout() { auth.signOut(); }
 
 function setupOnlineCounter() {
     const onlineRef = db.ref('.info/connected');
     const userStatusRef = db.ref(`online_users/${currentUser.uid}`);
-
     onlineRef.on('value', snapshot => {
         if (snapshot.val() === false) return;
         userStatusRef.onDisconnect().remove().then(() => {
             userStatusRef.set({ name: currentUser.displayName, active: true });
         });
     });
-
     db.ref('online_users').on('value', snapshot => {
-        const count = snapshot.numChildren() || 1;
-        document.getElementById('online-count').innerText = count;
+        document.getElementById('online-count').innerText = snapshot.numChildren() || 1;
     });
 }
 
 function handleTyping() {
     if (!currentUser) return;
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({
-        name: currentUser.displayName,
-        typing: true
-    });
-
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({ name: currentUser.displayName, typing: true });
     clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    }, 2000); 
+    typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000); 
 }
 
 function listenToTyping(roomName) {
@@ -160,19 +204,11 @@ function listenToTyping(roomName) {
         const typingBox = document.getElementById('typing-indicator');
         const typingUserSpan = document.getElementById('typing-user');
         let typers = [];
-
-        snapshot.forEach(child => {
-            if (child.key !== currentUser.uid) {
-                typers.push(child.val().name);
-            }
-        });
-
+        snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
         if (typers.length > 0) {
             typingUserSpan.innerText = typers.join(', ');
             typingBox.classList.remove('hidden');
-        } else {
-            typingBox.classList.add('hidden');
-        }
+        } else { typingBox.classList.add('hidden'); }
     });
 }
 
@@ -186,95 +222,52 @@ function toggleVoiceMute() {
     const statusDesc = document.getElementById('voice-status-desc');
 
     if (isMuted) {
-        muteBtn.className = "comms-mute-btn muted";
-        btnIcon.className = "fa-solid fa-microphone-lines-slash";
-        btnText.innerText = "UNMUTE MIC";
-        pulseNode.className = "voice-pulse-icon muted-pulse";
-        statusIcon.className = "fa-solid fa-microphone-slash";
+        muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
+        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash";
         statusDesc.innerText = "Transmission terminated. Your microphone is locked.";
     } else {
-        muteBtn.className = "comms-mute-btn unmuted";
-        btnIcon.className = "fa-solid fa-microphone-lines";
-        btnText.innerText = "MUTE MIC";
-        pulseNode.className = "voice-pulse-icon active-pulse";
-        statusIcon.className = "fa-solid fa-microphone";
+        muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
+        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone";
         statusDesc.innerText = "Voice link fully operational. Transmission is currently LIVE.";
     }
     initVoiceConference(currentRoom);
 }
 
-function searchYT(channelName) {
-    const query = encodeURIComponent(channelName + " gaming youtube");
-    const searchUrl = `https://www.youtube.com/results?search_query=${query}`;
-    window.open(searchUrl, '_blank');
-}
-
-function triggerMembershipAlert() {
-    alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels directly into this grid, purchase the Extended Space Tier.\n\nFee: $2.00 USD / Month");
-}
+function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
+function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
 
 function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-
-    currentRoom = roomName;
-    isInitialLoad = true; 
-
+    currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    
     const activeTarget = document.getElementById(`room-${roomName}`);
     if (activeTarget) activeTarget.classList.add('active');
-
-    const formattedName = roomName.replace('-', ' ') + "-room";
-    document.getElementById('current-room-title').innerText = formattedName;
+    document.getElementById('current-room-title').innerText = roomName.replace('-', ' ') + "-room";
     document.getElementById('active-voice-channel').innerText = `CONNECTED: ${roomName.replace('-', ' ')}`;
-    
-    loadMessages(roomName);
-    listenToTyping(roomName);
-    initVoiceConference(roomName);
+    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
 function sendMessage() {
     const input = document.getElementById('message-input');
-    const text = input.value.trim();
-    if (text === "" || !currentUser) return;
-
-    db.ref(`rooms/${currentRoom}`).push({
-        uid: currentUser.uid,
-        sender: currentUser.displayName,
-        message: text,
-        timestamp: Date.now()
-    });
-    
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    input.value = "";
+    const text = input.value.trim(); if (text === "" || !currentUser) return;
+    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
 }
-
-function checkEnter(e) {
-    if (e.key === 'Enter') sendMessage();
-}
+function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
 let currentDbRef = null;
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     if (currentDbRef) currentDbRef.off();
-
     currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
-    
-    currentDbRef.once('value').then(() => {
-        isInitialLoad = false;
-    });
-
+    currentDbRef.once('value').then(() => { isInitialLoad = false; });
     currentDbRef.on('value', snapshot => {
         chatDisplay.innerHTML = "";
-        let totalChildren = snapshot.numChildren();
-        let counter = 0;
-
+        let totalChildren = snapshot.numChildren(), counter = 0;
         snapshot.forEach(child => {
-            const data = child.val();
-            const isOwn = data.uid === currentUser.uid;
+            const data = child.val(); const isOwn = data.uid === currentUser.uid;
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
-
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
@@ -284,10 +277,7 @@ function loadMessages(roomName) {
                     <div class="msg-bubble">${data.message}</div>
                 </div>
             `;
-
-            if (!isInitialLoad && counter === totalChildren && !isOwn) {
-                playIncomingSound();
-            }
+            if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
         });
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
@@ -297,6 +287,5 @@ function initVoiceConference(roomName) {
     if (!currentUser) return;
     const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
     const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
-    const iframe = document.getElementById('jitsi-voice-frame');
-    iframe.src = voiceServerUrl;
+    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
 }
