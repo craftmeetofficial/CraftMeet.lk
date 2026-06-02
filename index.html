@@ -21,6 +21,37 @@
         </div>
     </div>
 
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-card neon-border-magenta">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT USER PROFILE</h3>
+                <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>// PROFILE PICTURE URL</label>
+                    <input type="text" id="profile-pic-input" placeholder="Paste custom image URL here...">
+                </div>
+                <div class="form-group">
+                    <label>// TACTICAL BIO</label>
+                    <textarea id="profile-bio-input" rows="3" placeholder="Tell the squad about yourself..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>// MAIN GAME TACTICAL SPECIALTY</label>
+                    <select id="profile-game-input">
+                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
+                        <option value="Minecraft Builder">Minecraft Builder</option>
+                        <option value="Valorant Duelist">Valorant Duelist</option>
+                        <option value="Apex Champion">Apex Champion</option>
+                    </select>
+                </div>
+                <button class="save-profile-btn" onclick="saveUserProfile()">
+                    <i class="fa-solid fa-floppy-disk"></i> SAVE CHANGES
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="dashboard-container">
         
         <aside class="sidebar">
@@ -58,15 +89,15 @@
                 </ul>
             </div>
 
-            <div class="user-profile-footer">
+            <div class="user-profile-footer" onclick="toggleProfileModal()" title="Click to Edit Profile">
                 <div class="user-meta">
                     <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
                     <div class="user-details">
                         <h4 id="user-display-name">Loading...</h4>
-                        <span class="status-tag"><span class="dot-neon"></span> SYSTEM ACTIVE</span>
+                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
                     </div>
                 </div>
-                <button class="icon-logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+                <button class="icon-logout-btn" onclick="event.stopPropagation(); logout();" title="Logout"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </aside>
 
