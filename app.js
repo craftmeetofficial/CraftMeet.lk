@@ -19,9 +19,9 @@ let currentUser = null;
 let currentRoom = "global"; 
 let isInitialLoad = true; 
 let typingTimeout = null;
-let isMuted = false; // State holder for Client Microphone status
+let isMuted = false; 
 
-// Audio Generator Engine for Message Sound (No external asset files required)
+// Audio Generator Engine for Message Sound
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -50,8 +50,10 @@ auth.onAuthStateChanged(user => {
         currentUser = user;
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('user-display-name').innerText = user.displayName;
-        document.getElementById('user-avatar').src = user.photoURL || 'https://via.placeholder.com/40';
         
+        // Listen to custom profile updates from Firebase Realtime Database
+        syncUserProfileData(user);
+
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
@@ -63,11 +65,59 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Native Pop-up Auth Handler Matrix to bypass Third Party Isolation Blockers
+// Realtime User Custom Profile Synchronization Hub
+function syncUserProfileData(user) {
+    db.ref(`users/${user.uid}`).on('value', snapshot => {
+        const data = snapshot.val();
+        const avatarImg = document.getElementById('user-avatar');
+        const specialtyText = document.getElementById('user-specialty');
+
+        if (data) {
+            avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
+            specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
+            
+            // Auto fill inputs inside modal for smooth editing
+            document.getElementById('profile-pic-input').value = data.profilePic || '';
+            document.getElementById('profile-bio-input').value = data.bio || '';
+            document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
+        } else {
+            avatarImg.src = user.photoURL || 'https://via.placeholder.com/40';
+            specialtyText.innerHTML = `<span class="dot-neon"></span> ACTIVE SQUAD`;
+        }
+    });
+}
+
+// Modal Toggle Window Logic
+function toggleProfileModal() {
+    const modal = document.getElementById('profile-modal');
+    modal.classList.toggle('hidden');
+}
+
+// Save Custom Profile Logic to Firebase Nodes Matrix
+function saveUserProfile() {
+    if (!currentUser) return;
+
+    const customPic = document.getElementById('profile-pic-input').value.trim();
+    const customBio = document.getElementById('profile-bio-input').value.trim();
+    const customGame = document.getElementById('profile-game-input').value;
+
+    db.ref(`users/${currentUser.uid}`).set({
+        name: currentUser.displayName,
+        profilePic: customPic || currentUser.photoURL,
+        bio: customBio,
+        gameSpecialty: customGame,
+        lastUpdated: Date.now()
+    }).then(() => {
+        toggleProfileModal();
+    }).catch(err => {
+        alert("Profile Update Failed: " + err.message);
+    });
+}
+
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(err => {
-        alert("Transmission Fault: " + err.message + "\n\nTip: Add your Vercel URL to Firebase Authorized Domains.");
+        alert("Transmission Fault: " + err.message);
     });
 }
 
@@ -75,7 +125,6 @@ function logout() {
     auth.signOut();
 }
 
-// Discord Style Active Counter Logic Array Structure
 function setupOnlineCounter() {
     const onlineRef = db.ref('.info/connected');
     const userStatusRef = db.ref(`online_users/${currentUser.uid}`);
@@ -93,7 +142,6 @@ function setupOnlineCounter() {
     });
 }
 
-// User Typing Transmit Broker Logic
 function handleTyping() {
     if (!currentUser) return;
     db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({
@@ -107,7 +155,6 @@ function handleTyping() {
     }, 2000); 
 }
 
-// Typing Indicator Live Node Synchronization Listener
 function listenToTyping(roomName) {
     db.ref(`typing/${roomName}`).on('value', snapshot => {
         const typingBox = document.getElementById('typing-indicator');
@@ -129,10 +176,8 @@ function listenToTyping(roomName) {
     });
 }
 
-// HARD MUTE CONTROLLER: Dynamic Web Audio Frame State Injector Matrix
 function toggleVoiceMute() {
     isMuted = !isMuted;
-    
     const muteBtn = document.getElementById('comms-mute-btn');
     const btnIcon = document.getElementById('mute-btn-icon');
     const btnText = document.getElementById('mute-btn-text');
@@ -141,30 +186,23 @@ function toggleVoiceMute() {
     const statusDesc = document.getElementById('voice-status-desc');
 
     if (isMuted) {
-        // UI Visual Update to MUTED state
         muteBtn.className = "comms-mute-btn muted";
         btnIcon.className = "fa-solid fa-microphone-lines-slash";
         btnText.innerText = "UNMUTE MIC";
-        
         pulseNode.className = "voice-pulse-icon muted-pulse";
         statusIcon.className = "fa-solid fa-microphone-slash";
         statusDesc.innerText = "Transmission terminated. Your microphone is locked.";
     } else {
-        // UI Visual Update to LIVE state
         muteBtn.className = "comms-mute-btn unmuted";
         btnIcon.className = "fa-solid fa-microphone-lines";
         btnText.innerText = "MUTE MIC";
-        
         pulseNode.className = "voice-pulse-icon active-pulse";
         statusIcon.className = "fa-solid fa-microphone";
         statusDesc.innerText = "Voice link fully operational. Transmission is currently LIVE.";
     }
-
-    // Hot-swap stream parameters inside the active IFrame container
     initVoiceConference(currentRoom);
 }
 
-// Interactive Realtime Auto Search Module for YouTubers Panel Grid
 function searchYT(channelName) {
     const query = encodeURIComponent(channelName + " gaming youtube");
     const searchUrl = `https://www.youtube.com/results?search_query=${query}`;
@@ -175,7 +213,6 @@ function triggerMembershipAlert() {
     alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels directly into this grid, purchase the Extended Space Tier.\n\nFee: $2.00 USD / Month");
 }
 
-// Global Client Application Router Navigation Matrix
 function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
 
@@ -196,7 +233,6 @@ function switchRoom(roomName) {
     initVoiceConference(roomName);
 }
 
-// Structural Instant Messaging System Logic Node
 function sendMessage() {
     const input = document.getElementById('message-input');
     const text = input.value.trim();
@@ -257,15 +293,10 @@ function loadMessages(roomName) {
     });
 }
 
-// Exclusive Room-by-Room Dynamic VOICE ONLY Router Module with Dynamic Hardware State Switcher
 function initVoiceConference(roomName) {
     if (!currentUser) return;
-    
     const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
-    
-    // Core Logic Injection: startWithAudioMuted parameters are hot-swapped based on isMuted boolean array
     const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
-    
     const iframe = document.getElementById('jitsi-voice-frame');
     iframe.src = voiceServerUrl;
 }
