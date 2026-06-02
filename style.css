@@ -70,6 +70,10 @@ body {
 .chat-wrapper { flex: 1.1; display: flex; flex-direction: column; background: var(--panel-bg); border-right: 1px solid var(--border-glow); }
 .messages-display { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; background: rgba(0,0,0,0.1); }
 
+/* User Typing Bar Layout UI */
+.typing-box { padding: 4px 24px; background: rgba(0,0,0,0.15); height: 26px; display: flex; align-items: center; }
+.typing-glow-text { font-size: 0.8rem; color: #a5b4fc; letter-spacing: 0.5px; font-style: italic; text-shadow: 0 0 4px rgba(99, 102, 241, 0.3); }
+
 /* Tactical Bubble Structural Logic Layouts */
 .msg-container { display: flex; flex-direction: column; gap: 3px; max-width: 85%; align-self: flex-start; }
 .msg-container.own-msg { align-self: flex-end; }
