@@ -17,6 +17,31 @@ const db = firebase.database();
 
 let currentUser = null;
 let currentRoom = "global"; 
+let isInitialLoad = true; 
+let typingTimeout = null;
+
+// Audio Generator Engine for Message Sound (No external asset files required)
+function playIncomingSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 Cyber Note
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 High Note
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+    } catch (e) {
+        console.log("Audio node allocation bypassed:", e);
+    }
+}
 
 // Active Core State Auth Engine Listener Block
 auth.onAuthStateChanged(user => {
@@ -28,6 +53,7 @@ auth.onAuthStateChanged(user => {
         
         setupOnlineCounter();
         loadMessages(currentRoom);
+        listenToTyping(currentRoom);
         initVideoConference();
     } else {
         currentUser = null;
@@ -36,16 +62,11 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// FIXED: Native Pop-up Auth Handler Matrix to bypass Third Party Isolation Blockers
+// Native Pop-up Auth Handler Matrix to bypass Third Party Isolation Blockers
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-    .then(result => {
-        console.log("Transmission Synchronized. Access Granted:", result.user.displayName);
-    })
-    .catch(err => {
-        console.error("Authentication Core Error Exception:", err);
-        alert("Transmission Fault: " + err.message + "\n\nTip: Ensure your Vercel URL domain is added to Firebase Auth Authorized Domains Panel.");
+    auth.signInWithPopup(provider).catch(err => {
+        alert("Transmission Fault: " + err.message + "\n\nTip: Add your Vercel URL to Firebase Authorized Domains.");
     });
 }
 
@@ -65,10 +86,45 @@ function setupOnlineCounter() {
         });
     });
 
-    // Event listener array to stream aggregate data rows
     db.ref('online_users').on('value', snapshot => {
         const count = snapshot.numChildren() || 1;
         document.getElementById('online-count').innerText = count;
+    });
+}
+
+// User Typing Transmit Broker Logic
+function handleTyping() {
+    if (!currentUser) return;
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({
+        name: currentUser.displayName,
+        typing: true
+    });
+
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    }, 2000); 
+}
+
+// Typing Indicator Live Node Synchronization Listener
+function listenToTyping(roomName) {
+    db.ref(`typing/${roomName}`).on('value', snapshot => {
+        const typingBox = document.getElementById('typing-indicator');
+        const typingUserSpan = document.getElementById('typing-user');
+        let typers = [];
+
+        snapshot.forEach(child => {
+            if (child.key !== currentUser.uid) {
+                typers.push(child.val().name);
+            }
+        });
+
+        if (typers.length > 0) {
+            typingUserSpan.innerText = typers.join(', ');
+            typingBox.classList.remove('hidden');
+        } else {
+            typingBox.classList.add('hidden');
+        }
     });
 }
 
@@ -81,18 +137,26 @@ function searchYT(channelName) {
 
 // Dynamic Tier Lock Protection Alert Execution Call
 function triggerMembershipAlert() {
-    alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels or create persistent Private Channels, purchase the Elite Membership.\n\nFee: $2.00 USD / Month\nStatus: Stripe & Crypto payment gateway pending integration by Developer.");
+    alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels directly into this grid, purchase the Extended Space Tier.\n\nFee: $2.00 USD / Month\nStatus: Pending gateway webhook confirmation.");
 }
 
 // Global Client Application Router Navigation Matrix
 function switchRoom(roomName) {
+    // Remove active typing status before leaving room matrix
+    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+
     currentRoom = roomName;
+    isInitialLoad = true; 
+
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    if (window.event && window.event.currentTarget) {
-        window.event.currentTarget.classList.add('active');
-    }
-    document.getElementById('current-room-title').innerText = `${roomName}-room`;
+    
+    const activeTarget = document.getElementById(`room-${roomName}`);
+    if (activeTarget) activeTarget.classList.add('active');
+
+    document.getElementById('current-room-title').innerText = `${roomName.replace('-', ' ')}-room`;
+    
     loadMessages(roomName);
+    listenToTyping(roomName);
 }
 
 // Structural Instant Messaging System Logic Node
@@ -107,6 +171,9 @@ function sendMessage() {
         message: text,
         timestamp: Date.now()
     });
+    
+    // Clear typing status instantly upon message relay
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     input.value = "";
 }
 
@@ -120,12 +187,22 @@ function loadMessages(roomName) {
     if (currentDbRef) currentDbRef.off();
 
     currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
+    
+    // Set flag to prevent audio trigger upon initial fetch
+    currentDbRef.once('value').then(() => {
+        isInitialLoad = false;
+    });
+
     currentDbRef.on('value', snapshot => {
         chatDisplay.innerHTML = "";
+        let totalChildren = snapshot.numChildren();
+        let counter = 0;
+
         snapshot.forEach(child => {
             const data = child.val();
             const isOwn = data.uid === currentUser.uid;
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            counter++;
 
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
@@ -136,6 +213,11 @@ function loadMessages(roomName) {
                     <div class="msg-bubble">${data.message}</div>
                 </div>
             `;
+
+            // Trigger digital beep node only for real-time fresh incoming blocks
+            if (!isInitialLoad && counter === totalChildren && !isOwn) {
+                playIncomingSound();
+            }
         });
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
