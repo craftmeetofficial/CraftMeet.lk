@@ -54,11 +54,11 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
-        initVideoConference();
+        initVoiceConference(currentRoom);
     } else {
         currentUser = null;
         document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('jitsi-conference-frame').src = "";
+        document.getElementById('jitsi-voice-frame').src = "";
     }
 });
 
@@ -70,6 +70,7 @@ function loginWithGoogle() {
     });
 }
 
+// User Logout Logic
 function logout() {
     auth.signOut();
 }
@@ -142,7 +143,6 @@ function triggerMembershipAlert() {
 
 // Global Client Application Router Navigation Matrix
 function switchRoom(roomName) {
-    // Remove active typing status before leaving room matrix
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
 
     currentRoom = roomName;
@@ -153,10 +153,13 @@ function switchRoom(roomName) {
     const activeTarget = document.getElementById(`room-${roomName}`);
     if (activeTarget) activeTarget.classList.add('active');
 
-    document.getElementById('current-room-title').innerText = `${roomName.replace('-', ' ')}-room`;
+    const formattedName = roomName.replace('-', ' ') + "-room";
+    document.getElementById('current-room-title').innerText = formattedName;
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${roomName.replace('-', ' ')}`;
     
     loadMessages(roomName);
     listenToTyping(roomName);
+    initVoiceConference(roomName);
 }
 
 // Structural Instant Messaging System Logic Node
@@ -172,7 +175,6 @@ function sendMessage() {
         timestamp: Date.now()
     });
     
-    // Clear typing status instantly upon message relay
     db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     input.value = "";
 }
@@ -188,7 +190,6 @@ function loadMessages(roomName) {
 
     currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
     
-    // Set flag to prevent audio trigger upon initial fetch
     currentDbRef.once('value').then(() => {
         isInitialLoad = false;
     });
@@ -214,7 +215,6 @@ function loadMessages(roomName) {
                 </div>
             `;
 
-            // Trigger digital beep node only for real-time fresh incoming blocks
             if (!isInitialLoad && counter === totalChildren && !isOwn) {
                 playIncomingSound();
             }
@@ -223,12 +223,16 @@ function loadMessages(roomName) {
     });
 }
 
-// Integrated Interactive Intercom Media Frame Stream Module
-function initVideoConference() {
-    const uniqueRoomName = `${firebaseConfig.projectId}_secure_hq_conference_room`;
-    const jitsiServerUrl = `https://meet.jit.si/${uniqueRoomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true`;
+// FIXED: Exclusive Room-by-Room Dynamic VOICE ONLY Router Module (Video Turned Off Automatically)
+function initVoiceConference(roomName) {
+    if (!currentUser) return;
     
-    const iframe = document.getElementById('jitsi-conference-frame');
-    iframe.src = jitsiServerUrl;
-    iframe.onload = () => document.getElementById('video-loading').classList.add('hidden');
+    // Generate isolated session strings based on room context
+    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
+    
+    // Jitsi voice config URL injection to completely disable video arrays and toolbar UI blocks
+    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=false&config.videoQA.disabled=true&config.startAudioMuted=999`;
+    
+    const iframe = document.getElementById('jitsi-voice-frame');
+    iframe.src = voiceServerUrl;
 }
