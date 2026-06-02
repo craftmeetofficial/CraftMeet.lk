@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet Nexus | Ultimate Gaming HQ</title>
+    <title>CraftMeet | Ultimate Gaming HQ</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,7 @@
     <div id="auth-screen" class="auth-overlay">
         <div class="auth-card neon-border">
             <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
-            <h2 class="cyber-title">NEXUS MULTIVERSE</h2>
+            <h2 class="cyber-title">CRAFTMEET MULTIVERSE</h2>
             <p>Connect to the premium Sri Lankan gaming hub. Tactical chat, streams, and private grids await.</p>
             <button id="login-btn" onclick="loginWithGoogle()">
                 <i class="fa-brands fa-google"></i> INITIALIZE SYSTEM WITH GOOGLE
@@ -27,7 +27,7 @@
             <div class="sidebar-header">
                 <div class="logo-area">
                     <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
-                    <span class="cyber-title-short">NEXUS HQ</span>
+                    <span class="cyber-title-short">CraftMeet</span>
                 </div>
             </div>
             
@@ -37,21 +37,21 @@
             </div>
             
             <div class="menu-section">
-                <p class="section-title">// CHANNELS</p>
+                <p class="section-title">// PUBLIC CHANNELS</p>
                 <ul class="room-list">
-                    <li class="room-item active" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
-                    <li class="room-item" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
-                    <li class="room-item" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
+                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
+                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
+                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
                 </ul>
             </div>
 
             <div class="menu-section">
-                <p class="section-title">// PRIVATE CHATS (DISCORD STYLE)</p>
+                <p class="section-title">// PRIVATE CHATS (FREE)</p>
                 <ul class="room-list private-list">
-                    <li class="room-item priv-item" onclick="alert('Private Chat requires mutual invite or VIP status!')">
-                        <i class="fa-solid fa-lock cyber-magenta-text"></i> <span>squad-leader-dm</span>
+                    <li class="room-item priv-item" id="room-squad-leader" onclick="switchRoom('squad-leader')">
+                        <i class="fa-solid fa-unlock cyber-magenta-text"></i> <span>squad-leader-dm</span>
                     </li>
-                    <li class="room-item priv-item" onclick="alert('Private Chat requires mutual invite or VIP status!')">
+                    <li class="room-item priv-item" id="room-vip-lounge" onclick="switchRoom('vip-lounge')">
                         <i class="fa-solid fa-shield-halved cyber-magenta-text"></i> <span>vip-lounge</span>
                     </li>
                 </ul>
@@ -76,10 +76,16 @@
                     <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
                 </div>
             </div>
+            
             <div class="messages-display" id="chat-messages"></div>
+            
+            <div id="typing-indicator" class="typing-box hidden">
+                <span class="typing-glow-text"><i class="fa-solid fa-keyboard fa-fade"></i> <span id="typing-user">Someone</span> is transmitting data...</span>
+            </div>
+
             <div class="message-input-box">
                 <div class="input-container neon-border-soft">
-                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)">
+                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
                     <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
