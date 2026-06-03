@@ -41,7 +41,6 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent-cyan);
-    box-shadow: 0 0 10px var(--accent-cyan);
 }
 
 /* ==========================================================================
@@ -79,27 +78,18 @@ body {
     box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
 }
 
-.neon-border-soft {
-    border: 1px solid var(--border-soft);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.neon-border-soft:focus-within {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.25);
-}
-
 .hidden {
     display: none !important;
 }
 
 /* ==========================================================================
-   3. AUTHENTICATION SCREEN
+   3. 🔥 SUPER LASSANA LOGIN SCREEN UPDATE
    ========================================================================== */
 .auth-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(4, 6, 9, 0.96);
-    backdrop-filter: blur(10px);
+    background: radial-gradient(circle at center, #0b1424 0%, #040609 100%);
+    backdrop-filter: blur(12px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,18 +97,20 @@ body {
 }
 
 .auth-card {
-    background: var(--bg-secondary);
+    background: rgba(11, 17, 26, 0.85);
     width: 100%;
-    max-width: 420px;
+    max-width: 430px;
     padding: 40px;
-    border-radius: 12px;
+    border-radius: 16px;
     text-align: center;
     border: 1px solid rgba(0, 255, 204, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.1), inset 0 0 15px rgba(0, 255, 204, 0.05);
+    backdrop-filter: blur(5px);
 }
 
 .brand-logo {
-    font-size: 3rem;
-    margin-bottom: 15px;
+    font-size: 3.2rem;
+    margin-bottom: 10px;
 }
 .gaming-glow {
     color: var(--accent-cyan);
@@ -126,8 +118,129 @@ body {
 }
 
 @keyframes pulseGlow {
-    0% { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); }
-    100% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan); }
+    0% { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); transform: scale(1); }
+    100% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 35px var(--accent-cyan); transform: scale(1.05); }
+}
+
+.auth-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.auth-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+/* Login Inputs */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    display: block;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    background: #06090e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    color: var(--text-main);
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+    background: #0b111a;
+}
+
+/* Primary Buttons */
+.cyber-action-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent-cyan), #00cca3);
+    color: #000;
+    border: none;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 8px;
+    letter-spacing: 1px;
+    transition: all 0.25s ease;
+    margin-top: 5px;
+}
+.cyber-action-btn:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+    transform: translateY(-1.5px);
+}
+
+.auth-switcher {
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+.auth-switcher a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 5px;
+}
+.auth-switcher a:hover {
+    text-decoration: underline;
+}
+
+.auth-divider {
+    margin: 22px 0;
+    position: relative;
+}
+.auth-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 0; width: 100%; height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+.auth-divider span {
+    background: #0e1520;
+    padding: 0 15px;
+    position: relative;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+#login-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+#login-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #fff;
 }
 
 /* ==========================================================================
@@ -135,7 +248,7 @@ body {
    ========================================================================== */
 .dashboard-container {
     display: grid;
-    grid-template-columns: 260px 1fr 300px;
+    grid-template-columns: 250px 1fr 300px;
     height: 100vh;
     width: 100vw;
 }
@@ -148,7 +261,7 @@ body {
 }
 
 .sidebar-header {
-    padding: 25px 20px;
+    padding: 22px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -179,7 +292,7 @@ body {
 
 @keyframes dotPulse {
     0% { transform: scale(0.9); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px var(--accent-cyan); }
+    50% { transform: scale(1.2); opacity: 1; }
     100% { transform: scale(0.9); opacity: 0.5; }
 }
 
@@ -195,7 +308,6 @@ body {
     letter-spacing: 1px;
 }
 
-/* Channels List Animation & Hover Effect */
 .room-item {
     padding: 10px 20px;
     display: flex;
@@ -222,7 +334,6 @@ body {
 }
 
 .room-item:hover i {
-    transform: scale(1.1);
     color: var(--accent-cyan);
 }
 
@@ -257,16 +368,10 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--accent-cyan);
-    box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
-}
-
-.user-details h4 {
-    font-size: 0.95rem;
-    font-weight: 700;
 }
 
 /* ==========================================================================
-   5. MAIN CHAT AREA
+   5. 💬 TYPE CORANA PLACE / INPUT BOX (SUPER LASSANA UPDATE)
    ========================================================================== */
 .chat-wrapper {
     background: var(--bg-primary);
@@ -277,7 +382,7 @@ body {
     overflow: hidden;
 }
 
-/* Bug Fix: චැට් එක මැදට පනින ලොකු ඉමේජ් වැළැක්වීම */
+/* Bug Fix */
 .chat-wrapper > img, 
 .messages-display img:not(.msg-avatar) {
     display: none !important;
@@ -301,11 +406,64 @@ body {
     gap: 15px;
 }
 
+/* Message Box Container */
+.message-input-box {
+    padding: 0 25px 25px 25px;
+    background: linear-gradient(transparent, var(--bg-primary) 30%);
+}
+
 .input-container {
-    background: var(--bg-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 8px 15px;
+    background: #0f1622;
+    border: 1px solid rgba(0, 255, 204, 0.15);
+    border-radius: 12px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Type කරද්දී Glow වෙන සුපිරි Effect එක */
+.input-container:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 18px rgba(0, 255, 204, 0.25), inset 0 0 8px rgba(0, 255, 204, 0.05);
+    background: #121b2a;
+}
+
+.input-container input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 10px;
+    color: var(--text-main);
+    outline: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.input-container input::placeholder {
+    color: #5865f2; /* Discord style placeholder color */
+    opacity: 0.6;
+}
+
+/* Send Button */
+.send-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.send-btn:hover {
+    color: var(--accent-cyan);
+    transform: scale(1.1) rotate(-10deg);
+    text-shadow: 0 0 8px var(--accent-cyan);
 }
 
 /* ==========================================================================
@@ -328,7 +486,6 @@ body {
     padding: 20px;
 }
 
-/* YouTube Stream Buttons Styling */
 .yt-buttons-grid button {
     background: var(--bg-tertiary);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -345,11 +502,8 @@ body {
     border-color: var(--accent-magenta);
     background: rgba(255, 0, 85, 0.05);
     color: var(--accent-magenta);
-    box-shadow: 0 0 10px rgba(255, 0, 85, 0.1);
-    transform: translateY(-1px);
 }
 
-/* Dev Profile Button */
 .dev-link-btn {
     display: block;
     background: linear-gradient(135deg, var(--accent-magenta), #b3003b);
@@ -359,16 +513,11 @@ body {
     font-weight: 700;
     text-decoration: none;
     border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(255, 0, 85, 0.3);
     transition: all 0.2s;
-}
-.dev-link-btn:hover {
-    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.5);
-    transform: translateY(-1px);
 }
 
 /* ==========================================================================
-   7. MODAL OVERLAYS & CENTERING FIXES
+   7. MODAL OVERLAYS
    ========================================================================== */
 .modal-overlay {
     position: fixed;
@@ -382,7 +531,7 @@ body {
 }
 
 /* ==========================================================================
-   8. DISCORD STYLE USER PROFILE CARD (SUPER LASSANA UPDATE)
+   8. DISCORD STYLE USER PROFILE CARD
    ========================================================================== */
 .user-view-card {
     position: relative;
@@ -416,10 +565,9 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* Absolute Avatar Container Fix */
 .user-card-avatar-wrap {
     position: absolute;
-    top: 55px; /* බැනර් එක මැදින් ලස්සනට පල්ලෙහාට */
+    top: 55px;
     left: 22px;
     background: #181f2a;
     padding: 6px;
@@ -427,7 +575,6 @@ body {
     z-index: 5;
 }
 
-/* ⚠️ Avatar Image Constraints */
 #user-card-modal #view-card-avatar {
     width: 85px !important;
     height: 85px !important;
@@ -440,7 +587,7 @@ body {
 }
 
 .user-card-info {
-    padding: 55px 22px 22px 22px; /* Text ටික Avatar එකට යටින් පටන් ගන්න */
+    padding: 55px 22px 22px 22px;
     background: #181f2a;
 }
 
@@ -450,7 +597,6 @@ body {
     font-weight: 900;
     color: #fff;
     margin-bottom: 6px;
-    letter-spacing: 0.5px;
 }
 
 .user-card-badge {
@@ -464,21 +610,6 @@ body {
     font-weight: 700;
     margin-bottom: 20px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.user-card-section {
-    margin-bottom: 18px;
-}
-
-.user-card-section label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #949ba4;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 8px;
-    display: block;
 }
 
 #view-card-bio {
@@ -489,17 +620,14 @@ body {
     border-radius: 8px;
     line-height: 1.4;
     min-height: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-/* Send DM Button */
 .cyber-dm-btn {
     width: 100%;
     background: var(--accent-cyan);
     color: #000;
     border: none;
     padding: 12px;
-    font-size: 0.95rem;
     font-weight: 700;
     border-radius: 6px;
     cursor: pointer;
@@ -507,12 +635,10 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.2s ease;
 }
 
 .cyber-dm-btn:hover {
     box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
-    transform: translateY(-1px);
 }
 
 .close-card-btn {
@@ -530,7 +656,6 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 10;
-    transition: background 0.2s;
 }
 .close-card-btn:hover {
     background: rgba(255, 0, 85, 0.6);
