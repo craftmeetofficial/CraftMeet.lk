@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* CSS Configurations For Avatar Borders & Framework */
         :root {
             --cyber-bg: #0a0a12;
             --cyber-panel: #121225;
@@ -22,7 +21,6 @@
         }
         .hidden { display: none !important; }
         
-        /* Layout Grid setup */
         #app-wrapper { display: flex; height: 100vh; width: 100vw; }
         #sidebar { width: 280px; background: #0e0e1b; border-right: 2px solid #1e1e38; display: flex; flex-direction: column; }
         #main-chat-container { flex: 1; display: flex; flex-direction: column; background: var(--cyber-bg); }
@@ -86,7 +84,7 @@
             cursor: pointer; border-radius: 6px; width: 100%; letter-spacing: 1px;
         }
         
-        /* Chat UI layout bits */
+        /* Chat UI */
         #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .msg-container { background: #161630; padding: 10px 15px; border-radius: 8px; max-width: 70%; width: fit-content; }
         .msg-container.own-msg { align-self: flex-end; background: #221940; border-right: 3px solid var(--neon-magenta); }
@@ -105,15 +103,25 @@
         #user-footer-panel { padding: 15px; background: #0a0a14; border-top: 2px solid #1e1e38; display: flex; align-items: center; gap: 12px; }
         .footer-avatar-frame { width: 38px; height: 38px; }
 
-        /* XP Progress Track Bar */
         .xp-track-bg { width: 100%; height: 6px; background: #222244; border-radius: 3px; margin-top: 8px; overflow: hidden; }
         .xp-track-fill { height: 100%; background: linear-gradient(90deg, #00f0ff, #ff007f); width: 0%; transition: width 0.3s ease; }
+
+        /* Comms Panel Section */
+        #voice-comms-panel { background: #111126; border: 1px dashed #2d2d54; padding: 15px; margin: 10px; border-radius: 8px; }
+        .comms-header { font-size: 12px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #8b8ba7; margin-bottom: 10px; }
+        .comms-status-block { display: flex; align-items: center; gap: 12px; background: #0a0a14; padding: 10px; border-radius: 6px; }
+        .voice-pulse-icon { width: 12px; height: 12px; border-radius: 50%; position: relative; }
+        .voice-pulse-icon.active-pulse { background: #00ff66; box-shadow: 0 0 8px #00ff66; animation: voicePulse 1.5s infinite ease-in-out; }
+        .voice-pulse-icon.muted-pulse { background: #ff003c; box-shadow: 0 0 8px #ff003c; }
+        @keyframes voicePulse { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
+        .comms-mute-btn { border: none; padding: 8px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; width: 100%; margin-top: 10px; justify-content: center; }
+        .comms-mute-btn.unmuted { background: var(--neon-magenta); color: white; }
+        .comms-mute-btn.muted { background: #32325d; color: #8b8ba7; }
     </style>
 </head>
 <body>
 
     <div id="app-wrapper">
-        
         <aside id="sidebar">
             <div style="padding: 20px; font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--neon-blue); font-size: 20px; border-bottom: 2px solid #1e1e38;">
                 CRAFTMEET <span style="color:var(--neon-magenta)">HUB</span>
@@ -130,8 +138,31 @@
             </ul>
 
             <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">DIRECT MESSAGES</div>
-            <ul class="room-list" id="private-rooms-list">
-                </ul>
+            <ul class="room-list" id="private-rooms-list"></ul>
+
+            <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">GAMING CHANNELS</div>
+            <ul class="room-list">
+                <li class="room-item" onclick="searchYT('GamiGs')">
+                    <i class="fa-brands fa-youtube" style="color:#ff0000"></i> <span>GamiGs</span>
+                </li>
+                <li class="room-item" onclick="triggerMembershipAlert()">
+                    <i class="fa-solid fa-circle-plus" style="color:#8b8ba7"></i> <span style="color:#8b8ba7; font-style:italic">Add Channel</span>
+                </li>
+            </ul>
+
+            <div id="voice-comms-panel">
+                <div class="comms-header" id="active-voice-channel">CONNECTED: GLOBAL LOUNGE</div>
+                <div class="comms-status-block">
+                    <div class="voice-pulse-icon active-pulse" id="voice-pulse-node"></div>
+                    <div style="font-size: 11px; line-height: 1.3;">
+                        <div id="voice-status-icon-holder"><i class="fa-solid fa-microphone" id="voice-status-icon" style="color: #00ff66"></i> <b style="color:white; font-family:'Orbitron'">VOICE LINK</b></div>
+                        <div id="voice-status-desc" style="color: #8b8ba7; font-size:10px;">Voice link operational. Transmission LIVE.</div>
+                    </div>
+                </div>
+                <button class="comms-mute-btn unmuted" id="comms-mute-btn" onclick="toggleVoiceMute()">
+                    <i class="fa-solid fa-microphone-lines" id="mute-btn-icon"></i> <span id="mute-btn-text">MUTE MIC</span>
+                </button>
+            </div>
 
             <div style="flex: 1;"></div>
 
@@ -188,7 +219,7 @@
                 <label>PROFILE PICTURE (UPLOAD FILE)</label>
                 <input type="file" id="auth-avatar-file" accept="image/*" style="padding: 5px;">
                 <label style="margin-top: 10px;">TACTICAL BIO</label>
-                <textarea id="auth-bio" rows="2" style="background:#1a1a33; border:1px solid #32325d; color:white; border-radius:6px; font-family:inherit; padding:10px;"></textarea>
+                <textarea id="auth-bio" rows="2"></textarea>
             </div>
 
             <button id="main-auth-btn" class="cyber-btn" onclick="handlePrimaryAuth()">Log In</button>
