@@ -26,9 +26,9 @@ body {
 .cyber-magenta-text { color: var(--neon-magenta); text-shadow: 0 0 8px var(--neon-magenta); }
 .room-header-text { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; }
 
-/* Discord Forms & Overlays */
+/* Discord Forms */
 .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030407; display: flex; justify-content: center; align-items: center; z-index: 999; overflow-y: auto; padding: 20px; }
-.auth-card { background: #1e1f22; padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
+.auth-card { background: #1e1f22; padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
 .auth-card p { color: #b5bac1; font-size: 0.95rem; margin-top: 5px; margin-bottom: 25px; }
 .auth-form-container { display: flex; flex-direction: column; gap: 16px; text-align: left; }
 .req-star { color: #f23f43; }
@@ -37,29 +37,6 @@ body {
 .form-group label { font-size: 0.75rem; font-weight: 700; color: #b5bac1; letter-spacing: 0.5px; text-transform: uppercase; }
 .form-group input, .form-group textarea, .form-group select { background: #111214; border: 1px solid rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; color: #dbdee1; font-size: 0.95rem; outline: none; transition: border 0.2s; }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--neon-cyan); }
-
-/* Custom File Upload Styling Elements */
-.form-group input[type="file"] {
-    background: #1a1b1e;
-    border: 1px dashed var(--neon-cyan);
-    padding: 8px;
-    cursor: pointer;
-}
-.form-group input[type="file"]::-webkit-file-upload-button {
-    background: #313338;
-    border: none;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-right: 10px;
-    transition: 0.2s;
-}
-.form-group input[type="file"]::-webkit-file-upload-button:hover {
-    background: var(--neon-cyan);
-    color: #000;
-}
 
 .cyber-action-btn { background: #5865f2; border: none; color: #fff; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: background 0.2s; width: 100%; font-family: 'Rajdhani', sans-serif; }
 .cyber-action-btn:hover { background: #4752c4; }
@@ -75,7 +52,7 @@ body {
 #login-btn { background: transparent; border: 1px solid #4e5058; color: #dbdee1; padding: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 #login-btn:hover { background: rgba(255,255,255,0.05); border-color: #bbb; }
 
-/* MODALS CONFIGURATION */
+/* MODALS CONFIG */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 4, 7, 0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal-card { background: #1e1f22; padding: 30px; border-radius: 8px; width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; position: relative; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; }
@@ -98,23 +75,23 @@ body {
 .xp-bar-container { background: #1e1f22; height: 10px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-top: 5px; }
 .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #00f0ff); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
 
-/* AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
+/* NEW: AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
 .deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
 .deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
 
-/* 3 Custom Border Decorations Core Logic */
+/* 3 Core Custom Decoration Variations */
 .deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
 .deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
 .deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
 
-.footer-avatar-frame { padding: 2px !important; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.footer-avatar-frame { padding: 2px !important; }
 .footer-avatar-frame img { width: 34px !important; height: 34px !important; }
 
 @keyframes rotateDeco { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
 
-/* Discord Structural Application Layout */
+/* Discord Layout Layout & Navigation */
 .dashboard-container { display: flex; width: 100%; height: 100vh; }
 .sidebar { width: 280px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-glow); }
 .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-glow); }
@@ -127,12 +104,12 @@ body {
 .menu-section { padding: 15px 15px 5px 15px; }
 .section-title { font-size: 0.75rem; font-weight: 700; color: #6366f1; letter-spacing: 2px; margin-bottom: 12px; padding-left: 8px; }
 .room-list { list-style: none; }
-.room-item { padding: 10px 14px; border-radius: 4px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 4px; font-size: 1rem; font-weight: 600; text-transform: lowercase; transition: background 0.2s, color 0.2s; }
+.room-item { padding: 10px 14px; border-radius: 4px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 4px; font-size: 1rem; font-weight: 600; text-transform: lowercase; }
 .room-item:hover { background: rgba(0, 240, 255, 0.04); color: #fff; }
 .room-item.active { background: rgba(0, 240, 255, 0.08); border-left: 3px solid var(--neon-cyan); color: #fff; padding-left: 11px; }
 .no-dm-notice { font-size: 0.8rem; color: #4e5670; padding-left: 10px; font-style: italic; }
 
-/* Profile Footer Layout */
+/* Profile Footer */
 .user-profile-footer { padding: 12px 16px; background: #111214; border-top: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
 .user-meta { display: flex; align-items: center; gap: 10px; max-width: 65%; cursor: pointer; }
 #user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
@@ -146,7 +123,7 @@ body {
 .icon-logout-btn { background: none; border: none; color: #949ba4; font-size: 0.95rem; cursor: pointer; padding: 6px; }
 .icon-logout-btn:hover { color: #f23f43; }
 
-/* Central Chat Box Component Views */
+/* Main Chat Panels */
 .chat-wrapper { flex: 1.1; display: flex; flex-direction: column; background: var(--panel-bg); border-right: 1px solid var(--border-glow); }
 .messages-display { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
 
@@ -164,22 +141,7 @@ body {
 .msg-bubble { background: #2b2d31; padding: 10px 14px; border-radius: 2px 10px 10px 10px; color: #dbdee1; font-size: 0.95rem; }
 .own-msg .msg-bubble { background: rgba(255, 0, 127, 0.08); border: 1px solid var(--neon-magenta); border-radius: 10px 2px 10px 10px; color: #fff; }
 
-/* SYSTEM ALERT LEVEL UP EXCLUSIVE ANIMATION */
-.system-msg {
-    animation: systemAlertFlash 2s infinite ease-in-out;
-}
-@keyframes systemAlertFlash {
-    0% { opacity: 0.85; transform: scale(0.99); }
-    50% { opacity: 1; transform: scale(1); box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.2); }
-    100% { opacity: 0.85; transform: scale(0.99); }
-}
-
-.message-input-box { padding: 20px 24px; background: rgba(0,0,0,0.2); }
-.neon-border-soft { border: 1px solid rgba(0, 240, 255, 0.2); background: #383a40; border-radius: 8px; padding: 4px 8px; display: flex; align-items: center; }
-.input-container input { flex: 1; padding: 10px; border: none; background: transparent; color: #fff; font-size: 0.95rem; outline: none; }
-.send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; }
-
-/* Right Navigation Panel Hub Styles */
+/* Right Section Panels */
 .right-panel { flex: 1.4; display: flex; flex-direction: column; background: #040508; overflow-y: auto; }
 .voice-section-box { height: 42%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
 .voice-status-container { flex: 1; padding: 15px; display: flex; justify-content: center; align-items: center; }
@@ -189,36 +151,60 @@ body {
 .active-pulse { animation: voiceGlowPulse 1.5s infinite ease-in-out; }
 .muted-pulse { background: rgba(255, 0, 127, 0.1) !important; color: var(--neon-magenta) !important; border-color: var(--neon-magenta) !important; animation: none !important; }
 
-.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; transition: all 0.2s; }
+.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; }
 .comms-mute-btn.unmuted { color: var(--neon-cyan); border-color: var(--neon-cyan); }
-.comms-mute-btn.unmuted:hover { background: rgba(0, 240, 255, 0.1); }
 .comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); }
-.comms-mute-btn.muted:hover { background: rgba(255, 0, 127, 0.1); }
 .hidden-voice-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-/* Streamers Media Channels Hub Layout */
+/* Streamers Grid */
 .streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); }
 .hub-content { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
 .game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; }
 .yt-buttons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #949ba4; padding: 8px 6px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; text-align: left; padding-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s; }
+.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #949ba4; padding: 8px 6px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; text-align: left; padding-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .yt-buttons-grid button i { color: #ef4444; margin-right: 4px; }
-.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; background: #2b2d31; }
+.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; }
 
 .dev-yt-box { padding: 12px; background: rgba(0, 240, 255, 0.02); border-radius: 6px; }
-.dev-link-btn { display: inline-flex; align-items: center; gap: 8px; color: #fff; background: linear-gradient(135deg, #ff007f, #9d4edd); padding: 10px 16px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; text-decoration: none; transition: transform 0.2s; }
-.dev-link-btn:hover { transform: translateY(-2px); }
+.dev-link-btn { display: inline-flex; align-items: center; gap: 8px; color: #fff; background: linear-gradient(135deg, #ff007f, #9d4edd); padding: 10px 16px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; text-decoration: none; }
 
 .membership-promo-box { background: #111214; border: 1px solid rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 8px; text-align: center; }
 .membership-promo-box h5 { font-family: 'Orbitron', sans-serif; color: #f59e0b; font-size: 0.85rem; }
 .membership-promo-box p { font-size: 0.8rem; color: #949ba4; margin-bottom: 12px; }
-.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
-.buy-membership-btn:hover { background: #f59e0b; color: #000; }
+.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
 
 @keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 @keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
 
 .text-center { text-align: center; }
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 .hidden { display: none !important; }
+
+/* ==========================================================================
+   APPENDED EXTENSIONS (DO NOT DELETE: Needed for File upload & Level alert)
+   ========================================================================== */
+.form-group input[type="file"] {
+    background: #1a1b1e;
+    border: 1px dashed var(--neon-cyan);
+    padding: 8px;
+    cursor: pointer;
+}
+.form-group input[type="file"]::-webkit-file-upload-button {
+    background: #313338;
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.system-msg {
+    animation: systemAlertFlash 2s infinite ease-in-out;
+}
+@keyframes systemAlertFlash {
+    0% { opacity: 0.85; transform: scale(0.99); }
+    50% { opacity: 1; transform: scale(1); box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.2); }
+    100% { opacity: 0.85; transform: scale(0.99); }
+}
