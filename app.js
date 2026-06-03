@@ -96,7 +96,6 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
-        setupLeaderboard();
     } else {
         currentUser = null;
         const authScreen = document.getElementById('auth-screen');
@@ -191,7 +190,6 @@ function toggleProfileModal() {
     if (modal) modal.classList.toggle('hidden'); 
 }
 
-// Fixed Redirect Info
 function loginWithGoogle() { 
     const provider = new firebase.auth.GoogleAuthProvider(); 
     auth.signInWithRedirect(provider).catch(err => console.error(err)); 
@@ -261,7 +259,10 @@ function viewUserProfileCard(targetUid) {
     });
 }
 
-// CORE SYSTEMS
+// =========================================================================
+// REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC
+// =========================================================================
+
 function setupOnlineCounter() {
     if (!currentUser) return;
     const onlineRef = db.ref(`online_users/${currentUser.uid}`);
@@ -289,21 +290,14 @@ function loadMessages(roomName) {
         const msg = snapshot.val();
         if (!msg) return;
 
-        const msgId = snapshot.key;
-        const isMyMsg = msg.senderUid === currentUser?.uid;
-        
-        // 🗑️ Delete Button Structure matched with exact inline styling to not break the look
-        const deleteBtnHtml = isMyMsg ? `<i class="fa-solid fa-trash" onclick="deleteMessage('${roomName}', '${msgId}')" style="color: #ff4d4d; margin-left: auto; padding-left:10px; cursor: pointer; font-size: 12px;" title="Delete Message"></i>` : "";
-
         const msgHtml = `
-            <div class="message-row" id="msg-${msgId}" style="display: flex; align-items: baseline; width: 100%;">
-                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer;">
+            <div class="message-row" style="margin-bottom: 8px; display: flex; align-items: baseline;">
+                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
                     <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
                 </div>
-                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word; flex-grow: 1;">
+                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
                     ${msg.text}
                 </div>
-                ${deleteBtnHtml}
             </div>
         `;
         
@@ -315,21 +309,9 @@ function loadMessages(roomName) {
         }
     });
 
-    db.ref(`messages/${roomName}`).on('child_removed', snapshot => {
-        const deletedMsgElem = document.getElementById(`msg-${snapshot.key}`);
-        if (deletedMsgElem) deletedMsgElem.remove();
-    });
-
     db.ref(`messages/${roomName}`).once('value', () => {
         isInitialLoad = false;
     });
-}
-
-function deleteMessage(roomName, msgId) {
-    if (confirm("Are you sure you want to delete this message?")) {
-        db.ref(`messages/${roomName}/${msgId}`).remove()
-            .catch(err => console.error("Error deleting message:", err));
-    }
 }
 
 function sendMessage() {
@@ -440,7 +422,7 @@ function loadPrivateRoomsList() {
         const rooms = snapshot.val();
 
         if (!rooms) {
-            dmListContainer.innerHTML = `<li class="no-dm-notice" style="padding: 10px; color:#666; font-size:12px;">No active DMs</li>`;
+            dmListContainer.innerHTML = `<li class="no-dm-notice">No active DMs</li>`;
             return;
         }
 
@@ -458,48 +440,6 @@ function loadPrivateRoomsList() {
                 `;
                 dmListContainer.innerHTML += liHtml;
             });
-        });
-    });
-}
-
-function setupLeaderboard() {
-    const leaderboardContainer = document.getElementById('live-leaderboard-list');
-    if (!leaderboardContainer) return;
-
-    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
-        leaderboardContainer.innerHTML = "";
-        let gamers = [];
-
-        snapshot.forEach(childSnapshot => {
-            gamers.push({
-                uid: childSnapshot.key,
-                ...childSnapshot.val()
-            });
-        });
-
-        gamers.reverse();
-
-        if (gamers.length === 0) {
-            leaderboardContainer.innerHTML = `<li style="color: #666; font-size: 12px; padding: 10px;">No rankings</li>`;
-            return;
-        }
-
-        gamers.forEach((gamer, index) => {
-            let rankBadge = `<span style="color: #888; margin-right: 5px;">#${index + 1}</span>`;
-            if (index === 0) rankBadge = `🥇 `;
-            if (index === 1) rankBadge = `🥈 `;
-            if (index === 2) rankBadge = `🥉 `;
-
-            // Uses your exact layout rules (.room-item style) dynamically
-            const liHtml = `
-                <li class="room-item" onclick="viewUserProfileCard('${gamer.uid}')" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        ${rankBadge} ${gamer.name || 'Gamer'}
-                    </span>
-                    <span style="color: #00ffcc; font-size: 11px; font-weight: bold;">${gamer.xp || 0}xp</span>
-                </li>
-            `;
-            leaderboardContainer.innerHTML += liHtml;
         });
     });
 }
@@ -533,7 +473,7 @@ function toggleVoiceMute() {
     }
 }
 
-// EMOJI BUTTON SYSTEM INITIALIZATION
+// 👑 EMOJI BUTTON SYSTEM INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('message-input');
     const triggerBtn = document.getElementById('emoji-trigger-btn');
