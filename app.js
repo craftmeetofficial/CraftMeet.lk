@@ -96,6 +96,7 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
+        setupLeaderboard(); // Leaderboard listener setup
     } else {
         currentUser = null;
         const authScreen = document.getElementById('auth-screen');
@@ -260,7 +261,7 @@ function viewUserProfileCard(targetUid) {
 }
 
 // =========================================================================
-// 👑 REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC
+// 👑 REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC (UPDATED WITH ADVANCED LOGIC)
 // =========================================================================
 
 function setupOnlineCounter() {
@@ -290,14 +291,21 @@ function loadMessages(roomName) {
         const msg = snapshot.val();
         if (!msg) return;
 
+        const msgId = snapshot.key;
+        const isMyMsg = msg.senderUid === currentUser?.uid;
+        const deleteBtnHtml = isMyMsg ? `<i class="fa-solid fa-trash" onclick="deleteMessage('${roomName}', '${msgId}')" style="color: #ff4d4d; margin-left: 10px; cursor: pointer; font-size: 11px;" title="Delete Message"></i>` : "";
+
         const msgHtml = `
-            <div class="message-row" style="margin-bottom: 8px; display: flex; align-items: baseline;">
-                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
-                    <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
+            <div class="message-row" id="msg-${msgId}" style="margin-bottom: 8px; display: flex; align-items: baseline; justify-content: space-between;">
+                <div style="display: flex; align-items: baseline;">
+                    <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
+                        <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
+                    </div>
+                    <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
+                        ${msg.text}
+                    </div>
                 </div>
-                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
-                    ${msg.text}
-                </div>
+                ${deleteBtnHtml}
             </div>
         `;
         
@@ -309,9 +317,22 @@ function loadMessages(roomName) {
         }
     });
 
+    // Real-time message UI deletion handler
+    db.ref(`messages/${roomName}`).on('child_removed', snapshot => {
+        const deletedMsgElem = document.getElementById(`msg-${snapshot.key}`);
+        if (deletedMsgElem) deletedMsgElem.remove();
+    });
+
     db.ref(`messages/${roomName}`).once('value', () => {
         isInitialLoad = false;
     });
+}
+
+function deleteMessage(roomName, msgId) {
+    if (confirm("Are you sure you want to delete this message?")) {
+        db.ref(`messages/${roomName}/${msgId}`).remove()
+            .catch(err => console.error("Error deleting message:", err));
+    }
 }
 
 function sendMessage() {
@@ -440,6 +461,48 @@ function loadPrivateRoomsList() {
                 `;
                 dmListContainer.innerHTML += liHtml;
             });
+        });
+    });
+}
+
+function setupLeaderboard() {
+    const leaderboardContainer = document.getElementById('live-leaderboard-list');
+    if (!leaderboardContainer) return;
+
+    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
+        leaderboardContainer.innerHTML = "";
+        let gamers = [];
+
+        snapshot.forEach(childSnapshot => {
+            gamers.push({
+                uid: childSnapshot.key,
+                ...childSnapshot.val()
+            });
+        });
+
+        gamers.reverse(); // Descending Order Setup
+
+        if (gamers.length === 0) {
+            leaderboardContainer.innerHTML = `<li style="color: #888; font-size: 13px; padding: 5px;">No rankings yet</li>`;
+            return;
+        }
+
+        gamers.forEach((gamer, index) => {
+            let rankBadge = `<span style="color: #aaa; margin-right: 8px;">#${index + 1}</span>`;
+            if (index === 0) rankBadge = `🥇 `;
+            if (index === 1) rankBadge = `🥈 `;
+            if (index === 2) rankBadge = `🥉 `;
+
+            const liHtml = `
+                <li onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); margin-bottom: 4px; border-radius: 4px; cursor: pointer; border-left: 2px solid #00ffcc;">
+                    <div style="display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${rankBadge}
+                        <span style="color: #fff; font-weight: 500; font-size: 13px;">${gamer.name || 'Gamer'}</span>
+                    </div>
+                    <span style="color: #00ffcc; font-size: 12px; font-weight: bold;">${gamer.xp || 0} XP</span>
+                </li>
+            `;
+            leaderboardContainer.innerHTML += liHtml;
         });
     });
 }
