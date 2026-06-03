@@ -21,6 +21,9 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
+// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
+const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
+
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -37,89 +40,48 @@ function playIncomingSound() {
     } catch (e) { console.log(e); }
 }
 
-// Toggle between Sign In and Discord-Style Register Modes
 function toggleAuthMode(e) {
     e.preventDefault();
     isRegisterMode = !isRegisterMode;
-    
-    const title = document.getElementById('auth-title');
-    const subtitle = document.getElementById('auth-subtitle');
-    const mainBtn = document.getElementById('main-auth-btn');
-    const switchLink = document.getElementById('switch-auth-link');
-    const switchText = document.getElementById('switch-text');
-    
-    const usernameGroup = document.getElementById('reg-username-group');
-    const regExtras = document.getElementById('reg-extras');
+    const title = document.getElementById('auth-title'), subtitle = document.getElementById('auth-subtitle');
+    const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch-text');
+    const usernameGroup = document.getElementById('reg-username-group'), regExtras = document.getElementById('reg-extras');
 
     if (isRegisterMode) {
-        title.innerText = "CREATE AN ACCOUNT";
-        subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
-        mainBtn.innerText = "Continue & Register";
-        switchText.innerText = "Already have an account?";
-        switchLink.innerText = "Log In";
-        usernameGroup.style.display = "flex";
-        regExtras.style.display = "block";
+        title.innerText = "CREATE AN ACCOUNT"; subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
+        mainBtn.innerText = "Continue & Register"; switchText.innerText = "Already have an account?"; switchLink.innerText = "Log In";
+        usernameGroup.style.display = "flex"; regExtras.style.display = "block";
     } else {
-        title.innerText = "WELCOME BACK!";
-        subtitle.innerText = "We're so excited to see you again!";
-        mainBtn.innerText = "Log In";
-        switchText.innerText = "Need an account?";
-        switchLink.innerText = "Register";
-        usernameGroup.style.display = "none";
-        regExtras.style.display = "none";
+        title.innerText = "WELCOME BACK!"; subtitle.innerText = "We're so excited to see you again!";
+        mainBtn.innerText = "Log In"; switchText.innerText = "Need an account?"; switchLink.innerText = "Register";
+        usernameGroup.style.display = "none"; regExtras.style.display = "none";
     }
 }
 
-// Primary Native Custom Form Trigger Engine
 function handlePrimaryAuth() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim();
-    const avatar = document.getElementById('auth-avatar').value.trim();
-    const bio = document.getElementById('auth-bio').value.trim();
+    const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
 
-    if (!email || !password) {
-        alert("Please fill in all required fields.");
-        return;
-    }
+    if (!email || !password) { alert("Please fill in all required fields."); return; }
 
     if (isRegisterMode) {
         if (!username) { alert("Please choose a Gamertag/Username."); return; }
-        
         auth.createUserWithEmailAndPassword(email, password).then(credential => {
             const user = credential.user;
-            
-            user.updateProfile({
-                displayName: username,
-                photoURL: avatar || 'https://via.placeholder.com/40'
-            }).then(() => {
-                db.ref(`users/${user.uid}`).set({
-                    name: username,
-                    profilePic: avatar || 'https://via.placeholder.com/40',
-                    bio: bio || "Hey there! I am using CraftMeet.",
-                    gameSpecialty: "Multi-Game Athlete"
-                }).then(() => {
-                    location.reload(); 
-                });
+            user.updateProfile({ displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
+                db.ref(`users/${user.uid}`).set({ name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
+                .then(() => { location.reload(); });
             });
         }).catch(err => alert("Registration Fault: " + err.message));
     } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => {
-            alert("Login Fault: " + err.message);
-        });
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Login Fault: " + err.message));
     }
 }
 
-// SAFE REDIRECT HANDLER
 auth.getRedirectResult().then(result => {
-    if (result && result.user) {
-        console.log("Google Redirect Login Successful:", result.user.displayName);
-    }
-}).catch(err => {
-    console.warn("Handled Redirect Auth Info:", err.message);
-});
+    if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
+}).catch(err => console.warn("Redirect Auth Info:", err.message));
 
-// Central Identity Matrix Core Synchronizer Listener Node
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
@@ -131,6 +93,7 @@ auth.onAuthStateChanged(user => {
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
+        loadPrivateRoomsList();
     } else {
         currentUser = null;
         document.getElementById('auth-screen').classList.remove('hidden');
@@ -138,76 +101,166 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Sync Profile Database & Automatically Handle Google Account First Visits
 function syncUserProfileData(user) {
     const userRef = db.ref(`users/${user.uid}`);
-    
     userRef.on('value', snapshot => {
-        const data = snapshot.val();
-        const avatarImg = document.getElementById('user-avatar');
-        const specialtyText = document.getElementById('user-specialty');
-
+        const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
+            // NEW: 7-DAY EXPIRY CHECKER LOGIC
+            if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
+                const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; // දවස් 7ක් මිලිසෙකන්ඩ් වලින්
+                const currentTime = Date.now();
+                
+                // දැනට තියෙන වෙලාවෙන් Claim කරපු වෙලාව අඩු කරලා බලනවා දවස් 7 පැන්නද කියලා
+                if (currentTime - data.decorationClaimedAt > oneWeekInMs) {
+                    // කාලය ඉකුත් වී ඇත! Decoration එක Reset කරනවා.
+                    db.ref(`users/${user.uid}`).update({
+                        currentDecoration: "none",
+                        decorationClaimedAt: 0
+                    });
+                    alert("⏰ YOUR DECORATION EXPIRED!\n\nYour 7-day avatar decoration frame time has ended. Keep chatting to earn more XP and unlock it again!");
+                    return; 
+                }
+            }
+
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
+            const footerFrame = document.getElementById('user-footer-deco-frame');
+            footerFrame.className = "deco-frame-container footer-avatar-frame"; 
+            if(data.currentDecoration && data.currentDecoration !== "none"){
+                footerFrame.classList.add(data.currentDecoration);
+            }
+
             document.getElementById('profile-pic-input').value = data.profilePic || '';
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
-        } else {
-            const defaultName = user.displayName || "Gamer";
-            const defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
-            
-            userRef.set({
-                name: defaultName,
-                profilePic: defaultAvatar,
-                bio: "Hey there! I am using CraftMeet.",
-                gameSpecialty: "Multi-Game Athlete"
-            });
 
-            avatarImg.src = defaultAvatar;
-            specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
+            if (data.xp >= 500) {
+                document.getElementById('reward-popup-modal').classList.remove('hidden');
+            }
+        } else {
+            const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
+            userRef.set({ name: defaultName, profilePic: defaultAvatar, bio: "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 });
+            avatarImg.src = defaultAvatar; specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
         }
     });
 }
 
-function toggleProfileModal() {
-    document.getElementById('profile-modal').classList.toggle('hidden');
+// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
+function claimAvatarDecoration() {
+    if (!currentUser) return;
+    const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
+    
+    db.ref(`users/${currentUser.uid}`).once('value').then(snapshot => {
+        const currentXp = snapshot.val().xp || 0;
+        const newXp = Math.max(0, currentXp - 500);
+
+        db.ref(`users/${currentUser.uid}`).update({
+            xp: newXp,
+            currentDecoration: randomDeco,
+            decorationClaimedAt: Date.now() // දැනට ලැබුණු වෙලාවේ Timestamp එක Database එකේ සේව් කරනවා
+        }).then(() => {
+            document.getElementById('reward-popup-modal').classList.add('hidden');
+            alert(`🎉 LEGENDARY CLAIM SUCCESSFUL!\n\nYou unlocked the [${randomDeco.replace('deco-', '').replace('-', ' ').toUpperCase()}] Avatar border!\n\n*Note: This decoration is valid for exactly 7 days!`);
+        });
+    });
 }
+
+function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
 function saveUserProfile() {
     if (!currentUser) return;
-    const customPic = document.getElementById('profile-pic-input').value.trim();
-    const customBio = document.getElementById('profile-bio-input').value.trim();
-    const customGame = document.getElementById('profile-game-input').value;
-
     db.ref(`users/${currentUser.uid}`).update({
-        profilePic: customPic || currentUser.photoURL,
-        bio: customBio,
-        gameSpecialty: customGame
-    }).then(() => { toggleProfileModal(); })
-      .catch(err => { alert("Update Error: " + err.message); });
+        profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
+        bio: document.getElementById('profile-bio-input').value.trim(),
+        gameSpecialty: document.getElementById('profile-game-input').value
+    }).then(() => toggleProfileModal()).catch(err => alert(err.message));
 }
 
-function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider).catch(err => { console.error("Google Fault:", err.message); });
+function logout() { auth.signOut().then(() => location.reload()); }
+function toggleUserCardModal() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
+
+function viewUserProfileCard(targetUid) {
+    if (!currentUser) return;
+    db.ref(`users/${targetUid}`).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
+        if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
+            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+            if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
+                db.ref(`users/${targetUid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
+                data.currentDecoration = "none"; 
+            }
+        }
+
+        document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
+        document.getElementById('view-card-name').innerText = data.name || 'Gamer';
+        document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
+        document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
+        
+        const userXp = data.xp || 0;
+        const barPercent = Math.min(100, (userXp / 500) * 100);
+        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
+        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
+
+        const cardFrame = document.getElementById('view-card-deco-frame');
+        cardFrame.className = "deco-frame-container";
+        if(data.currentDecoration && data.currentDecoration !== "none"){
+            cardFrame.classList.add(data.currentDecoration);
+        }
+
+        const dmBtn = document.getElementById('view-card-dm-btn');
+        if (targetUid === currentUser.uid) {
+            dmBtn.style.display = "none";
+        } else {
+            dmBtn.style.display = "flex";
+            dmBtn.onclick = function() { initiatePrivateDM(targetUid, data.name); };
+        }
+        toggleUserCardModal();
+    });
 }
 
-function logout() { auth.signOut(); }
+function initiatePrivateDM(targetUid, targetName) {
+    toggleUserCardModal();
+    const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
+    db.ref(`users/${currentUser.uid}/active_dms/${dmRoomId}`).set({ roomName: targetName, targetId: targetUid });
+    db.ref(`users/${targetUid}/active_dms/${dmRoomId}`).set({ roomName: currentUser.displayName, targetId: currentUser.uid });
+    switchRoom(dmRoomId);
+}
 
-function setupOnlineCounter() {
-    const onlineRef = db.ref('.info/connected');
-    const userStatusRef = db.ref(`online_users/${currentUser.uid}`);
-    onlineRef.on('value', snapshot => {
-        if (snapshot.val() === false) return;
-        userStatusRef.onDisconnect().remove().then(() => {
-            userStatusRef.set({ name: currentUser.displayName, active: true });
+function loadPrivateRoomsList() {
+    if (!currentUser) return;
+    db.ref(`users/${currentUser.uid}/active_dms`).on('value', snapshot => {
+        const dmList = document.getElementById('private-rooms-list');
+        dmList.innerHTML = "";
+        if (!snapshot.exists()) {
+            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
+            return;
+        }
+        snapshot.forEach(child => {
+            const roomId = child.key; const dmData = child.val();
+            const isActive = currentRoom === roomId ? 'active' : '';
+            dmList.innerHTML += `
+                <li class="room-item priv-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')">
+                    <i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>
+                </li>
+            `;
         });
     });
-    db.ref('online_users').on('value', snapshot => {
-        document.getElementById('online-count').innerText = snapshot.numChildren() || 1;
+}
+
+function setupOnlineCounter() {
+    db.ref('.info/connected').on('value', snap => {
+        if (snap.val() === false) return;
+        db.ref(`online_users/${currentUser.uid}`).onDisconnect().remove().then(() => {
+            db.ref(`online_users/${currentUser.uid}`).set({ name: currentUser.displayName, active: true });
+        });
     });
+    db.ref('online_users').on('value', snap => { document.getElementById('online-count').innerText = snap.numChildren() || 1; });
 }
 
 function handleTyping() {
@@ -219,34 +272,22 @@ function handleTyping() {
 
 function listenToTyping(roomName) {
     db.ref(`typing/${roomName}`).on('value', snapshot => {
-        const typingBox = document.getElementById('typing-indicator');
-        const typingUserSpan = document.getElementById('typing-user');
-        let typers = [];
-        snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
-        if (typers.length > 0) {
-            typingUserSpan.innerText = typers.join(', ');
-            typingBox.classList.remove('hidden');
-        } else { typingBox.classList.add('hidden'); }
+        const typingBox = document.getElementById('typing-indicator'), typingUserSpan = document.getElementById('typing-user');
+        let typers = []; snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
+        if (typers.length > 0) { typingUserSpan.innerText = typers.join(', '); typingBox.classList.remove('hidden'); } else { typingBox.classList.add('hidden'); }
     });
 }
 
 function toggleVoiceMute() {
     isMuted = !isMuted;
-    const muteBtn = document.getElementById('comms-mute-btn');
-    const btnIcon = document.getElementById('mute-btn-icon');
-    const btnText = document.getElementById('mute-btn-text');
-    const pulseNode = document.getElementById('voice-pulse-node');
-    const statusIcon = document.getElementById('voice-status-icon');
-    const statusDesc = document.getElementById('voice-status-desc');
-
+    const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
+    const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
     if (isMuted) {
         muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
-        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash";
-        statusDesc.innerText = "Transmission terminated. Your microphone is locked.";
+        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
     } else {
         muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
-        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone";
-        statusDesc.innerText = "Voice link fully operational. Transmission is currently LIVE.";
+        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
     }
     initVoiceConference(currentRoom);
 }
@@ -258,17 +299,28 @@ function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    const activeTarget = document.getElementById(`room-${roomName}`);
-    if (activeTarget) activeTarget.classList.add('active');
-    document.getElementById('current-room-title').innerText = roomName.replace('-', ' ') + "-room";
-    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${roomName.replace('-', ' ')}`;
+    setTimeout(() => {
+        const activeTarget = document.getElementById(`room-${roomName}`);
+        if (activeTarget) activeTarget.classList.add('active');
+    }, 2000);
+    const isDM = roomName.startsWith('dm_');
+    const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
+    document.getElementById('current-room-title').innerText = visualTitle;
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle}`;
     loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
 function sendMessage() {
-    const input = document.getElementById('message-input');
-    const text = input.value.trim(); if (text === "" || !currentUser) return;
+    const input = document.getElementById('message-input'), text = input.value.trim(); if (text === "" || !currentUser) return;
+    
+    const gainedXp = text.length > 25 ? 10 : 5;
     db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
+    
+    const userXpRef = db.ref(`users/${currentUser.uid}/xp`);
+    userXpRef.transaction(currentValue => {
+        return (currentValue || 0) + gainedXp;
+    });
+
     db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
 }
 function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
@@ -289,7 +341,7 @@ function loadMessages(roomName) {
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
-                        <span class="msg-sender">${isOwn ? 'You' : data.sender}</span>
+                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" title="View Profile Card">${isOwn ? 'You' : data.sender}</span>
                         <span class="msg-time">${timeStr}</span>
                     </div>
                     <div class="msg-bubble">${data.message}</div>
