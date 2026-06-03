@@ -1,3 +1,6 @@
+// Test execution connection logic
+console.log("🚀 App.js සාර්ථකව HTML එකට ලින්ක් වුණා!");
+
 // Firebase Live Config Matrix Configuration Data
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
@@ -111,7 +114,6 @@ function loginWithGoogle() {
     auth.signInWithPopup(provider)
         .then(result => {
             const user = result.user;
-            // Check if user entry exists in Realtime DB, if not seed metadata structure
             db.ref(`users/${user.uid}`).once('value', snap => {
                 if(!snap.exists()) {
                     db.ref(`users/${user.uid}`).set({
