@@ -19,6 +19,24 @@ body {
     overflow: hidden; 
 }
 
+/* ==========================================
+   ADDED: ORIGINAL NEON GLOW BORDERS
+   ========================================== */
+.neon-border {
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.1);
+}
+.neon-border-magenta {
+    border: 1px solid var(--neon-magenta);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.2), inset 0 0 15px rgba(255, 0, 127, 0.1);
+}
+.gaming-glow {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px var(--neon-cyan);
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
 /* Neon Styles */
 .cyber-title { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 3px; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
 .cyber-title-short { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); }
@@ -63,7 +81,9 @@ body {
 .save-profile-btn { background: #23a55a; border: none; color: #fff; padding: 12px; font-weight: bold; font-size: 0.9rem; border-radius: 4px; cursor: pointer; transition: 0.2s; }
 .save-profile-btn:hover { background: #1a7f43; }
 
-/* REWARD POPUP EXCLUSIVE STYLES */
+/* ==========================================
+   ADDED: REWARD POPUP EXCLUSIVE STYLES
+   ========================================== */
 .reward-glow-box { text-align: center; border: 2px solid #f59e0b; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); background: #111214; padding: 35px; }
 .animated-chest { font-size: 3.5rem; color: #f59e0b; margin-bottom: 15px; text-shadow: 0 0 15px #f59e0b; }
 .reward-title { font-family: 'Orbitron', sans-serif; font-weight: 900; color: #fff; letter-spacing: 2px; }
@@ -71,35 +91,30 @@ body {
 .claim-reward-btn { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; padding: 14px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.95rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(245,158,11,0.3); }
 .claim-reward-btn:hover { transform: scale(1.03); box-shadow: 0 0 20px #f59e0b; }
 
-/* XP Level Bar UI Components */
+/* ==========================================
+   ADDED: XP LEVEL BAR UI COMPONENTS
+   ========================================== */
 .xp-bar-container { background: #1e1f22; height: 10px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-top: 5px; }
 .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #00f0ff); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
 
-/* AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
+/* ==========================================
+   ADDED: AVATAR DECORATIONS ENGINE SYSTEM
+   ========================================== */
 .deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
 .deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
 
-/* Core Decorations */
 .deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
 .deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
 .deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
 
-/* PREMIUM Cyberpunk Decorations */
-.deco-neon-vortex { border: 3px solid transparent; background: linear-gradient(var(--sidebar-bg), var(--sidebar-bg)) padding-box, linear-gradient(135deg, #00f0ff, #ff007f) border-box; box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); animation: rotateDeco 6s linear infinite; }
-.deco-toxic-waste { border: 3px dashed #22c55e; box-shadow: 0 0 12px #22c55e, inset 0 0 8px #22c55e; animation: shakeDeco 0.5s infinite ease-in-out; }
-.deco-glitch-master { border: 3px double #facc15; box-shadow: 0 0 14px #facc15; animation: glitchDeco 2s infinite steps(2); }
-
 .footer-avatar-frame { padding: 2px !important; }
 .footer-avatar-frame img { width: 34px !important; height: 34px !important; }
 
-/* Decoration Animations */
 @keyframes rotateDeco { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
-@keyframes shakeDeco { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04) rotate(2deg); } }
-@keyframes glitchDeco { 0%, 100% { transform: translate(0); text-shadow: none; border-color: #facc15; } 20% { transform: translate(-2px, 1px); border-color: #ff007f; } 40% { transform: translate(1px, -1px); border-color: #00f0ff; } 60% { transform: translate(-1px, -1px); } }
 
-/* Discord Layout Configuration */
+/* Discord Layout & Navigation */
 .dashboard-container { display: flex; width: 100%; height: 100vh; }
 .sidebar { width: 280px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-glow); }
 .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-glow); }
@@ -108,18 +123,6 @@ body {
 .online-counter-box { display: flex; align-items: center; gap: 10px; margin: 15px 15px 0 15px; padding: 10px 15px; background: rgba(0, 240, 255, 0.05); border: 1px dashed rgba(0, 240, 255, 0.2); border-radius: 6px; }
 .pulse-dot { width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; animation: pulseEffect 2s infinite; }
 .counter-text { font-size: 0.85rem; font-weight: 600; color: #a5b4fc; }
-
-/* DAILY LOOT BOX SIDEBAR COMPONENT */
-.daily-loot-box-panel { margin: 10px 15px; padding: 12px; background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 6px; text-align: center; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.05); }
-.loot-box-icon { font-size: 1.8rem; color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); cursor: pointer; transition: transform 0.2s; }
-.loot-box-icon.ready-to-claim { animation: boxShake 1.2s infinite ease-in-out; }
-.loot-box-icon:hover { transform: scale(1.1); }
-.loot-title { font-size: 0.8rem; font-weight: 700; color: #f2f3f5; letter-spacing: 1px; text-transform: uppercase; }
-.loot-timer-text { font-size: 0.75rem; color: #949ba4; font-family: 'Orbitron', sans-serif; }
-.claim-loot-btn { background: #f59e0b; border: none; color: #000; padding: 6px; font-size: 0.75rem; font-weight: 800; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
-.claim-loot-btn:hover:not(:disabled) { background: #d97706; box-shadow: 0 0 10px #f59e0b; }
-.claim-loot-btn:disabled { background: #2b2d31; color: #4e5670; cursor: not-allowed; }
-@keyframes boxShake { 0%, 100% { transform: rotate(0); } 20%, 60% { transform: rotate(-6deg); } 40%, 80% { transform: rotate(6deg); } }
 
 .menu-section { padding: 15px 15px 5px 15px; }
 .section-title { font-size: 0.75rem; font-weight: 700; color: #6366f1; letter-spacing: 2px; margin-bottom: 12px; padding-left: 8px; }
@@ -132,95 +135,4 @@ body {
 /* Profile Footer */
 .user-profile-footer { padding: 12px 16px; background: #111214; border-top: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
 .user-meta { display: flex; align-items: center; gap: 10px; max-width: 65%; cursor: pointer; }
-#user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-.user-details h4 { font-size: 0.9rem; font-weight: 700; color: #f2f3f5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.status-tag { font-size: 0.75rem; color: #949ba4; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dot-neon { width: 6px; height: 6px; background: #23a55a; border-radius: 50%; }
-
-.profile-footer-actions { display: flex; align-items: center; gap: 8px; }
-.footer-reg-btn { background: #23a55a; border: none; color: #fff; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 3px; cursor: pointer; font-family: 'Orbitron', sans-serif; display: flex; align-items: center; gap: 4px; }
-.footer-reg-btn:hover { background: #1a7f43; }
-.icon-logout-btn { background: none; border: none; color: #949ba4; font-size: 0.95rem; cursor: pointer; padding: 6px; }
-.icon-logout-btn:hover { color: #f23f43; }
-
-/* Main Chat Panels */
-.chat-wrapper { flex: 1.1; display: flex; flex-direction: column; background: var(--panel-bg); border-right: 1px solid var(--border-glow); }
-.messages-display { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
-
-.typing-box { padding: 4px 24px; background: rgba(0,0,0,0.15); height: 26px; display: flex; align-items: center; }
-.typing-glow-text { font-size: 0.8rem; color: #a5b4fc; font-style: italic; }
-
-.msg-container { display: flex; flex-direction: column; gap: 3px; max-width: 85%; align-self: flex-start; }
-.msg-container.own-msg { align-self: flex-end; }
-.msg-info { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
-.own-msg .msg-info { flex-direction: row-reverse; }
-.msg-container img.msg-delete-btn, .msg-container button.msg-delete-btn { opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; }
-.msg-container:hover .msg-delete-btn { opacity: 0.7 !important; visibility: visible !important; }
-.msg-container .msg-delete-btn:hover { opacity: 1 !important; color: #ff0055 !important; }
-
-.msg-sender { font-weight: 700; color: var(--neon-cyan); cursor: pointer; text-decoration: none; }
-.msg-sender:hover { text-decoration: underline; color: #fff; }
-.own-msg .msg-sender { color: var(--neon-magenta); }
-.msg-time { color: var(--text-muted); }
-.msg-bubble { background: #2b2d31; padding: 10px 14px; border-radius: 2px 10px 10px 10px; color: #dbdee1; font-size: 0.95rem; }
-.own-msg .msg-bubble { background: rgba(255, 0, 127, 0.08); border: 1px solid var(--neon-magenta); border-radius: 10px 2px 10px 10px; color: #fff; }
-
-.message-input-box { padding: 20px 24px; background: rgba(0,0,0,0.2); }
-.neon-border-soft { border: 1px solid rgba(0, 240, 255, 0.2); background: #383a40; border-radius: 8px; padding: 4px 8px; display: flex; align-items: center; }
-.input-container input { flex: 1; padding: 10px; border: none; background: transparent; color: #fff; font-size: 0.95rem; outline: none; }
-.send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; }
-
-/* Right Section Panels FIXES */
-.right-panel { width: 320px; min-width: 320px; display: flex; flex-direction: column; background: #040508; border-left: 1px solid var(--border-glow); height: 100vh; }
-.voice-section-box { padding-bottom: 15px; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
-.voice-status-container { padding: 15px; display: flex; justify-content: center; align-items: center; }
-.voice-status-card { background: #111214; padding: 20px; border-radius: 8px; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.02); }
-
-.voice-pulse-icon { width: 46px; height: 46px; background: rgba(0, 240, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); }
-.active-pulse { animation: voiceGlowPulse 1.5s infinite ease-in-out; }
-.muted-pulse { background: rgba(255, 0, 127, 0.1) !important; color: var(--neon-magenta) !important; border-color: var(--neon-magenta) !important; animation: none !important; }
-
-.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; transition: all 0.2s ease; }
-.comms-mute-btn.unmuted { color: var(--neon-cyan); border-color: var(--neon-cyan); }
-.comms-mute-btn.unmuted:hover { background: rgba(0, 240, 255, 0.1); box-shadow: 0 0 10px var(--neon-cyan); }
-.comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); }
-.comms-mute-btn.muted:hover { background: rgba(255, 0, 127, 0.1); box-shadow: 0 0 10px var(--neon-magenta); }
-
-/* Streamers Portal Area FIXES */
-.streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); overflow-y: auto; }
-.hub-content { display: flex; flex-direction: column; gap: 16px; }
-.game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-/* Fixed overlapping button issue */
-.yt-buttons-grid { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #dbdee1; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; width: 100%; }
-.yt-buttons-grid button i { color: #ef4444; font-size: 1rem; }
-.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; background: rgba(0, 240, 255, 0.05); box-shadow: 0 0 8px rgba(0, 240, 255, 0.2); }
-
-.dev-yt-box { padding: 12px; background: rgba(0, 240, 255, 0.02); border-radius: 6px; }
-.dev-link-btn { display: inline-flex; align-items: center; gap: 8px; color: #fff; background: linear-gradient(135deg, #ff007f, #9d4edd); padding: 10px 16px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; text-decoration: none; }
-
-.membership-promo-box { background: #111214; border: 1px solid rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 8px; text-align: center; }
-.membership-promo-box h5 { font-family: 'Orbitron', sans-serif; color: #f59e0b; font-size: 0.85rem; margin-bottom: 4px; }
-.membership-promo-box p { font-size: 0.8rem; color: #949ba4; margin-bottom: 12px; }
-.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; width: 100%; }
-.buy-membership-btn:hover { background: #f59e0b; color: #000; box-shadow: 0 0 10px #f59e0b; }
-
-@keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-@keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
-
-.text-center { text-align: center; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
-.hidden { display: none !important; }
-
-/* EMOJI PICKER CUSTOM STYLE FIX */
-.emoji-picker {
-    z-index: 9999 !important; 
-    font-family: 'Rajdhani', sans-serif !important;
-}
-.emoji-picker__search {
-    background-color: #111214 !important;
-    border: 1px solid rgba(0, 240, 255, 0.2) !important;
-    color: #fff !important;
-}
+#user-avatar { width: 38px; height: 38px; border-
