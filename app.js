@@ -310,10 +310,26 @@ window.sendMessage = function() {
     const text = input.value.trim();
     if (text === "") return;
 
-    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
-    db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    input.value = "";
+    // වත්මන් User ගේ Profile Pic එක සහ Specialty එක Firebase එකෙන් කලින්ම Fetch කරගන්නවා
+    db.ref(`users/${currentUser.uid}`).once('value', snap => {
+        const userData = snap.val() || {};
+        const myAvatar = userData.profilePic || currentUser.photoURL;
+        const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
+
+        // මැසේජ් එකත් එක්කම Avatar එක සහ Specialty එක Database එකට පුෂ් කරනවා
+        db.ref(`rooms/${currentRoom}`).push({ 
+            uid: currentUser.uid, 
+            sender: currentUser.displayName, 
+            message: text, 
+            timestamp: Date.now(),
+            senderAvatar: myAvatar,
+            senderSpecialty: mySpecialty
+        });
+
+        db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
+        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+        input.value = "";
+    });
 }
 
 function loadMessages(roomName) {
@@ -327,25 +343,38 @@ function loadMessages(roomName) {
         if (total === 0) isInitialLoad = false;
 
         snapshot.forEach(child => {
-            const msgId = child.key; // Firebase unique ID for deletion
+            const msgId = child.key; 
             const data = child.val(); 
             const isOwn = data.uid === currentUser.uid;
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             count++;
 
+            // Fallback default avatar values (ආරක්ෂාවට)
+            const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
+            const senderSpecialty = data.senderSpecialty || "Gamer";
+
             // Injecting Delete Trash button conditionally if the user owns the message
-            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:0.8rem; margin-left:8px; opacity:0; transition:opacity 0.2s;"><i class="fa-solid fa-trash-can"></i></button>` : '';
+            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
             chatDisplay.innerHTML += `
-                <div class="msg-container ${isOwn ? 'own-msg' : ''}" onmouseenter="this.querySelector('.delete-msg-btn') ? this.querySelector('.delete-msg-btn').style.opacity=1 : null" onmouseleave="this.querySelector('.delete-msg-btn') ? this.querySelector('.delete-msg-btn').style.opacity=0 : null">
-                    <div class="msg-info">
-                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;">${isOwn ? 'You' : data.sender}</span>
-                        <span class="msg-time" style="font-size:0.75rem; margin-left:8px; opacity:0.6;">${timeStr}</span>
+                <div class="msg-container ${isOwn ? 'own-msg' : ''}">
+                    
+                    <div class="msg-avatar-wrapper">
+                        <img src="${senderAvatar}" class="msg-avatar-img" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
                     </div>
-                    <div class="msg-bubble-wrapper" style="display:flex; align-items:center; ${isOwn ? 'flex-direction:row-reverse;' : ''} gap:4px;">
-                        <div class="msg-bubble" style="display:inline-block; padding:8px 12px; border-radius:6px; margin-top:4px;">${data.message}</div>
-                        ${deleteBtnHtml}
+
+                    <div class="msg-body-wrapper">
+                        <div class="msg-info">
+                            <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;">${isOwn ? 'You' : data.sender}</span>
+                            <span class="msg-specialty-tag">${senderSpecialty}</span>
+                            <span class="msg-time">${timeStr}</span>
+                        </div>
+                        <div class="msg-bubble-wrapper">
+                            <div class="msg-bubble">${data.message}</div>
+                            ${deleteBtnHtml}
+                        </div>
                     </div>
+
                 </div>
             `;
             if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
