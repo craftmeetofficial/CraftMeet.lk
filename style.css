@@ -428,13 +428,21 @@ body {
 }
 
 /* ==========================================================================
-   5. MAIN CHAT CONTAINER VIEWPORTS
+   5. MAIN CHAT CONTAINER VIEWPORTS & IMAGE BUG FIX
    ========================================================================== */
 .chat-wrapper {
     background: var(--bg-primary);
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+    overflow: hidden; /* මැද චැට් ඒරියා එකෙන් පිටට පනින දේවල් කපා හැරීමට */
+}
+
+/* ⚠️ වැදගත්: චැට් එක මැදට වැරදිලා පනින විශාල ඉමේජ් හයිඩ් කිරීමේ ආරක්ෂිත කෝඩ් එක */
+.chat-wrapper > img, 
+.messages-display img:not(.msg-avatar) {
+    display: none !important;
 }
 
 .panel-header {
@@ -463,6 +471,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    background-color: var(--bg-primary);
+    z-index: 1;
 }
 
 .typing-box {
@@ -774,7 +784,7 @@ body {
 }
 
 /* ==========================================================================
-   8. DISCORD STYLE CENTERED USER PROFILE CARD & FIXES
+   8. DISCORD STYLE CENTERED USER PROFILE CARD & AVATAR FIXES
    ========================================================================== */
 .user-view-card {
     position: relative;
@@ -798,7 +808,7 @@ body {
     width: 100%;
 }
 
-/* Absolute Position Avatar Wrapper - Fixes the big image bug */
+/* Absolute Position Avatar Wrapper */
 .user-card-avatar-wrap {
     position: absolute;
     top: 35px;
@@ -809,18 +819,20 @@ body {
     z-index: 2;
 }
 
-/* Avatar Image Constraints */
-#view-card-avatar {
+/* ⚠️ Avatar එක නිවැරදිව Card එක ඇතුළේ 80px වලට Lock කරන කෝඩ් එක */
+#user-card-modal #view-card-avatar {
     width: 80px !important;
     height: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
     border-radius: 50%;
-    object-fit: cover; /* ෆොටෝ එක ඇද නොවී රවුමට කැපෙන්න */
+    object-fit: cover; /* රවුමට කැපී හැඩගැස්වීමට */
     border: 3px solid #181f2a;
-    display: block;
+    display: block !important; 
 }
 
 .user-card-info {
-    padding: 50px 20px 20px 20px; /* ෆොටෝ එකට ඉඩ තබා text පහලට ගැනීම */
+    padding: 50px 20px 20px 20px; /* Text ටික පල්ලෙහාට ගැනීමට */
 }
 
 .user-card-info h3 {
