@@ -185,3 +185,29 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 .hidden { display: none !important; }
+
+
+/* ... උඩින් ඔයාගේ පැරණි CSS Code එක දිගටම තියෙනවා ... */
+
+@keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+@keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
+
+.text-center { text-align: center; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
+.hidden { display: none !important; }
+
+/* ==========================================
+   NEW: EMOJI PICKER CUSTOM STYLE FIX
+   ========================================== */
+.emoji-picker {
+    z-index: 9999 !important; /* චැට් එකට හෝ වෙනත් පැනල් වලට යට නොවී උඩින්ම පේන්න */
+    font-family: 'Rajdhani', sans-serif !important;
+}
+
+/* Emoji Picker එක ඇතුලේ තියෙන text එකත් dark theme එකට ගැලපෙන්න */
+.emoji-picker__search {
+    background-color: #111214 !important;
+    border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    color: #fff !important;
+}
