@@ -110,4 +110,49 @@
                 <div class="deco-frame-container" id="view-card-deco-frame">
                     <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
                 </div>
-                <div class="card-level-badge"
+                <div class="card-level-badge" id="view-card-level">LVL 1</div>
+            </div>
+            <div class="user-card-info">
+                <h3 id="view-card-name">GamerTag</h3>
+                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
+                
+                <div class="user-card-section">
+                    <label>XP LEVEL BAR (<span id="view-card-xp-ratio">0/100</span> XP)</label>
+                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 0%;"></div></div>
+                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">Total XP: 0</span>
+                </div>
+
+                <div class="user-card-section">
+                    <label>ABOUT ME</label>
+                    <p id="view-card-bio">No bio available.</p>
+                </div>
+
+                <button id="view-card-dm-btn" class="cyber-dm-btn">
+                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
+                    <span class="cyber-title-short">CraftMeet</span>
+                </div>
+            </div>
+            
+            <div class="online-counter-box">
+                <span class="pulse-dot"></span>
+                <span class="counter-text">ONLINE USERS: <strong id="online-count">1</strong></span>
+            </div>
+            
+            <div class="menu-section">
+                <p class="section-title">// PUBLIC CHANNELS</p>
+                <ul class="room-list">
+                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
+                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
+                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
+                    <li class="room-item" id="
