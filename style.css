@@ -2,15 +2,15 @@
    1. GLOBAL VARIABLES & BASE STYLES
    ========================================================================== */
 :root {
-    --bg-primary: #0a0e14;
-    --bg-secondary: #0f141c;
-    --bg-tertiary: #141b24;
+    --bg-primary: #06090e;
+    --bg-secondary: #0b111a;
+    --bg-tertiary: #101724;
     --text-main: #f0f3f5;
-    --text-muted: #949ba4;
+    --text-muted: #8a939e;
     --accent-cyan: #00ffcc;
     --accent-magenta: #ff0055;
     --neon-blue: #0077ff;
-    --border-soft: rgba(255, 255, 255, 0.08);
+    --border-soft: rgba(0, 255, 204, 0.08);
 }
 
 * {
@@ -27,7 +27,7 @@ body {
     height: 100vh;
 }
 
-/* Scrollbar Customization */
+/* Smooth Scrollbar Customization */
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -36,51 +36,56 @@ body {
 }
 ::-webkit-scrollbar-thumb {
     background: var(--bg-tertiary);
-    border-radius: 3px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
 }
 
 /* ==========================================================================
-   2. TEXT GLOWS & HELPER CLASSES
+   2. TEXT GLOWS & CYBERPUNK EFFECTS
    ========================================================================== */
 .cyber-title {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
     letter-spacing: 2px;
     color: #fff;
-    text-shadow: 0 0 10px var(--accent-cyan);
+    text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px rgba(0, 255, 204, 0.3);
 }
 
 .cyber-title-short {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
+    background: linear-gradient(45deg, #fff, var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .cyber-glow-text {
     color: var(--accent-cyan);
-    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
 }
 
 .cyber-magenta-text {
     color: var(--accent-magenta);
-    text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+    text-shadow: 0 0 10px rgba(255, 0, 85, 0.8);
 }
 
 .neon-border {
     border: 1px solid var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
 }
 
 .neon-border-soft {
     border: 1px solid var(--border-soft);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .neon-border-soft:focus-within {
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 10px rgba(0, 255, 204, 0.15);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.25);
 }
 
 .hidden {
@@ -88,16 +93,13 @@ body {
 }
 
 /* ==========================================================================
-   3. AUTHENTICATION SCREEN STYLES
+   3. AUTHENTICATION SCREEN
    ========================================================================== */
 .auth-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(5, 7, 10, 0.95);
-    backdrop-filter: blur(8px);
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(4, 6, 9, 0.96);
+    backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -108,13 +110,14 @@ body {
     background: var(--bg-secondary);
     width: 100%;
     max-width: 420px;
-    padding: 35px;
-    border-radius: 8px;
+    padding: 40px;
+    border-radius: 12px;
     text-align: center;
+    border: 1px solid rgba(0, 255, 204, 0.2);
 }
 
 .brand-logo {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 15px;
 }
 .gaming-glow {
@@ -123,147 +126,46 @@ body {
 }
 
 @keyframes pulseGlow {
-    0% { text-shadow: 0 0 5px var(--accent-cyan); }
+    0% { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); }
     100% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan); }
 }
 
-.auth-card p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 25px;
-}
-
-.form-group {
-    margin-bottom: 18px;
-    text-align: left;
-}
-
-.form-group label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    display: block;
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-}
-
-.req-star {
-    color: var(--accent-magenta);
-}
-
-.form-group input, .form-group textarea, .form-group select {
-    width: 100%;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-soft);
-    padding: 10px 14px;
-    color: var(--text-main);
-    border-radius: 4px;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-    border-color: var(--accent-cyan);
-}
-
-.cyber-action-btn {
-    width: 100%;
-    background: var(--accent-cyan);
-    color: #000;
-    border: none;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-.cyber-action-btn:hover {
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
-    transform: translateY(-1px);
-}
-
-.auth-switcher {
-    margin-top: 15px;
-    font-size: 0.9rem;
-}
-.auth-switcher a {
-    color: var(--accent-cyan);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-divider {
-    margin: 20px 0;
-    position: relative;
-}
-.auth-divider::before {
-    content: "";
-    position: absolute;
-    top: 50%; left: 0; width: 100%; height: 1px;
-    background: var(--border-soft);
-}
-.auth-divider span {
-    background: var(--bg-secondary);
-    padding: 0 10px;
-    position: relative;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-}
-
-#login-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-}
-#login-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
 /* ==========================================================================
-   4. CORE DASHBOARD GRID & SIDEBAR
+   4. SIDEBAR & NAVIGATION (LASSANA CHANNELS)
    ========================================================================== */
 .dashboard-container {
     display: grid;
-    grid-template-columns: 240px 1fr 280px;
+    grid-template-columns: 260px 1fr 300px;
     height: 100vh;
     width: 100vw;
 }
 
 .sidebar {
     background: var(--bg-secondary);
-    border-right: 1px solid var(--border-soft);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
 }
 
 .sidebar-header {
-    padding: 20px 15px;
-    border-bottom: 1px solid var(--border-soft);
+    padding: 25px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .logo-area {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.2rem;
+    gap: 12px;
+    font-size: 1.4rem;
 }
 
 .online-counter-box {
-    padding: 12px 15px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(0, 255, 204, 0.03);
-    border-bottom: 1px solid var(--border-soft);
+    gap: 10px;
+    background: rgba(0, 255, 204, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .pulse-dot {
@@ -271,20 +173,14 @@ body {
     height: 8px;
     background: var(--accent-cyan);
     border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-cyan);
-    animation: dotPulse 1.5s infinite;
+    box-shadow: 0 0 10px var(--accent-cyan);
+    animation: dotPulse 2s infinite;
 }
 
 @keyframes dotPulse {
-    0% { transform: scale(0.9); opacity: 0.6; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.6; }
-}
-
-.counter-text {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px var(--accent-cyan); }
+    100% { transform: scale(0.9); opacity: 0.5; }
 }
 
 .menu-section {
@@ -295,140 +191,82 @@ body {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--text-muted);
-    padding: 0 15px 8px 15px;
-    letter-spacing: 0.5px;
+    padding: 0 20px 10px 20px;
+    letter-spacing: 1px;
 }
 
-.room-list {
-    list-style: none;
-}
-
+/* Channels List Animation & Hover Effect */
 .room-item {
-    padding: 8px 15px;
+    padding: 10px 20px;
     display: flex;
     align-items: center;
     gap: 12px;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: all 0.2s;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    margin: 2px 10px;
+    border-radius: 6px;
 }
+
 .room-item i {
-    width: 16px;
-    text-align: center;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
 }
-.room-item:hover, .room-item.active {
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-main);
+
+.room-item:hover {
+    background: rgba(0, 255, 204, 0.04);
+    color: #fff;
+    padding-left: 25px;
 }
-.room-item.active {
-    border-left: 2px solid var(--accent-cyan);
+
+.room-item:hover i {
+    transform: scale(1.1);
     color: var(--accent-cyan);
 }
 
-.no-dm-notice {
-    padding: 0 15px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    font-style: italic;
+.room-item.active {
+    background: linear-gradient(90deg, rgba(0, 255, 204, 0.1) 0%, transparent 100%);
+    color: var(--accent-cyan);
+    border-left: 3px solid var(--accent-cyan);
+    font-weight: 700;
 }
 
-/* User Progression Component */
-.xp-bar-container {
-    background: var(--bg-primary);
-    border-radius: 10px;
-    overflow: hidden;
-    width: 100%;
-}
-.xp-bar-fill {
-    height: 100%;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* User Profile Sidebar Footer */
+/* User Footer Section */
 .user-profile-footer {
     background: var(--bg-tertiary);
-    padding: 12px 10px;
+    padding: 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: auto;
-    border-top: 1px solid var(--border-soft);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .user-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     cursor: pointer;
-    max-width: 60%;
 }
 
-.deco-frame-container {
-    position: relative;
-    border-radius: 50%;
-}
-.deco-frame-container img {
-    width: 38px;
-    height: 38px;
+.user-meta img {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--border-soft);
+    border: 2px solid var(--accent-cyan);
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
 }
 
 .user-details h4 {
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.status-tag {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.dot-neon {
-    width: 6px;
-    height: 6px;
-    background: var(--accent-cyan);
-    border-radius: 50%;
-}
-
-.profile-footer-actions {
-    display: flex;
-    gap: 6px;
-}
-
-.footer-reg-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-soft);
-    color: var(--text-main);
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 3px;
-}
-.footer-reg-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.icon-logout-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
     font-size: 0.95rem;
-    cursor: pointer;
-    padding: 5px;
-}
-.icon-logout-btn:hover {
-    color: var(--accent-magenta);
+    font-weight: 700;
 }
 
 /* ==========================================================================
-   5. MAIN CHAT CONTAINER VIEWPORTS & IMAGE BUG FIX
+   5. MAIN CHAT AREA
    ========================================================================== */
 .chat-wrapper {
     background: var(--bg-primary);
@@ -436,479 +274,264 @@ body {
     flex-direction: column;
     height: 100%;
     position: relative;
-    overflow: hidden; /* මැද චැට් ඒරියා එකෙන් පිටට පනින දේවල් කපා හැරීමට */
+    overflow: hidden;
 }
 
-/* ⚠️ වැදගත්: චැට් එක මැදට වැරදිලා පනින විශාල ඉමේජ් හයිඩ් කිරීමේ ආරක්ෂිත කෝඩ් එක */
+/* Bug Fix: චැට් එක මැදට පනින ලොකු ඉමේජ් වැළැක්වීම */
 .chat-wrapper > img, 
 .messages-display img:not(.msg-avatar) {
     display: none !important;
 }
 
 .panel-header {
-    height: 60px;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--border-soft);
+    height: 65px;
+    padding: 0 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
     background: var(--bg-secondary);
-}
-
-.header-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.room-header-text {
-    font-size: 1.1rem;
-    font-weight: 700;
 }
 
 .messages-display {
     flex: 1;
-    padding: 20px;
+    padding: 25px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    background-color: var(--bg-primary);
-    z-index: 1;
-}
-
-.typing-box {
-    padding: 5px 20px;
-    font-size: 0.85rem;
-}
-.typing-glow-text {
-    color: var(--text-muted);
-}
-
-.message-input-box {
-    padding: 0 20px 20px 20px;
 }
 
 .input-container {
     background: var(--bg-secondary);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-}
-
-.input-container input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 10px;
-    color: var(--text-main);
-    outline: none;
-    font-size: 0.95rem;
-}
-
-.send-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 8px;
-    transition: color 0.2s;
-}
-.send-btn:hover {
-    color: var(--accent-cyan);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 8px 15px;
 }
 
 /* ==========================================================================
-   6. RIGHT UTILITY PANEL & STREAMS GRID
+   6. RIGHT UTILITY PANEL & STREAMS HUB
    ========================================================================== */
 .right-panel {
     background: var(--bg-secondary);
-    border-left: 1px solid var(--border-soft);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
 }
 
 .voice-status-card {
     background: var(--bg-tertiary);
-    border: 1px solid var(--border-soft);
-    border-radius: 6px;
-    padding: 15px;
-    text-align: center;
+    border: 1px solid rgba(0, 255, 204, 0.1);
+    border-radius: 8px;
+    padding: 20px;
 }
 
-.voice-pulse-icon {
-    width: 45px;
-    height: 45px;
-    background: rgba(0, 255, 204, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px auto;
-    color: var(--accent-cyan);
-    font-size: 1.2rem;
-}
-.voice-pulse-icon.active-pulse {
-    box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.4);
-    animation: pulseMic 1.6s infinite;
-}
-
-@keyframes pulseMic {
-    0% { transform: scale(0.95); }
-    70% { box-shadow: 0 0 0 10px rgba(0, 255, 204, 0); transform: scale(1); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); transform: scale(0.95); }
-}
-
-.voice-status-card h3 {
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-}
-
-.comms-mute-btn {
-    background: var(--accent-magenta);
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    width: 100%;
-}
-.comms-mute-btn.unmuted {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-soft);
-}
-
-#voice-status-desc {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    line-height: 1.3;
-}
-
-.hidden-voice-frame {
-    display: none;
-}
-
-.hub-header h3 {
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-}
-
-.game-yt-box {
-    margin-bottom: 15px;
-}
-.game-yt-box h4 {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-}
-
-.yt-buttons-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-}
+/* YouTube Stream Buttons Styling */
 .yt-buttons-grid button {
     background: var(--bg-tertiary);
-    border: 1px solid var(--border-soft);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--text-main);
-    padding: 6px;
-    font-size: 0.8rem;
-    text-align: left;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-radius: 3px;
-}
-.yt-buttons-grid button:hover {
-    border-color: var(--accent-cyan);
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
-.dev-yt-box {
-    background: rgba(255, 0, 85, 0.03);
-    border: 1px dashed rgba(255, 0, 85, 0.3);
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 15px;
+.yt-buttons-grid button:hover {
+    border-color: var(--accent-magenta);
+    background: rgba(255, 0, 85, 0.05);
+    color: var(--accent-magenta);
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.1);
+    transform: translateY(-1px);
 }
-.dev-yt-box h4 {
-    font-size: 0.75rem;
-    margin-bottom: 8px;
-}
+
+/* Dev Profile Button */
 .dev-link-btn {
     display: block;
-    background: var(--accent-magenta);
+    background: linear-gradient(135deg, var(--accent-magenta), #b3003b);
     color: #fff;
     text-align: center;
-    padding: 8px;
-    font-size: 0.8rem;
+    padding: 10px;
     font-weight: 700;
     text-decoration: none;
-    border-radius: 3px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(255, 0, 85, 0.3);
+    transition: all 0.2s;
 }
-
-.membership-promo-box {
-    background: rgba(0, 255, 242, 0.03);
-    border: 1px solid rgba(0, 255, 204, 0.2);
-    padding: 12px;
-    border-radius: 4px;
-    text-align: center;
-}
-.membership-promo-box h5 {
-    font-size: 0.8rem;
-    color: var(--accent-cyan);
-    margin-bottom: 4px;
-}
-.membership-promo-box p {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 10px;
-    line-height: 1.3;
-}
-.buy-membership-btn {
-    background: transparent;
-    border: 1px solid var(--accent-cyan);
-    color: var(--accent-cyan);
-    width: 100%;
-    padding: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 3px;
-}
-.buy-membership-btn:hover {
-    background: var(--accent-cyan);
-    color: #000;
+.dev-link-btn:hover {
+    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.5);
+    transform: translateY(-1px);
 }
 
 /* ==========================================================================
-   7. GENERIC DIALOG MODALS OVERLAYS
+   7. MODAL OVERLAYS & CENTERING FIXES
    ========================================================================== */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 7, 10, 0.8);
-    backdrop-filter: blur(4px);
+    background: rgba(4, 6, 9, 0.85);
+    backdrop-filter: blur(6px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 999;
 }
 
-.modal-card {
-    background: var(--bg-secondary);
-    width: 100%;
-    max-width: 400px;
-    padding: 25px;
-    border-radius: 6px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.modal-header h3 {
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.close-modal-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    cursor: pointer;
-}
-
-.save-profile-btn {
-    width: 100%;
-    background: var(--accent-magenta);
-    color: #fff;
-    border: none;
-    padding: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.neon-border-magenta {
-    border: 1px solid var(--accent-magenta);
-    box-shadow: 0 0 15px rgba(255, 0, 85, 0.15);
-}
-
-/* Reward Chest Component */
-.reward-glow-box {
-    border: 2px solid gold;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-    text-align: center;
-}
-.animated-chest {
-    font-size: 3rem;
-    color: gold;
-    margin-bottom: 15px;
-}
-.reward-title {
-    color: gold;
-    font-family: 'Orbitron', sans-serif;
-    margin-bottom: 10px;
-}
-.reward-stat-preview {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin: 15px 0;
-}
-.claim-reward-btn {
-    background: gold;
-    color: #000;
-    border: none;
-    padding: 12px 24px;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
 /* ==========================================================================
-   8. DISCORD STYLE CENTERED USER PROFILE CARD & AVATAR FIXES
+   8. DISCORD STYLE USER PROFILE CARD (SUPER LASSANA UPDATE)
    ========================================================================== */
 .user-view-card {
     position: relative;
     padding: 0 !important;
     overflow: hidden;
     background: #181f2a !important;
-    max-width: 340px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: cardEntrance 0.25s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    width: 100%;
+    max-width: 350px !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+    animation: cardEntrance 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes cardEntrance {
-    from { transform: scale(0.92); opacity: 0; }
+    from { transform: scale(0.85); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
 
 .user-card-banner {
-    height: 80px;
-    background: linear-gradient(135deg, var(--accent-magenta), var(--neon-blue));
+    height: 105px;
+    background: linear-gradient(135deg, var(--accent-magenta), var(--neon-blue), var(--accent-cyan));
+    background-size: 200% 200%;
+    animation: bannerAnimation 5s ease infinite;
     width: 100%;
 }
 
-/* Absolute Position Avatar Wrapper */
-.user-card-avatar-wrap {
-    position: absolute;
-    top: 35px;
-    left: 20px;
-    background: #181f2a;
-    padding: 5px;
-    border-radius: 50%;
-    z-index: 2;
+@keyframes bannerAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* ⚠️ Avatar එක නිවැරදිව Card එක ඇතුළේ 80px වලට Lock කරන කෝඩ් එක */
-#user-card-modal #view-card-avatar {
-    width: 80px !important;
-    height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
+/* Absolute Avatar Container Fix */
+.user-card-avatar-wrap {
+    position: absolute;
+    top: 55px; /* බැනර් එක මැදින් ලස්සනට පල්ලෙහාට */
+    left: 22px;
+    background: #181f2a;
+    padding: 6px;
     border-radius: 50%;
-    object-fit: cover; /* රවුමට කැපී හැඩගැස්වීමට */
-    border: 3px solid #181f2a;
-    display: block !important; 
+    z-index: 5;
+}
+
+/* ⚠️ Avatar Image Constraints */
+#user-card-modal #view-card-avatar {
+    width: 85px !important;
+    height: 85px !important;
+    max-width: 85px !important;
+    max-height: 85px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #181f2a;
+    display: block !important;
 }
 
 .user-card-info {
-    padding: 50px 20px 20px 20px; /* Text ටික පල්ලෙහාට ගැනීමට */
+    padding: 55px 22px 22px 22px; /* Text ටික Avatar එකට යටින් පටන් ගන්න */
+    background: #181f2a;
 }
 
 .user-card-info h3 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 900;
-    margin-bottom: 4px;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
 }
 
 .user-card-badge {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--accent-cyan);
-    background: rgba(0, 255, 204, 0.06);
-    border: 1px solid rgba(0, 255, 204, 0.2);
+    background: rgba(0, 255, 204, 0.07);
+    border: 1px solid rgba(0, 255, 204, 0.25);
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 4px;
-    font-weight: 600;
-    margin-bottom: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .user-card-section {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .user-card-section label {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-main);
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    color: #949ba4;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
     display: block;
 }
 
 #view-card-bio {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: #dbdee1;
     background: #111720;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     line-height: 1.4;
-    min-height: 45px;
+    min-height: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
+/* Send DM Button */
 .cyber-dm-btn {
     width: 100%;
     background: var(--accent-cyan);
     color: #000;
     border: none;
-    padding: 10px;
+    padding: 12px;
+    font-size: 0.95rem;
     font-weight: 700;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
+
 .cyber-dm-btn:hover {
-    box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+    transform: translateY(-1px);
 }
 
 .close-card-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.4);
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.5);
     border: none;
     color: #fff;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
+    transition: background 0.2s;
+}
+.close-card-btn:hover {
+    background: rgba(255, 0, 85, 0.6);
 }
