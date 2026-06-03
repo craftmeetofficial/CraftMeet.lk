@@ -21,15 +21,13 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
-// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
-// Discord Style Level Calculator (Level 1 to 100)
+// Discord Style Level Calculator
 function calculateLevel(xp) {
     if (!xp || xp < 0) return { level: 1, currentXp: 0, nextLevelXp: 100, progress: 0 };
-    // Discord style formula: level = floor(sqrt(xp / 100))
     let level = Math.floor(Math.sqrt(xp / 100));
-    level = Math.max(1, Math.min(level, 100)); // Level 1 - 100 Cap
+    level = Math.max(1, Math.min(level, 100)); 
     
     let xpForCurrentLevel = Math.pow(level, 2) * 100;
     let xpForNextLevel = Math.pow(level + 1, 2) * 100;
@@ -55,7 +53,7 @@ function playIncomingSound() {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-         oscillator.type = 'sine';
+        oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -132,7 +130,6 @@ function syncUserProfileData(user) {
     userRef.on('value', snapshot => {
         const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
-            // 7-DAY EXPIRY CHECKER LOGIC
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
@@ -150,7 +147,6 @@ function syncUserProfileData(user) {
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
-            // Sync Level Badge on Sidebar Footer
             const lvlData = calculateLevel(data.xp || 0);
             document.getElementById('user-footer-level').innerText = `Lvl ${lvlData.level}`;
 
@@ -164,7 +160,6 @@ function syncUserProfileData(user) {
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            // ANTI-SPAM CONTROL LOGIC
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -231,7 +226,6 @@ function viewUserProfileCard(targetUid) {
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
-        // Calculate and Render Level Data on Card UI
         const userXp = data.xp || 0;
         const lvlData = calculateLevel(userXp);
         
@@ -364,8 +358,6 @@ function sendMessage() {
 function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
 let currentDbRef = null;
-
-// Map to hold fetched user details to optimize network requests for levels rendering
 let userCacheMap = {};
 
 function loadMessages(roomName) {
@@ -383,7 +375,6 @@ function loadMessages(roomName) {
             
             const msgUniqueId = `msg-sender-${child.key}`;
             
-            // Render basic layout with a dedicated target slot for the Discord Level badge
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
@@ -395,7 +386,6 @@ function loadMessages(roomName) {
                 </div>
             `;
             
-            // Live context level injection logic
             if(userCacheMap[data.uid] !== undefined) {
                 setTimeout(() => {
                     const el = document.getElementById(msgUniqueId);
@@ -418,29 +408,3 @@ function loadMessages(roomName) {
 }
 
 function initVoiceConference(roomName) {
-    if (!currentUser) return;
-    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
-    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
-    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
-}            
-
-// Emoji Picker Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('message-input');
-    const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
-
-    const picker = new EmojiButton({
-        theme: 'dark',
-        autoHide: true,
-        position: 'top-start'
-    });
-
-    picker.on('emoji', selection => {
-        input.value += selection.emoji;
-        input.focus(); 
-    });
-
-    window.openEmojiPicker = function() {
-        picker.togglePicker(pickerButton);
-    };
-});
