@@ -110,6 +110,15 @@ function handlePrimaryAuth() {
     }
 }
 
+// Handle Google Redirect Result after returning to the site
+auth.getRedirectResult().then(result => {
+    if (result.user) {
+        console.log("Google Redirect Login Successful:", result.user.displayName);
+    }
+}).catch(err => {
+    console.error("Redirect Auth Error:", err.message);
+});
+
 // Central Identity Matrix Core Synchronizer Listener Node
 auth.onAuthStateChanged(user => {
     if (user) {
@@ -180,9 +189,10 @@ function saveUserProfile() {
       .catch(err => { alert("Update Error: " + err.message); });
 }
 
+// CHANGED TO REDIRECT METHOD TO PREVENT POPUP BLOCKING
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(err => { alert("Google Fault: " + err.message); });
+    auth.signInWithRedirect(provider).catch(err => { alert("Google Fault: " + err.message); });
 }
 
 function logout() { auth.signOut(); }
