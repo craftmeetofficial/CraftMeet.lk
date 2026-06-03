@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-const storage = firebase.storage(); // Storage Initialization for Image File Uploads
+const storage = firebase.storage(); // Active Reference to File Storage Buckets
 
 let currentUser = null;
 let currentRoom = "global"; 
@@ -72,7 +72,7 @@ function handlePrimaryAuth() {
             const user = credential.user;
             const defaultAvatar = 'https://via.placeholder.com/40';
 
-            // SIGNUP IMAGE FILE UPLOAD SYSTEM
+            // AT REGISTRATION: FILE UPLOAD MODULE FOR AVATARS
             if (fileInput && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const storageRef = storage.ref(`avatars/${user.uid}_${Date.now()}_${file.name}`);
@@ -122,7 +122,7 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
-        initVoiceConference(currentRoom); // Voice sync trigger
+        initVoiceConference(currentRoom); // Automated Room Synced Voice Engine
         loadPrivateRoomsList();
     } else {
         currentUser = null;
@@ -136,7 +136,7 @@ function syncUserProfileData(user) {
     userRef.on('value', snapshot => {
         const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
-            // 7-DAY EXPIRY BORDER REMOVER LOGIC
+            // 7-DAY AUTOMATIC DECORATION REMOVER ENGINE
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
@@ -160,7 +160,7 @@ function syncUserProfileData(user) {
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            // ANTI-SPAM LOCK CONTROL FOR REWARD CLAIM
+            // REWARD MODAL MANAGER SPAM LOCK 
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -196,7 +196,7 @@ function claimAvatarDecoration() {
 function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
 function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
-// LOCAL FILE UPLOAD DRIVER PROCESS FOR SETTINGS INTERFACE
+// PROFILE DASHBOARD INTERFACE: DIRECT LOCAL IMAGE UPLOADING
 function saveUserProfile() {
     if (!currentUser) return;
     
@@ -249,7 +249,7 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        // EXPIRY VERIFICATION ENGINE
+        // VERIFY DECORATION VALIDITY BEFORE INJECTING CARD
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -403,7 +403,7 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
             
-            // OPERATOR ROUTER INTERFACE LINK
+            // ROUTER CLICKACTION: DIRECT ROUTE TO USER CARD PROFILE VIEWER
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
