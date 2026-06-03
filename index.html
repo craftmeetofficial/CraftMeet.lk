@@ -3,224 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet - Sri Lankan Gaming Hub</title>
+    <title>CraftMeet | Sri Lankan Gaming Hub</title>
+    
+    <link rel="stylesheet" href="style.css">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="auth-screen" class="auth-overlay">
         <div class="auth-container">
-            <h2 id="auth-title">WELCOME BACK!</h2>
-            <div class="auth-subtitle" id="auth-subtitle">We're so excited to see you again!</div>
-            <form id="primary-auth-form">
+            <div class="auth-header">
+                <div class="cyber-logo">CRAFT<span>MEET</span></div>
+                <h2 id="auth-title">WELCOME BACK!</h2>
+                <p id="auth-subtitle">We're so excited to see you again!</p>
+            </div>
+            
+            <form id="primary-auth-form" onsubmit="return false;">
                 <div class="form-group" id="reg-username-group" style="display: none;">
-                    <label>GAMERTAG / USERNAME</label>
-                    <input type="text" id="auth-username" placeholder="e.g., CyberSlayer">
+                    <label><i class="fa-solid fa-gamepad"></i> GAMERTAG / USERNAME</label>
+                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight_LK">
                 </div>
+                
                 <div class="form-group">
-                    <label>EMAIL ADDRESS</label>
-                    <input type="email" id="auth-email" required placeholder="name@domain.com">
+                    <label><i class="fa-solid fa-envelope"></i> EMAIL ADDRESS</label>
+                    <input type="email" id="auth-email" placeholder="enter your email" required>
                 </div>
+                
                 <div class="form-group">
-                    <label>PASSWORD</label>
-                    <input type="password" id="auth-password" required placeholder="••••••••">
+                    <label><i class="fa-solid fa-lock"></i> PASSWORD</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" required>
                 </div>
+
                 <div id="reg-extras" style="display: none;">
                     <div class="form-group">
-                        <label>AVATAR IMAGE URL (OPTIONAL)</label>
-                        <input type="url" id="auth-avatar" placeholder="https://domain.com/pic.jpg">
+                        <label><i class="fa-solid fa-image"></i> PROFILE PICTURE URL (OPTIONAL)</label>
+                        <input type="url" id="auth-avatar" placeholder="https://example.com/image.png">
                     </div>
                     <div class="form-group">
-                        <label>GAMER SHORT BIO</label>
-                        <textarea id="auth-bio" rows="2" placeholder="Tell the arena about yourself..."></textarea>
+                        <label><i class="fa-solid fa-id-card"></i> GAMER BIO</label>
+                        <input type="text" id="auth-bio" placeholder="Tell the lobby about yourself...">
                     </div>
                 </div>
-                <button type="submit" class="auth-btn" id="main-auth-btn">Log In</button>
-                <button type="button" class="auth-btn google-btn" id="google-auth-btn"><i class="fa-brands fa-google"></i> Continue with Google</button>
+                
+                <button type="submit" class="cyber-btn primary-btn" id="main-auth-btn">Log In</button>
             </form>
-            <div class="auth-switch">
-                <span id="switch-text">Need an account?</span> <a href="#" id="switch-auth-link">Register</a>
+            
+            <div class="auth-divider"><span>OR CONTINUE WITH</span></div>
+            
+            <button class="cyber-btn google-btn" id="google-auth-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+                Google Authentication
+            </button>
+            
+            <div class="auth-footer">
+                <span id="switch-text">Need an account?</span> 
+                <a href="#" id="switch-auth-link">Register</a>
             </div>
         </div>
     </div>
 
-    <div class="app-container">
+    <div class="app-layout">
         
-        <div class="sidebar">
-            <div class="sidebar-brand">CRAFTMEET //</div>
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">CM</div>
+                <div class="brand-status"><span class="pulse-dot"></span> LIVE</div>
+            </div>
             
-            <div class="room-section">
-                <div class="section-title"><span>TEXT & VOICE CHANNELS</span></div>
+            <div class="sidebar-section">
+                <div class="section-header">PUBLIC CHANNELS</div>
                 <ul class="room-list">
                     <li class="room-item active" id="room-global">
-                        <i class="fa-solid fa-hashtag"></i> <span>global-chat</span>
+                        <i class="fa-solid fa-earth-asia"></i> <span>global-chat</span>
                     </li>
                     <li class="room-item" id="room-sri-lankan-esports">
-                        <i class="fa-solid fa-hashtag"></i> <span>sl-esports</span>
+                        <i class="fa-solid fa-trophy"></i> <span>sl-esports</span>
                     </li>
                     <li class="room-item" id="room-pc-gamers">
-                        <i class="fa-solid fa-hashtag"></i> <span>pc-gamers</span>
+                        <i class="fa-solid fa-computer"></i> <span>pc-gamers</span>
                     </li>
                     <li class="room-item" id="room-mobile-legends">
-                        <i class="fa-solid fa-hashtag"></i> <span>mobile-legends</span>
+                        <i class="fa-solid fa-mobile-screen-button"></i> <span>mlbb-lobby</span>
                     </li>
                 </ul>
-
-                <div class="section-title"><span>DIRECT MESSAGES</span></div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="section-header">DIRECT MESSAGES</div>
                 <ul class="room-list" id="private-rooms-list">
                     <li class="no-dm-notice">No active DMs</li>
                 </ul>
+            </div>
 
-                <div class="section-title"><span>COMMUNITY LINK INDEX</span></div>
+            <div class="sidebar-section">
+                <div class="section-header">YT STREAMS</div>
                 <ul class="room-list">
-                    <li class="room-item" id="search-gamerlk-btn">
-                        <i class="fa-brands fa-youtube cyber-magenta-text"></i> <span>search gamerlk yt</span>
+                    <li class="room-item yt-item" id="search-gamerlk-btn">
+                        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> <span>GamerLK</span>
                     </li>
-                    <li class="room-item" id="register-channel-btn">
-                        <i class="fa-solid fa-circle-plus"></i> <span style="color: #ffd700;">register channel</span>
+                    <li class="room-item add-chan-btn" id="register-channel-btn">
+                        <i class="fa-solid fa-plus-minus"></i> <span>Add Channel</span>
                     </li>
                 </ul>
             </div>
-
-            <div class="dashboard-xp-container">
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a5b4fc; margin-bottom: 4px;">
-                    <span>RANK PROGRESS</span>
-                    <span id="dashboard-xp-text">0 / 500 XP</span>
+            
+            <div class="sidebar-user-footer">
+                <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame">
+                    <img src="" alt="Avatar" id="user-avatar" class="user-profile-img">
                 </div>
-                <div class="xp-bar-container">
-                    <div id="dashboard-xp-fill" class="xp-bar-fill" style="width: 0%;"></div>
+                <div class="user-meta-info">
+                    <div class="user-name-wrapper">
+                        <span id="user-display-name">Gamer</span>
+                    </div>
+                    <div class="user-specialty-tag" id="user-specialty">
+                        <span class="dot-neon"></span> Multi-Game Athlete
+                    </div>
                 </div>
-            </div>
-
-            <div class="user-profile-footer">
-                <div class="avatar-wrapper">
-                    <img id="user-avatar" class="user-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Avatar">
-                    <div id="user-footer-deco-frame" class="deco-frame-container footer-avatar-frame"></div>
-                </div>
-                <div class="user-meta">
-                    <h4 id="user-display-name">Gamer</h4>
-                    <div id="user-specialty" class="user-specialty-txt"><span class="dot-neon"></span> Multi-Game Athlete</div>
-                </div>
-                <button class="footer-action-btn" id="open-profile-settings" title="Edit Profile"><i class="fa-solid fa-gear"></i></button>
-                <button class="footer-action-btn" id="logout-btn" title="Log Out" style="color: var(--cyber-magenta);"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
-        </div>
-
-        <div class="main-chat-workspace">
-            <div class="top-navbar-header">
-                <div class="header-room-title" id="current-room-title">global chat</div>
-                <div class="header-online-indicator">
-                    <i class="fa-solid fa-circle" style="color: #0f0; font-size: 0.75rem; margin-right: 4px;"></i> <span id="online-count">1</span> ONLINE
+                <div class="user-footer-actions">
+                    <button id="open-profile-settings" title="Edit Profile"><i class="fa-solid fa-gear"></i></button>
+                    <button id="logout-btn" title="Log Out"><i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>
             </div>
+        </aside>
 
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="header-left">
+                    <i class="fa-solid fa-hashtag channel-hash-icon"></i>
+                    <h1 id="current-room-title">global-chat</h1>
+                </div>
+                <div class="header-right">
+                    <div class="counter-badge">
+                        <i class="fa-solid fa-users"></i> <span id="online-count">1</span> ONLINE
+                    </div>
+                </div>
+            </header>
+            
             <div class="chat-messages-container" id="chat-messages">
                 </div>
-
-            <div id="typing-indicator" class="hidden">
+            
+            <div id="typing-indicator" class="typing-indicator hidden">
                 <span id="typing-user">Someone</span> is typing
-                <div class="typing-dots"><span>.</span><span>.</span><span>.</span></div>
+                <div class="typing-dots"><span></span><span></span><span></span></div>
             </div>
 
-            <div class="chat-input-operations-area">
-                <div class="input-wrapper-node">
-                    <input type="text" id="message-input" placeholder="Message arena...">
-                    <button class="send-btn" id="emoji-picker-btn" title="Insert Emoji"><i class="fa-regular fa-face-smile"></i></button>
+            <footer class="chat-input-footer">
+                <div class="input-wrapper">
+                    <button class="input-action-btn" id="emoji-picker-btn" type="button">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </button>
+                    <input type="text" id="message-input" placeholder="Type a message to the lobby...">
+                    <button class="input-action-btn send-btn" id="send-msg-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
                 </div>
-                <button class="send-btn" id="send-msg-btn" style="color: var(--cyber-cyan);"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
+            </footer>
+        </main>
 
-        <div class="comms-voice-panel">
-            <div class="panel-header-node" id="active-voice-channel">CONNECTED: GLOBAL CHAT</div>
-            <div class="voice-status-dashboard">
-                <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
-                    <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
+        <section class="comms-panel">
+            <div class="panel-section-title">VOICE COMMS LINK</div>
+            
+            <div class="voice-status-widget">
+                <div class="voice-connection-header">
+                    <div class="voice-pulse-icon active-pulse" id="voice-pulse-node"></div>
+                    <span id="active-voice-channel">CONNECTED: GLOBAL CHAT</span>
                 </div>
-                <div class="voice-description" id="voice-status-desc">Voice link operational. Transmission LIVE.</div>
-                <button id="comms-mute-btn" class="comms-mute-btn unmuted">
-                    <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
+                <div class="voice-meta-row">
+                    <i class="fa-solid fa-microphone" id="voice-status-icon"></i>
+                    <p id="voice-status-desc">Voice link operational. Transmission LIVE.</p>
+                </div>
+                <button class="comms-mute-btn unmuted" id="comms-mute-btn">
+                    <i class="fa-solid fa-microphone-lines" id="mute-btn-icon"></i> 
+                    <span id="mute-btn-text">MUTE MIC</span>
                 </button>
             </div>
-            <iframe id="jitsi-voice-frame" allow="microphone"></iframe>
-        </div>
+
+            <div class="voice-iframe-wrapper">
+                <iframe id="jitsi-voice-frame" allow="microphone; camera" src=""></iframe>
+            </div>
+
+            <div class="panel-section-title" style="margin-top: auto;">GAMER PROGRESSION</div>
+            <div class="xp-dashboard-widget">
+                <div class="xp-header">
+                    <span>LOBBY XP STATUS</span>
+                    <span id="dashboard-xp-text">0 / 500 XP</span>
+                </div>
+                <div class="xp-progress-bar-bg">
+                    <div class="xp-progress-bar-fill" id="dashboard-xp-fill" style="width: 0%;"></div>
+                </div>
+                <p class="xp-tip-text">Earn XP by active messaging. Reach 500 XP to claim a Limited Avatar Border!</p>
+            </div>
+        </section>
 
     </div>
 
-    <div id="profile-modal" class="modal-view-backdrop hidden">
-        <div class="modal-content-card">
-            <button class="modal-close-trigger" id="close-profile-settings"><i class="fa-solid fa-xmark"></i></button>
-            <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px; color:#fff;">EDIT USER PROFILE</h3>
+    <div id="reward-popup-modal" class="modal-overlay hidden">
+        <div class="cyber-modal reward-modal-box">
+            <div class="reward-glow-effect"></div>
+            <i class="fa-solid fa-box-open reward-box-icon"></i>
+            <h2>LEVEL 500 COMPLETED!</h2>
+            <p>You have accumulated enough Lobby Activity XP to crack open a Legendary Loot Crate!</p>
+            <button class="cyber-btn claim-btn animate-pulse" id="claim-deco-btn">CLAIM AVATAR BORDER (7 DAYS)</button>
+        </div>
+    </div>
+
+    <div id="user-card-modal" class="modal-overlay hidden">
+        <div class="user-profile-card">
+            <button class="close-card-btn" id="close-user-card">&times;</button>
+            <div class="card-avatar-section">
+                <div class="deco-frame-container" id="view-card-deco-frame">
+                    <img src="" alt="Gamer Avatar" id="view-card-avatar">
+                </div>
+            </div>
+            <h2 id="view-card-name">Gamer Tag</h2>
+            <div class="card-tag" id="view-card-game">Multi-Game Athlete</div>
+            
+            <div class="card-bio-section">
+                <h3>BIOGRAPHY</h3>
+                <p id="view-card-bio">No bio available.</p>
+            </div>
+
+            <div class="card-xp-section">
+                <div class="card-xp-meta">
+                    <span>XP PROGRESSION</span>
+                    <span id="view-card-xp-text">0/500 XP</span>
+                </div>
+                <div class="xp-progress-bar-bg">
+                    <div class="xp-progress-bar-fill" id="view-card-xp-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <button class="cyber-btn dm-action-btn" id="view-card-dm-btn">
+                <i class="fa-solid fa-message"></i> INITIATE SECURE DM
+            </button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="cyber-modal">
+            <h2>EDIT USER PROFILE</h2>
             <div class="form-group">
-                <label>AVATAR IMAGE SECURE LINK URL</label>
-                <input type="url" id="profile-pic-input">
+                <label>AVATAR IMAGE URL</label>
+                <input type="url" id="profile-pic-input" placeholder="https://example.com/pic.jpg">
             </div>
             <div class="form-group">
-                <label>ARENA BIO DESCRIPTION</label>
-                <textarea id="profile-bio-input" rows="3"></textarea>
+                <label>GAMER BIOGRAPHY</label>
+                <input type="text" id="profile-bio-input" placeholder="Update your status...">
             </div>
             <div class="form-group">
-                <label>PRIMARY CORE GAME SPECIALTY</label>
+                <label>GAME SPECIALTY</label>
                 <select id="profile-game-input">
                     <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                    <option value="Dota 2 Professional">Dota 2 Professional</option>
-                    <option value="PUBG Mobile Conqueror">PUBG Mobile Conqueror</option>
-                    <option value="Valorant Radiant">Valorant Radiant</option>
-                    <option value="Apex Predator">Apex Predator</option>
+                    <option value="FPS Dominator">FPS Dominator (Valorant/CS2)</option>
+                    <option value="MOBA Tactician">MOBA Tactician (MLBB/Dota2)</option>
+                    <option value="Battle Royale King">Battle Royale King (PUBG/FreeFire)</option>
                 </select>
             </div>
-            <button class="auth-btn" id="save-profile-btn">Apply Changes</button>
+            <div class="modal-actions">
+                <button class="cyber-btn primary-btn" id="save-profile-profile" onclick="saveUserProfile()">SAVE LOG</button>
+                <button class="cyber-btn cancel-btn" id="close-profile-settings">CANCEL</button>
+            </div>
         </div>
     </div>
 
-    <div id="user-card-modal" class="modal-view-backdrop hidden">
-        <div class="modal-content-card">
-            <button class="modal-close-trigger" id="close-user-card"><i class="fa-solid fa-xmark"></i></button>
-            <div class="card-avatar-container">
-                <img id="view-card-avatar" class="card-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Avatar">
-                <div id="view-card-deco-frame" class="card-deco-frame"></div>
-            </div>
-            <h3 id="view-card-name" class="card-gamer-name">Gamer</h3>
-            <div id="view-card-game" class="card-gamer-specialty">Multi-Game Athlete</div>
-            <div id="view-card-bio" class="card-bio-block">No statement configured in database matrix.</div>
-            
-            <div class="card-xp-stats-container">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--cyber-cyan);">
-                    <span>ARENA LEVEL EXPERTISE</span>
-                    <span id="view-card-xp-text">0 / 500 XP</span>
-                </div>
-                <div class="xp-bar-container" style="height: 10px;">
-                    <div id="view-card-xp-fill" class="xp-bar-fill"></div>
-                </div>
-            </div>
-            
-            <button id="view-card-dm-btn" class="auth-btn" style="background: linear-gradient(45deg, var(--cyber-magenta), #b0005d); color:#fff; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="fa-solid fa-message"></i> INITIATE SECURE DM LINK
-            </button>
-        </div>
-    </div>
-
-    <div id="reward-popup-modal" class="modal-view-backdrop hidden">
-        <div class="modal-content-card" style="border: 2px dashed #ffd700; text-align: center;">
-            <h2 style="color: #ffd700; font-family: 'Orbitron', sans-serif; margin-bottom: 12px; font-size: 1.6rem;">⚡ LEVEL UP UNLOCKED ⚡</h2>
-            <p style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; color: var(--text-light);">
-                Congratulations Gamer! You have accrued over <span style="color: var(--cyber-cyan); font-weight: bold;">500 XP Matrix units</span> inside the global platform. You are eligible to claim a Legendary Core Custom Border Decoration Frame valid for exactly 7 days!
-            </p>
-            <button class="auth-btn" id="claim-deco-btn" style="background: linear-gradient(45deg, #ffd700, #ff8c00); color: #000; font-size: 1.1rem; letter-spacing: 1px;">
-                CLAIM MY LEGENDARY BORDER
-            </button>
-        </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
 
     <script type="module" src="app.js"></script>
+
 </body>
 </html>
