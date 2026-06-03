@@ -24,12 +24,38 @@ let isRegisterMode = false;
 // 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
+// Discord Style Level Calculator (Level 1 to 100)
+function calculateLevel(xp) {
+    if (!xp || xp < 0) return { level: 1, currentXp: 0, nextLevelXp: 100, progress: 0 };
+    // Discord style formula: level = floor(sqrt(xp / 100))
+    let level = Math.floor(Math.sqrt(xp / 100));
+    level = Math.max(1, Math.min(level, 100)); // Level 1 - 100 Cap
+    
+    let xpForCurrentLevel = Math.pow(level, 2) * 100;
+    let xpForNextLevel = Math.pow(level + 1, 2) * 100;
+    
+    if (level >= 100) {
+        return { level: 100, currentXp: xp - xpForCurrentLevel, nextLevelXp: 0, progress: 100 };
+    }
+    
+    let xpInThisLevel = xp - xpForCurrentLevel;
+    let totalXpNeededForNextLevel = xpForNextLevel - xpForCurrentLevel;
+    let progressPercent = (xpInThisLevel / totalXpNeededForNextLevel) * 100;
+    
+    return {
+        level: level,
+        currentXp: xpInThisLevel,
+        nextLevelXp: totalXpNeededForNextLevel,
+        progress: progressPercent
+    };
+}
+
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
+         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -124,6 +150,10 @@ function syncUserProfileData(user) {
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
+            // Sync Level Badge on Sidebar Footer
+            const lvlData = calculateLevel(data.xp || 0);
+            document.getElementById('user-footer-level').innerText = `Lvl ${lvlData.level}`;
+
             const footerFrame = document.getElementById('user-footer-deco-frame');
             footerFrame.className = "deco-frame-container footer-avatar-frame"; 
             if(data.currentDecoration && data.currentDecoration !== "none"){
@@ -134,7 +164,7 @@ function syncUserProfileData(user) {
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            // ANTI-SPAM CONTROL LOGIC: XP 500ක් තිබ්බත් දැනටමත් Decoration එකක් තියෙනවා නම් Popup එක පෙන්නන්නේ නැත.
+            // ANTI-SPAM CONTROL LOGIC
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -148,7 +178,6 @@ function syncUserProfileData(user) {
     });
 }
 
-// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
 function claimAvatarDecoration() {
     if (!currentUser) return;
     const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
@@ -189,7 +218,6 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -203,10 +231,19 @@ function viewUserProfileCard(targetUid) {
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
+        // Calculate and Render Level Data on Card UI
         const userXp = data.xp || 0;
-        const barPercent = Math.min(100, (userXp / 500) * 100);
-        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
-        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
+        const lvlData = calculateLevel(userXp);
+        
+        document.getElementById('view-card-level').innerText = `LVL ${lvlData.level}`;
+        document.getElementById('view-card-xp-fill').style.width = `${lvlData.progress}%`;
+        
+        if (lvlData.level >= 100) {
+            document.getElementById('view-card-xp-ratio').innerText = "MAX LEVEL";
+        } else {
+            document.getElementById('view-card-xp-ratio').innerText = `${lvlData.currentXp}/${lvlData.nextLevelXp}`;
+        }
+        document.getElementById('view-card-xp-text').innerText = `Total Accumulation: ${userXp} XP`;
 
         const cardFrame = document.getElementById('view-card-deco-frame');
         cardFrame.className = "deco-frame-container";
@@ -327,6 +364,10 @@ function sendMessage() {
 function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
 let currentDbRef = null;
+
+// Map to hold fetched user details to optimize network requests for levels rendering
+let userCacheMap = {};
+
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     if (currentDbRef) currentDbRef.off();
@@ -340,16 +381,36 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
             
-            // USER NAME CLICK TRIGGER -> Opens Gamer Card with DM Capability
+            const msgUniqueId = `msg-sender-${child.key}`;
+            
+            // Render basic layout with a dedicated target slot for the Discord Level badge
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
                         <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
+                        <span class="chat-level-tag" id="${msgUniqueId}">...</span>
                         <span class="msg-time">${timeStr}</span>
                     </div>
                     <div class="msg-bubble">${data.message}</div>
                 </div>
             `;
+            
+            // Live context level injection logic
+            if(userCacheMap[data.uid] !== undefined) {
+                setTimeout(() => {
+                    const el = document.getElementById(msgUniqueId);
+                    if(el) el.innerText = `LVL ${userCacheMap[data.uid]}`;
+                }, 0);
+            } else {
+                db.ref(`users/${data.uid}/xp`).once('value').then(xpSnap => {
+                    const xpVal = xpSnap.val() || 0;
+                    const computedLvl = calculateLevel(xpVal).level;
+                    userCacheMap[data.uid] = computedLvl;
+                    const el = document.getElementById(msgUniqueId);
+                    if(el) el.innerText = `LVL ${computedLvl}`;
+                });
+            }
+
             if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
         });
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -368,21 +429,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('message-input');
     const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
 
-    // Picker එක create කරනවා (Dark theme එකත් එක්ක)
     const picker = new EmojiButton({
         theme: 'dark',
         autoHide: true,
         position: 'top-start'
     });
 
-    // Emoji එකක් තෝරපුහම input box එකට එකතු කරන logic එක
     picker.on('emoji', selection => {
         input.value += selection.emoji;
-        input.focus(); // ආයෙත් input එකට focus කරනවා type කරන්න ලේසි වෙන්න
+        input.focus(); 
     });
 
-    // දැනට HTML එකේ තියෙන inline onclick="openEmojiPicker()" එක වෙනුවට 
-    // මේ function එක හරහා picker එක toggle කරනවා
     window.openEmojiPicker = function() {
         picker.togglePicker(pickerButton);
     };
