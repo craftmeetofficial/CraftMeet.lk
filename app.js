@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-const storage = firebase.storage();
+const storage = firebase.storage(); // Storage Initialization for Image File Uploads
 
 let currentUser = null;
 let currentRoom = "global"; 
@@ -72,7 +72,7 @@ function handlePrimaryAuth() {
             const user = credential.user;
             const defaultAvatar = 'https://via.placeholder.com/40';
 
-            // IMAGE UPLOAD SYSTEM FOR SIGNUP
+            // SIGNUP IMAGE FILE UPLOAD SYSTEM
             if (fileInput && fileInput.files[0]) {
                 const file = fileInput.files[0];
                 const storageRef = storage.ref(`avatars/${user.uid}_${Date.now()}_${file.name}`);
@@ -122,6 +122,7 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
+        initVoiceConference(currentRoom); // Voice sync trigger
         loadPrivateRoomsList();
     } else {
         currentUser = null;
@@ -135,7 +136,7 @@ function syncUserProfileData(user) {
     userRef.on('value', snapshot => {
         const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
-            // 7-DAY EXPIRY CHECKER LOGIC
+            // 7-DAY EXPIRY BORDER REMOVER LOGIC
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
@@ -148,7 +149,7 @@ function syncUserProfileData(user) {
             }
 
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
-            specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
+            specialtyText.innerHTML = `<span class="dot-neon" style="width:8px; height:8px; background:#00ff66; display:inline-block; border-radius:50%; box-shadow:0 0 6px #00ff66; margin-right:4px;"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
             const footerFrame = document.getElementById('user-footer-deco-frame');
             footerFrame.className = "deco-frame-container footer-avatar-frame"; 
@@ -159,7 +160,7 @@ function syncUserProfileData(user) {
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            // ANTI-SPAM CONTROL LOGIC:
+            // ANTI-SPAM LOCK CONTROL FOR REWARD CLAIM
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -195,7 +196,7 @@ function claimAvatarDecoration() {
 function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
 function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
-// IMAGE UPLOAD PROCESS FOR SETTINGS INTERFACE
+// LOCAL FILE UPLOAD DRIVER PROCESS FOR SETTINGS INTERFACE
 function saveUserProfile() {
     if (!currentUser) return;
     
@@ -248,7 +249,7 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        // USER DECORATION ON-DEMAND TIME VERIFICATION
+        // EXPIRY VERIFICATION ENGINE
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -338,18 +339,39 @@ function listenToTyping(roomName) {
     });
 }
 
+function toggleVoiceMute() {
+    isMuted = !isMuted;
+    const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
+    const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
+    if (isMuted) {
+        muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
+        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusIcon.style.color = "#ff003c"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
+    } else {
+        muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
+        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusIcon.style.color = "#00ff66"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
+    }
+    initVoiceConference(currentRoom);
+}
+
+function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
+function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
+
 function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
     
-    const activeTarget = document.getElementById(`room-${roomName}`);
-    if (activeTarget) activeTarget.classList.add('active');
-    
+    setTimeout(() => {
+        const activeTarget = document.getElementById(`room-${roomName}`);
+        if (activeTarget) activeTarget.classList.add('active');
+    }, 200);
+
     const isDM = roomName.startsWith('dm_');
     const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
     document.getElementById('current-room-title').innerText = visualTitle;
-    loadMessages(roomName); listenToTyping(roomName);
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle.toUpperCase()}`;
+    
+    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
 function sendMessage() {
@@ -381,7 +403,7 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
             
-            // USER CLICK ACTION INTERFACE RE-ENGINEERED
+            // OPERATOR ROUTER INTERFACE LINK
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
@@ -395,4 +417,11 @@ function loadMessages(roomName) {
         });
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
+}
+
+function initVoiceConference(roomName) {
+    if (!currentUser) return;
+    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
+    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
+    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
 }
