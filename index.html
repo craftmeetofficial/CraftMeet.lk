@@ -59,10 +59,22 @@
         </div>
     </div>
 
+    <div id="reward-popup-modal" class="modal-overlay hidden">
+        <div class="modal-card reward-glow-box text-center">
+            <div class="animated-chest"><i class="fa-solid fa-gift fa-bounce"></i></div>
+            <h2 class="reward-title">REWARD UNLOCKED!</h2>
+            <p>You have accumulated 500+ Chat XP! Your legendary activity has granted you a rare profile decoration.</p>
+            <div class="reward-stat-preview">Current XP Resetting by -500 for Reward Node</div>
+            <button class="claim-reward-btn" onclick="claimAvatarDecoration()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> CLAIM DECORATION NOW
+            </button>
+        </div>
+    </div>
+
     <div id="profile-modal" class="modal-overlay hidden">
         <div class="modal-card neon-border-magenta">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> DISCORD PROFILE CARD</h3>
+                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT MY PROFILE</h3>
                 <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
@@ -85,6 +97,37 @@
                 </div>
                 <button class="save-profile-btn" onclick="saveUserProfile()">
                     <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="user-card-modal" class="modal-overlay hidden">
+        <div class="modal-card user-view-card neon-border">
+            <div class="user-card-banner"></div>
+            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="user-card-avatar-wrap">
+                <div class="deco-frame-container" id="view-card-deco-frame">
+                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
+                </div>
+            </div>
+            <div class="user-card-info">
+                <h3 id="view-card-name">GamerTag</h3>
+                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
+                
+                <div class="user-card-section">
+                    <label>XP LEVEL BAR</label>
+                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 50%;"></div></div>
+                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
+                </div>
+
+                <div class="user-card-section">
+                    <label>ABOUT ME</label>
+                    <p id="view-card-bio">No bio available.</p>
+                </div>
+
+                <button id="view-card-dm-btn" class="cyber-dm-btn">
+                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
                 </button>
             </div>
         </div>
@@ -116,27 +159,24 @@
             </div>
 
             <div class="menu-section">
-                <p class="section-title">// PRIVATE CHATS (FREE)</p>
-                <ul class="room-list private-list">
-                    <li class="room-item priv-item" id="room-squad-leader" onclick="switchRoom('squad-leader')">
-                        <i class="fa-solid fa-unlock cyber-magenta-text"></i> <span>squad-leader-dm</span>
-                    </li>
-                    <li class="room-item priv-item" id="room-vip-lounge" onclick="switchRoom('vip-lounge')">
-                        <i class="fa-solid fa-shield-halved cyber-magenta-text"></i> <span>vip-lounge</span>
-                    </li>
+                <p class="section-title">// DIRECT MESSAGES</p>
+                <ul class="room-list" id="private-rooms-list">
+                    <li class="no-dm-notice">No active DMs</li>
                 </ul>
             </div>
 
             <div class="user-profile-footer">
                 <div class="user-meta" onclick="toggleProfileModal()" title="View Profile">
-                    <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                    <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame">
+                        <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                    </div>
                     <div class="user-details">
                         <h4 id="user-display-name">Loading...</h4>
                         <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
                     </div>
                 </div>
                 <div class="profile-footer-actions">
-                    <button class="footer-reg-btn" onclick="toggleProfileModal()" title="Register or Edit Profile Data">
+                    <button class="footer-reg-btn" onclick="toggleProfileModal()" title="Edit Profile Data">
                         <i class="fa-solid fa-user-plus"></i> EDIT
                     </button>
                     <button class="icon-logout-btn" onclick="logout();" title="Logout">
