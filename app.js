@@ -1,7 +1,4 @@
-// Test execution connection logic
-console.log("🚀 App.js සාර්ථකව HTML එකට ලින්ක් වුණා!");
-
-// Firebase Live Config Matrix Configuration Data
+// Firebase Live Config Matrix
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
     authDomain: "craftmeet-bea37.firebaseapp.com",
@@ -13,7 +10,6 @@ const firebaseConfig = {
     measurementId: "G-JPF9GEPXSJ"
 };
 
-// Initialize Firebase App Instance
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
@@ -25,32 +21,8 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
+// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
-
-// Level Engine Processor Architecture
-function calculateLevel(xp) {
-    if (!xp || xp < 0) return { level: 1, currentXp: 0, nextLevelXp: 100, progress: 0 };
-    let level = Math.floor(Math.sqrt(xp / 100));
-    level = Math.max(1, Math.min(level, 100)); 
-    
-    let xpForCurrentLevel = Math.pow(level, 2) * 100;
-    let xpForNextLevel = Math.pow(level + 1, 2) * 100;
-    
-    if (level >= 100) {
-        return { level: 100, currentXp: xp - xpForCurrentLevel, nextLevelXp: 0, progress: 100 };
-    }
-    
-    let xpInThisLevel = xp - xpForCurrentLevel;
-    let totalXpNeededForNextLevel = xpForNextLevel - xpForCurrentLevel;
-    let progressPercent = (xpInThisLevel / totalXpNeededForNextLevel) * 100;
-    
-    return {
-        level: level,
-        currentXp: xpInThisLevel,
-        nextLevelXp: totalXpNeededForNextLevel,
-        progress: progressPercent
-    };
-}
 
 function playIncomingSound() {
     try {
@@ -68,7 +40,6 @@ function playIncomingSound() {
     } catch (e) { console.log(e); }
 }
 
-// Toggle Interfaces inside Authentication overlay window panel
 function toggleAuthMode(e) {
     e.preventDefault();
     isRegisterMode = !isRegisterMode;
@@ -87,7 +58,6 @@ function toggleAuthMode(e) {
     }
 }
 
-// Handle Traditional Email Password logins or Registration triggers
 function handlePrimaryAuth() {
     const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
     const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
@@ -108,30 +78,10 @@ function handlePrimaryAuth() {
     }
 }
 
-// Global Core Google authentication pipeline execution scripts
-function loginWithGoogle() { 
-    const provider = new firebase.auth.GoogleAuthProvider(); 
-    auth.signInWithPopup(provider)
-        .then(result => {
-            const user = result.user;
-            db.ref(`users/${user.uid}`).once('value', snap => {
-                if(!snap.exists()) {
-                    db.ref(`users/${user.uid}`).set({
-                        name: user.displayName || "Gamer",
-                        profilePic: user.photoURL || 'https://via.placeholder.com/40',
-                        bio: "Hey there! I am using CraftMeet.",
-                        gameSpecialty: "Multi-Game Athlete",
-                        xp: 0,
-                        currentDecoration: "none",
-                        decorationClaimedAt: 0
-                    });
-                }
-            });
-        })
-        .catch(err => alert("Google Sign-In Failed: " + err.message)); 
-}
+auth.getRedirectResult().then(result => {
+    if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
+}).catch(err => console.warn("Redirect Auth Info:", err.message));
 
-// Reactive Global Authentication State Observer Layer Engine
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
@@ -156,6 +106,7 @@ function syncUserProfileData(user) {
     userRef.on('value', snapshot => {
         const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
+            // 7-DAY EXPIRY CHECKER LOGIC
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
@@ -173,9 +124,6 @@ function syncUserProfileData(user) {
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
-            const lvlData = calculateLevel(data.xp || 0);
-            document.getElementById('user-footer-level').innerText = `Lvl ${lvlData.level}`;
-
             const footerFrame = document.getElementById('user-footer-deco-frame');
             footerFrame.className = "deco-frame-container footer-avatar-frame"; 
             if(data.currentDecoration && data.currentDecoration !== "none"){
@@ -186,6 +134,7 @@ function syncUserProfileData(user) {
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
+            // ANTI-SPAM CONTROL LOGIC: XP 500ක් තිබ්බත් දැනටමත් Decoration එකක් තියෙනවා නම් Popup එක පෙන්නන්නේ නැත.
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -199,6 +148,7 @@ function syncUserProfileData(user) {
     });
 }
 
+// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
 function claimAvatarDecoration() {
     if (!currentUser) return;
     const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
@@ -219,6 +169,7 @@ function claimAvatarDecoration() {
 }
 
 function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
 function saveUserProfile() {
     if (!currentUser) return;
@@ -238,6 +189,7 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
+        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -252,17 +204,9 @@ function viewUserProfileCard(targetUid) {
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
         const userXp = data.xp || 0;
-        const lvlData = calculateLevel(userXp);
-        
-        document.getElementById('view-card-level').innerText = `LVL ${lvlData.level}`;
-        document.getElementById('view-card-xp-fill').style.width = `${lvlData.progress}%`;
-        
-        if (lvlData.level >= 100) {
-            document.getElementById('view-card-xp-ratio').innerText = "MAX LEVEL";
-        } else {
-            document.getElementById('view-card-xp-ratio').innerText = `${lvlData.currentXp}/${lvlData.nextLevelXp}`;
-        }
-        document.getElementById('view-card-xp-text').innerText = `Total Accumulation: ${userXp} XP`;
+        const barPercent = Math.min(100, (userXp / 500) * 100);
+        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
+        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
 
         const cardFrame = document.getElementById('view-card-deco-frame');
         cardFrame.className = "deco-frame-container";
@@ -356,12 +300,10 @@ function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    
     setTimeout(() => {
         const activeTarget = document.getElementById(`room-${roomName}`);
         if (activeTarget) activeTarget.classList.add('active');
-    }, 100);
-    
+    }, 2000);
     const isDM = roomName.startsWith('dm_');
     const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
     document.getElementById('current-room-title').innerText = visualTitle;
@@ -385,8 +327,6 @@ function sendMessage() {
 function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
 let currentDbRef = null;
-let userCacheMap = {};
-
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     if (currentDbRef) currentDbRef.off();
@@ -400,34 +340,16 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
             
-            const msgUniqueId = `msg-sender-${child.key}`;
-            
+            // USER NAME CLICK TRIGGER -> Opens Gamer Card with DM Capability
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
                         <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
-                        <span class="chat-level-tag" id="${msgUniqueId}">...</span>
                         <span class="msg-time">${timeStr}</span>
                     </div>
                     <div class="msg-bubble">${data.message}</div>
                 </div>
             `;
-            
-            if(userCacheMap[data.uid] !== undefined) {
-                setTimeout(() => {
-                    const el = document.getElementById(msgUniqueId);
-                    if(el) el.innerText = `LVL ${userCacheMap[data.uid]}`;
-                }, 0);
-            } else {
-                db.ref(`users/${data.uid}/xp`).once('value').then(xpSnap => {
-                    const xpVal = xpSnap.val() || 0;
-                    const computedLvl = calculateLevel(xpVal).level;
-                    userCacheMap[data.uid] = computedLvl;
-                    const el = document.getElementById(msgUniqueId);
-                    if(el) el.innerText = `LVL ${computedLvl}`;
-                });
-            }
-
             if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
         });
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -441,24 +363,27 @@ function initVoiceConference(roomName) {
     document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
 }            
 
+// Emoji Picker Initialization
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('message-input');
-    const pickerButton = document.querySelector('.send-btn');
+    const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
 
-    if(typeof EmojiButton !== 'undefined') {
-        const picker = new EmojiButton({
-            theme: 'dark',
-            autoHide: true,
-            position: 'top-start'
-        });
+    // Picker එක create කරනවා (Dark theme එකත් එක්ක)
+    const picker = new EmojiButton({
+        theme: 'dark',
+        autoHide: true,
+        position: 'top-start'
+    });
 
-        picker.on('emoji', selection => {
-            input.value += selection.emoji;
-            input.focus(); 
-        });
+    // Emoji එකක් තෝරපුහම input box එකට එකතු කරන logic එක
+    picker.on('emoji', selection => {
+        input.value += selection.emoji;
+        input.focus(); // ආයෙත් input එකට focus කරනවා type කරන්න ලේසි වෙන්න
+    });
 
-        window.openEmojiPicker = function() {
-            picker.togglePicker(pickerButton);
-        };
-    }
+    // දැනට HTML එකේ තියෙන inline onclick="openEmojiPicker()" එක වෙනුවට 
+    // මේ function එක හරහා picker එක toggle කරනවා
+    window.openEmojiPicker = function() {
+        picker.togglePicker(pickerButton);
+    };
 });
