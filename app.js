@@ -4,7 +4,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 import { getDatabase, ref, set, update, onValue, push, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-// Your web app's Firebase configuration
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
     authDomain: "craftmeet-bea37.firebaseapp.com",
@@ -16,13 +16,13 @@ const firebaseConfig = {
     measurementId: "G-JPF9GEPXSJ"
 };
 
-// Initialize Firebase Components
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Core App States
+// Core States
 let currentUser = null;
 let currentRoom = "global"; 
 let isInitialLoad = true; 
@@ -313,7 +313,7 @@ function setupOnlineCounter() {
     });
     onValue(ref(db, 'online_users'), snap => { 
         const onlineCount = document.getElementById('online-count');
-        // FIXED: Added parentheses () here
+        // 🚀 FIXED: .numChildren() Error එක හැදුවා
         if (onlineCount) onlineCount.innerText = snap.numChildren() || 1; 
     });
 }
@@ -399,7 +399,7 @@ function loadMessages(roomName) {
     
     onValue(chatRef, snapshot => {
         chatDisplay.innerHTML = "";
-        // FIXED: Added parentheses () here
+        // 🚀 FIXED: .numChildren() Error එක හැදුවා
         let totalChildren = snapshot.numChildren(), counter = 0;
         
         if (totalChildren === 0) { isInitialLoad = false; }
@@ -433,7 +433,7 @@ function initVoiceConference(roomName) {
     if (voiceFrame) voiceFrame.src = voiceServerUrl;
 }            
 
-// DOM Element Event Binding Setup
+// DOM Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     const msgInput = document.getElementById('message-input');
     if (msgInput) {
@@ -446,7 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('google-auth-btn').addEventListener('click', loginWithGoogle);
     document.getElementById('open-profile-settings').addEventListener('click', toggleProfileModal);
     document.getElementById('close-profile-settings').addEventListener('click', toggleProfileModal);
+    
+    // 🔗 FIXED ID EVENT BINDING:
     document.getElementById('save-profile-btn').addEventListener('click', saveUserProfile);
+    
     document.getElementById('logout-btn').addEventListener('click', logout);
     document.getElementById('close-user-card').addEventListener('click', toggleUserCardModal);
     document.getElementById('claim-deco-btn').addEventListener('click', claimAvatarDecoration);
