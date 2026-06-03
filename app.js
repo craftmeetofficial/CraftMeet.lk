@@ -44,4 +44,13 @@ function toggleAuthMode(e) {
     e.preventDefault();
     isRegisterMode = !isRegisterMode;
     const title = document.getElementById('auth-title'), subtitle = document.getElementById('auth-subtitle');
-    const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch
+    const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch-text');
+    const usernameGroup = document.getElementById('reg-username-group'), regExtras = document.getElementById('reg-extras');
+
+    if (isRegisterMode) {
+        title.innerText = "CREATE AN ACCOUNT"; subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
+        mainBtn.innerText = "Continue & Register"; switchText.innerText = "Already have an account?"; switchLink.innerText = "Log In";
+        usernameGroup.style.display = "flex"; regExtras.style.display = "block";
+    } else {
+        title.innerText = "WELCOME BACK!"; subtitle.innerText = "We're so excited to see you again!";
+        mainBtn.innerText = "
