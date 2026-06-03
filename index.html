@@ -22,7 +22,7 @@
         .hidden { display: none !important; }
         
         #app-wrapper { display: flex; height: 100vh; width: 100vw; }
-        #sidebar { width: 280px; background: #0e0e1b; border-right: 2px solid #1e1e38; display: flex; flex-direction: column; }
+        #sidebar { width: 280px; background: #0e0e1b; border-right: 2px solid #1e1e38; display: flex; flex-direction: column; overflow-y: auto; }
         #main-chat-container { flex: 1; display: flex; flex-direction: column; background: var(--cyber-bg); }
         
         /* Core Decorator Target Structural Container */
@@ -97,7 +97,7 @@
         #message-input { flex: 1; background: #161630; border: 1px solid #32325d; border-radius: 6px; padding: 12px; color: white; }
         
         .room-list { list-style: none; padding: 0; margin: 0; }
-        .room-item { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; }
+        .room-item { padding: 10px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; font-size: 15px; }
         .room-item.active { background: #1a1a35; border-left-color: var(--neon-blue); }
         
         #user-footer-panel { padding: 15px; background: #0a0a14; border-top: 2px solid #1e1e38; display: flex; align-items: center; gap: 12px; }
@@ -107,14 +107,14 @@
         .xp-track-fill { height: 100%; background: linear-gradient(90deg, #00f0ff, #ff007f); width: 0%; transition: width 0.3s ease; }
 
         /* Comms Panel Section */
-        #voice-comms-panel { background: #111126; border: 1px dashed #2d2d54; padding: 15px; margin: 10px; border-radius: 8px; }
-        .comms-header { font-size: 12px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #8b8ba7; margin-bottom: 10px; }
-        .comms-status-block { display: flex; align-items: center; gap: 12px; background: #0a0a14; padding: 10px; border-radius: 6px; }
-        .voice-pulse-icon { width: 12px; height: 12px; border-radius: 50%; position: relative; }
+        #voice-comms-panel { background: #111126; border: 1px dashed #2d2d54; padding: 12px; margin: 10px; border-radius: 8px; }
+        .comms-header { font-size: 11px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #8b8ba7; margin-bottom: 8px; }
+        .comms-status-block { display: flex; align-items: center; gap: 10px; background: #0a0a14; padding: 8px; border-radius: 6px; }
+        .voice-pulse-icon { width: 10px; height: 10px; border-radius: 50%; position: relative; }
         .voice-pulse-icon.active-pulse { background: #00ff66; box-shadow: 0 0 8px #00ff66; animation: voicePulse 1.5s infinite ease-in-out; }
         .voice-pulse-icon.muted-pulse { background: #ff003c; box-shadow: 0 0 8px #ff003c; }
         @keyframes voicePulse { 0% { transform: scale(0.9); opacity: 0.6; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.6; } }
-        .comms-mute-btn { border: none; padding: 8px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; width: 100%; margin-top: 10px; justify-content: center; }
+        .comms-mute-btn { border: none; padding: 8px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 11px; width: 100%; margin-top: 8px; justify-content: center; }
         .comms-mute-btn.unmuted { background: var(--neon-magenta); color: white; }
         .comms-mute-btn.muted { background: #32325d; color: #8b8ba7; }
     </style>
@@ -128,185 +128,4 @@
             </div>
             
             <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">PUBLIC CHANNELS</div>
-            <ul class="room-list">
-                <li class="room-item active" id="room-global" onclick="switchRoom('global')">
-                    <i class="fa-solid fa-earth-asia" style="color: var(--neon-blue)"></i> <span>global-lounge</span>
-                </li>
-                <li class="room-item" id="room-esports" onclick="switchRoom('esports')">
-                    <i class="fa-solid fa-trophy" style="color: var(--neon-yellow)"></i> <span>esports-talk</span>
-                </li>
-            </ul>
-
-            <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">DIRECT MESSAGES</div>
-            <ul class="room-list" id="private-rooms-list"></ul>
-
-            <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">GAMING CHANNELS</div>
-            <ul class="room-list">
-                <li class="room-item" onclick="searchYT('GamiGs')">
-                    <i class="fa-brands fa-youtube" style="color:#ff0000"></i> <span>GamiGs</span>
-                </li>
-                <li class="room-item" onclick="triggerMembershipAlert()">
-                    <i class="fa-solid fa-circle-plus" style="color:#8b8ba7"></i> <span style="color:#8b8ba7; font-style:italic">Add Channel</span>
-                </li>
-            </ul>
-
-            <div id="voice-comms-panel">
-                <div class="comms-header" id="active-voice-channel">CONNECTED: GLOBAL LOUNGE</div>
-                <div class="comms-status-block">
-                    <div class="voice-pulse-icon active-pulse" id="voice-pulse-node"></div>
-                    <div style="font-size: 11px; line-height: 1.3;">
-                        <div id="voice-status-icon-holder"><i class="fa-solid fa-microphone" id="voice-status-icon" style="color: #00ff66"></i> <b style="color:white; font-family:'Orbitron'">VOICE LINK</b></div>
-                        <div id="voice-status-desc" style="color: #8b8ba7; font-size:10px;">Voice link operational. Transmission LIVE.</div>
-                    </div>
-                </div>
-                <button class="comms-mute-btn unmuted" id="comms-mute-btn" onclick="toggleVoiceMute()">
-                    <i class="fa-solid fa-microphone-lines" id="mute-btn-icon"></i> <span id="mute-btn-text">MUTE MIC</span>
-                </button>
-            </div>
-
-            <div style="flex: 1;"></div>
-
-            <div id="user-footer-panel">
-                <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame" onclick="toggleProfileModal()" style="cursor: pointer;">
-                    <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <div id="user-display-name" style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Gamer Name</div>
-                    <div id="user-specialty" style="font-size: 12px; color: #8b8ba7; display: flex; align-items: center; gap: 4px;">Loading...</div>
-                </div>
-                <button onclick="logout()" style="background: transparent; border: none; color: #52527a; cursor: pointer; font-size: 16px;"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
-        </aside>
-
-        <main id="main-chat-container">
-            <div style="padding: 15px 20px; background: #0e0e1b; border-bottom: 2px solid #1e1e38; display: flex; justify-content: space-between; align-items: center;">
-                <h2 id="current-room-title" style="margin: 0; font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--neon-blue);">global-lounge</h2>
-                <div style="font-size: 14px; color: #8b8ba7;"><i class="fa-solid fa-users" style="color: var(--neon-blue)"></i> Online Users: <span id="online-count" style="color: white; font-weight: bold;">1</span></div>
-            </div>
-
-            <div id="chat-messages"></div>
-
-            <div id="typing-indicator" class="hidden" style="padding: 5px 20px; font-size: 13px; color: #8b8ba7; font-style: italic; background: rgba(0,0,0,0.2);">
-                <i class="fa-solid fa-keyboard"></i> <span id="typing-user">Someone</span> is typing...
-            </div>
-
-            <div id="chat-input-area">
-                <input type="text" id="message-input" placeholder="Type your tactical transmission here..." onkeydown="checkEnter(event)" oninput="handleTyping()">
-                <button class="cyber-btn" onclick="sendMessage()" style="width: auto; padding: 0 25px;"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </main>
-    </div>
-
-    <div id="auth-screen" class="modal-overlay">
-        <div class="modal-box">
-            <h2 id="auth-title" style="font-family: 'Orbitron', sans-serif; color: var(--neon-blue);">WELCOME BACK!</h2>
-            <p id="auth-subtitle" style="color: #8b8ba7; font-size: 14px; margin-bottom: 20px;">We're so excited to see you again!</p>
-            
-            <div class="input-group">
-                <label>EMAIL ADDRESS</label>
-                <input type="email" id="auth-email">
-            </div>
-            <div class="input-group">
-                <label>PASSWORD</label>
-                <input type="password" id="auth-password">
-            </div>
-            <div class="input-group" id="reg-username-group" style="display: none;">
-                <label>GAMERTAG / USERNAME</label>
-                <input type="text" id="auth-username">
-            </div>
-            
-            <div class="input-group" id="reg-extras" style="display: none;">
-                <label>PROFILE PICTURE (UPLOAD FILE)</label>
-                <input type="file" id="auth-avatar-file" accept="image/*" style="padding: 5px;">
-                <label style="margin-top: 10px;">TACTICAL BIO</label>
-                <textarea id="auth-bio" rows="2"></textarea>
-            </div>
-
-            <button id="main-auth-btn" class="cyber-btn" onclick="handlePrimaryAuth()">Log In</button>
-            <button class="cyber-btn" onclick="loginWithGoogle()" style="background: #ffffff; color: #000; margin-top: 10px;"><i class="fa-brands fa-google"></i> Log In With Google</button>
-            
-            <p style="margin-top: 20px; font-size: 14px; color: #8b8ba7;">
-                <span id="switch-text">Need an account?</span> <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)" style="color: var(--neon-blue); text-decoration: none; font-weight: bold;">Register</a>
-            </p>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <h3 style="font-family: 'Orbitron', sans-serif; color: var(--neon-blue); margin-top:0;">OPERATOR PROFILE MANAGEMENT</h3>
-            <hr style="border-color: #222244; margin-bottom: 20px;">
-            
-            <div class="input-group">
-                <label>UPLOAD NEW AVATAR PICTURE</label>
-                <input type="file" id="profile-pic-file" accept="image/*" style="padding: 5px;">
-            </div>
-            <div class="input-group">
-                <label>OPERATOR STATUS BIO</label>
-                <textarea id="profile-bio-input" rows="3"></textarea>
-            </div>
-            <div class="input-group">
-                <label>TACTICAL GAME SPECIALTY</label>
-                <select id="profile-game-input">
-                    <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                    <option value="FPS Specialist">FPS Specialist</option>
-                    <option value="MOBA Strategist">MOBA Strategist</option>
-                    <option value="Open World Survivalist">Open World Survivalist</option>
-                </select>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="cyber-btn" onclick="saveUserProfile()">Save Changes</button>
-                <button class="cyber-btn" onclick="toggleProfileModal()" style="background: #222244;">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reward-popup-modal" class="modal-overlay hidden">
-        <div class="modal-box" style="border-color: var(--neon-yellow); background: radial-gradient(circle, #1a1a35 0%, #0c0c17 100%);">
-            <div style="font-size: 40px; color: var(--neon-yellow); margin-bottom: 10px;"><i class="fa-solid fa-circle-radiation"></i></div>
-            <h2 style="font-family: 'Orbitron', sans-serif; color: var(--neon-yellow); margin: 0 0 10px 0;">500 XP MILESTONE REACHED!</h2>
-            <p style="color: #b8b8d0; font-size: 14px; line-height: 1.5;">You have extracted enough processing units to unlock a Tier-1 Holographic Avatar Border Frame.</p>
-            <p style="color: var(--neon-magenta); font-size: 12px; font-weight: bold;">⚠️ Valid for exactly 7 days upon claiming!</p>
-            <button class="cyber-btn" onclick="claimAvatarDecoration()" style="background: linear-gradient(90deg, var(--neon-yellow), #b39b00); color: black; font-weight: 900; margin-top: 15px;">EXTRACT RANDOM DECORATION</button>
-        </div>
-    </div>
-
-    <div id="user-card-modal" class="modal-overlay hidden">
-        <div class="modal-box" style="width: 350px; padding: 25px; border-color: var(--neon-magenta);">
-            <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-                <div class="deco-frame-container" id="view-card-deco-frame" style="width: 80px; height: 80px; padding: 4px;">
-                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="User Pic">
-                </div>
-            </div>
-            <h3 id="view-card-name" style="font-family: 'Orbitron', sans-serif; margin: 0 0 5px 0; color: #fff; font-size: 20px;">GamerTag</h3>
-            <div id="view-card-game" style="font-size: 13px; color: var(--neon-blue); font-weight: bold; margin-bottom: 15px;">FPS Specialist</div>
-            
-            <p id="view-card-bio" style="background: #101021; padding: 12px; border-radius: 6px; font-size: 14px; color: #b8b8d0; text-align: left; font-family: 'Roboto', sans-serif; margin: 10px 0;">Bio description goes here.</p>
-            
-            <div style="text-align: left; margin-top: 15px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; color:#8b8ba7;">
-                    <span>XP TRACK PROGRESS</span>
-                    <span id="view-card-xp-text">0 / 500 XP</span>
-                </div>
-                <div class="xp-track-bg"><div class="xp-track-fill" id="view-card-xp-fill"></div></div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 25px;">
-                <button class="cyber-btn" id="view-card-dm-btn" style="background: linear-gradient(90deg, #4a00e0, #8a2be2); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa-solid fa-paper-plane"></i> SEND PRIVATE MESSAGE
-                </button>
-                <button class="cyber-btn" onclick="toggleUserCardModal()" style="background: #222244; width: auto;">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <iframe id="jitsi-voice-frame" allow="microphone" class="hidden" src=""></iframe>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
-    <script src="app.js"></script>
-</body>
-</html>
+            <ul class="room
