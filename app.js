@@ -361,4 +361,4 @@ function initVoiceConference(roomName) {
     const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
     const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
     document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
-}            meketh mokuth venas karanna epa
+}            
