@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* CSS Configurations For Avatar Borders & Framework */
         :root {
             --cyber-bg: #0a0a12;
             --cyber-panel: #121225;
@@ -22,12 +21,11 @@
         }
         .hidden { display: none !important; }
         
-        /* Layout Grid setup */
         #app-wrapper { display: flex; height: 100vh; width: 100vw; }
         #sidebar { width: 280px; background: #0e0e1b; border-right: 2px solid #1e1e38; display: flex; flex-direction: column; }
         #main-chat-container { flex: 1; display: flex; flex-direction: column; background: var(--cyber-bg); }
         
-        /* Core Decorator Target Structural Container */
+        /* Core Decorator structural styles */
         .deco-frame-container {
             position: relative; display: inline-block; width: 44px; height: 44px;
             border-radius: 50%; padding: 3px; background: transparent;
@@ -37,7 +35,6 @@
             width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
         }
 
-        /* 3 Unique Core Border Keyframes Effects Mapping */
         .deco-cyber-neon {
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-magenta));
             box-shadow: 0 0 10px var(--neon-blue), inset 0 0 8px var(--neon-magenta);
@@ -63,7 +60,6 @@
             100% { border-radius: 35% 65% 70% 30% / 30% 40% 60% 70%; }
         }
 
-        /* Generic Modals Styles */
         .modal-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(5,5,10,0.85); backdrop-filter: blur(8px);
@@ -86,58 +82,5 @@
             cursor: pointer; border-radius: 6px; width: 100%; letter-spacing: 1px;
         }
         
-        /* Chat UI layout bits */
         #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-container { background: #161630; padding: 10px 15px; border-radius: 8px; max-width: 70%; width: fit-content; }
-        .msg-container.own-msg { align-self: flex-end; background: #221940; border-right: 3px solid var(--neon-magenta); }
-        .msg-sender { font-weight: bold; color: var(--neon-blue); cursor: pointer; }
-        .msg-sender:hover { text-decoration: underline; }
-        .msg-time { font-size: 11px; color: #626280; margin-left: 8px; }
-        .msg-bubble { margin-top: 4px; font-family: 'Roboto', sans-serif; font-size: 15px; }
-
-        #chat-input-area { padding: 15px; background: #0e0e1b; border-top: 2px solid #1e1e38; display: flex; gap: 10px; }
-        #message-input { flex: 1; background: #161630; border: 1px solid #32325d; border-radius: 6px; padding: 12px; color: white; }
-        
-        .room-list { list-style: none; padding: 0; margin: 0; }
-        .room-item { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; }
-        .room-item.active { background: #1a1a35; border-left-color: var(--neon-blue); }
-        
-        #user-footer-panel { padding: 15px; background: #0a0a14; border-top: 2px solid #1e1e38; display: flex; align-items: center; gap: 12px; }
-        .footer-avatar-frame { width: 38px; height: 38px; }
-
-        /* XP Progress Track Bar */
-        .xp-track-bg { width: 100%; height: 6px; background: #222244; border-radius: 3px; margin-top: 8px; overflow: hidden; }
-        .xp-track-fill { height: 100%; background: linear-gradient(90deg, #00f0ff, #ff007f); width: 0%; transition: width 0.3s ease; }
-    </style>
-</head>
-<body>
-
-    <div id="app-wrapper">
-        
-        <aside id="sidebar">
-            <div style="padding: 20px; font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--neon-blue); font-size: 20px; border-bottom: 2px solid #1e1e38;">
-                CRAFTMEET <span style="color:var(--neon-magenta)">HUB</span>
-            </div>
-            
-            <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">PUBLIC CHANNELS</div>
-            <ul class="room-list">
-                <li class="room-item active" id="room-global" onclick="switchRoom('global')">
-                    <i class="fa-solid fa-earth-asia" style="color: var(--neon-blue)"></i> <span>global-lounge</span>
-                </li>
-                <li class="room-item" id="room-esports" onclick="switchRoom('esports')">
-                    <i class="fa-solid fa-trophy" style="color: var(--neon-yellow)"></i> <span>esports-talk</span>
-                </li>
-            </ul>
-
-            <div style="padding: 15px 20px 5px 20px; font-size: 12px; color: #52527a; font-weight: bold; letter-spacing: 1px;">DIRECT MESSAGES</div>
-            <ul class="room-list" id="private-rooms-list">
-                </ul>
-
-            <div style="flex: 1;"></div>
-
-            <div id="user-footer-panel">
-                <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame" onclick="toggleProfileModal()" style="cursor: pointer;">
-                    <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <div
+        .msg-
