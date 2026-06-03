@@ -3,176 +3,1013 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet - Cyber Gaming Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <title>CraftMeet - Sri Lankan Gaming Hub</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #0b0c10;
+            --bg-secondary: #1f2833;
+            --cyber-cyan: #66fcf1;
+            --cyber-magenta: #ff007f;
+            --text-light: #c5c6c7;
+            --text-muted: #45a29e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Auth Screen Styling */
+        #auth-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-container {
+            background: var(--bg-secondary);
+            border: 2px solid var(--cyber-cyan);
+            border-radius: 8px;
+            padding: 40px;
+            width: 450px;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.2);
+        }
+        .auth-container h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            text-shadow: 0 0 10px var(--cyber-cyan);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--cyber-cyan);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            background: #121821;
+            border: 1px solid #3a4750;
+            border-radius: 4px;
+            padding: 10px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+        .form-group input:focus { border-color: var(--cyber-cyan); }
+        .auth-btn {
+            background: linear-gradient(45deg, var(--cyber-cyan), #45a29e);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .google-btn {
+            background: #fff;
+            color: #000;
+            margin-top: 12px;
+        }
+        .auth-switch {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        .auth-switch a { color: var(--cyber-magenta); text-decoration: none; font-weight: bold; }
+
+        /* Main Workspace App Grid Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar Left Column Matrix */
+        .sidebar {
+            width: 300px;
+            background-color: #121821;
+            border-right: 1px solid #1f2833;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-brand {
+            padding: 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            border-bottom: 1px solid #1f2833;
+            text-shadow: 0 0 8px var(--cyber-magenta);
+        }
+        .room-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .section-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .room-list { list-style: none; margin-bottom: 24px; }
+        .room-item {
+            padding: 10px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        .room-item:hover, .room-item.active {
+            background: var(--bg-secondary);
+            color: var(--cyber-cyan);
+        }
+        .room-item.active { border-left: 3px solid var(--cyber-cyan); }
+        .cyber-magenta-text { color: var(--cyber-magenta); }
+
+        /* Dashboard Live XP Progress Bar UI Matrix */
+        .dashboard-xp-container {
+            padding: 0 16px 16px 16px;
+            border-top: 1px solid #1f2833;
+            background: #141b25;
+        }
+        .xp-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #0b0c10;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #2d3748;
+            margin-top: 4px;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-magenta));
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* User Profile Footer Grid */
+        .user-profile-footer {
+            padding: 16px;
+            background: #0f141c;
+            border-top: 1px solid #1f2833;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+        .avatar-wrapper { position: relative; width: 44px; height: 44px; }
+        .user-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        /* Core Avatar Decoration Frames CSS Rules */
+        .deco-frame-container {
+            position: absolute;
+            top: -4px; left: -4px; width: 52px; height: 52px;
+            border-radius: 50%;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+        .deco-cyber-neon { border: 3px dashed var(--cyber-cyan); animation: rotateDeco 6s linear infinite; }
+        .deco-golden-flame { border: 3px solid #ffd700; box-shadow: 0 0 10px #ff8c00; }
+        .deco-magic-star { border: 3px dotted #9400d3; animation: rotateDeco 12s linear infinite; }
+        @keyframes rotateDeco { 100% { transform: rotate(360deg); } }
+
+        .user-meta { flex: 1; overflow: hidden; }
+        .user-meta h4 { color: #fff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-specialty-txt { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .dot-neon { width: 6px; height: 6px; background-color: #0f0; border-radius: 50%; display: inline-block; box-shadow: 0 0 6px #0f0; }
+        .footer-action-btn { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .footer-action-btn:hover { color: var(--cyber-cyan); }
+
+        /* Main Screen Layout Chat Frame Box Matrix */
+        .main-chat-workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+        .top-navbar-header {
+            height: 64px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid #121821;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-room-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .header-online-indicator { font-size: 0.9rem; color: var(--cyber-cyan); background: rgba(102, 252, 241, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(102, 252, 241, 0.3); }
+
+        .chat-messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .msg-container { display: flex; flex-direction: column; max-width: 75%; align-self: flex-start; }
+        .msg-container.own-msg { align-self: flex-end; }
+        .msg-info { display: flex; gap: 8px; font-size: 0.8rem; margin-bottom: 4px; }
+        .own-msg .msg-info { justify-content: flex-end; }
+        .msg-sender { color: var(--cyber-cyan); font-weight: bold; }
+        .own-msg .msg-sender { color: var(--cyber-magenta); }
+        .msg-time { color: #6272a4; }
+        .msg-bubble { background: var(--bg-secondary); padding: 12px 16px; border-radius: 8px; border-top-left-radius: 0; color: #fff; line-height: 1.4; word-break: break-word; }
+        .own-msg .msg-bubble { background: #2a343f; border-radius: 8px; border-top-right-radius: 0; border-left: 2px solid var(--cyber-magenta); }
+
+        /* Typing Indicator Engine Frame Box UI Matrix */
+        #typing-indicator { padding: 4px 24px; font-size: 0.85rem; color: var(--text-muted); font-style: italic; display: flex; align-items: center; gap: 6px; }
+        .typing-dots span { animation: blink 1.4s infinite both; font-weight: bold; font-size: 1.2rem; }
+        .typing-dots span:nth-child(2) { animation-delay: .2s; }
+        .typing-dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+
+        /* Input Operations Dashboard Area Matrix Layout UI rules */
+        .chat-input-operations-area { padding: 20px 24px; background: #121821; display: flex; gap: 12px; align-items: center; border-top: 1px solid #1f2833; }
+        .input-wrapper-node { flex: 1; background: var(--bg-primary); border-radius: 6px; border: 1px solid #1f2833; display: flex; align-items: center; padding: 0 12px; }
+        .input-wrapper-node input { flex: 1; background: none; border: none; padding: 14px 0; color: #fff; outline: none; font-size: 1rem; }
+        .send-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: 0.2s; padding: 8px; }
+        .send-btn:hover { color: var(--cyber-cyan); }
+
+        /* Jitsi Embedded Voice Communications Column Frame Panel Matrix Layout UI Rules */
+        .comms-voice-panel {
+            width: 320px;
+            background-color: #121821;
+            border-left: 1px solid #1f2833;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header-node { padding: 20px; border-bottom: 1px solid #1f2833; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .voice-status-dashboard { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .voice-pulse-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 16px; transition: 0.3s; }
+        .active-pulse { background: rgba(102, 252, 241, 0.1); color: var(--cyber-cyan); border: 2px solid var(--cyber-cyan); animation: pulseGlow 2s infinite; }
+        .muted-pulse { background: rgba(255, 0, 127, 0.1); color: var(--cyber-magenta); border: 2px solid var(--cyber-magenta); }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(102, 252, 241, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(102, 252, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(102, 252, 241, 0); } }
+        .voice-description { font-size: 0.9rem; color: var(--text-light); margin-bottom: 24px; }
+        .comms-mute-btn { width: 80%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; transition: 0.2s; }
+        .comms-mute-btn.unmuted { background: var(--cyber-cyan); color: #000; }
+        .comms-mute-btn.muted { background: var(--cyber-magenta); color: #fff; }
+        #jitsi-voice-frame { width: 0; height: 0; border: none; position: absolute; visibility: hidden; }
+
+        /* Modal Dialog Base Styling Matrix Sheets UI Rules */
+        .modal-view-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.85); backdrop-filter: blur(4px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content-card {
+            background: var(--bg-secondary); border: 1px solid #3a4750; border-radius: 8px;
+            padding: 32px; width: 400px; position: relative;
+        }
+        .modal-close-trigger { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+        
+        /* Gamer Profile Card View Rules */
+        .card-avatar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 16px auto; }
+        .card-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .card-deco-frame { position: absolute; top: -6px; left: -6px; width: 92px; height: 92px; border-radius: 50%; pointer-events: none; }
+        .card-gamer-name { text-align: center; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.4rem; margin-bottom: 4px; }
+        .card-gamer-specialty { text-align: center; color: var(--cyber-cyan); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 16px; }
+        .card-bio-block { background: #121821; padding: 12px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 16px; color: var(--text-light); text-align: center; }
+        .card-xp-stats-container { margin-bottom: 24px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
 </head>
 <body>
 
-    <div id="auth-overlay" class="auth-overlay">
-        <div class="auth-card">
-            <h2 class="cyber-title">CRAFTMEET</h2>
-            <p>Welcome back, Trooper! Access the Nexus.</p>
-            <div class="auth-form-container">
-                <div class="form-group">
-                    <label>Email <span class="req-star">*</span></label>
-                    <input type="email" id="auth-email" placeholder="Enter your email">
+    <div id="auth-screen">
+        <div class="auth-container">
+            <h2 id="auth-title">WELCOME BACK!</h2>
+            <div class="auth-subtitle" id="auth-subtitle">We're so excited to see you again!</div>
+            <form id="primary-auth-form">
+                <div class="form-group" id="reg-username-group" style="display: none;">
+                    <label>GAMERTAG / USERNAME</label>
+                    <input type="text" id="auth-username" placeholder="e.g., CyberSlayer">
                 </div>
                 <div class="form-group">
-                    <label>Password <span class="req-star">*</span></label>
-                    <input type="password" id="auth-password" placeholder="Enter your password">
+                    <label>EMAIL ADDRESS</label>
+                    <input type="email" id="auth-email" required placeholder="name@domain.com">
                 </div>
-                <div class="form-group hidden" id="username-group">
-                    <label>Gamer Tag / Username <span class="req-star">*</span></label>
-                    <input type="text" id="auth-username" placeholder="Choose a badass name">
+                <div class="form-group">
+                    <label>PASSWORD</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••">
                 </div>
-                <button id="auth-action-btn" class="cyber-action-btn">Log In</button>
-                <div class="auth-switcher" id="auth-switcher-text">
-                    Need an account? <a href="#" id="toggle-auth-mode">Register</a>
+                <div id="reg-extras" style="display: none;">
+                    <div class="form-group">
+                        <label>AVATAR IMAGE URL (OPTIONAL)</label>
+                        <input type="url" id="auth-avatar" placeholder="https://domain.com/pic.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>GAMER SHORT BIO</label>
+                        <textarea id="auth-bio" rows="2" placeholder="Tell the arena about yourself..."></textarea>
+                    </div>
                 </div>
+                <button type="submit" class="auth-btn" id="main-auth-btn">Log In</button>
+                <button type="button" class="auth-btn google-btn" id="google-auth-btn"><i class="fa-brands fa-google"></i> Continue with Google</button>
+            </form>
+            <div class="auth-switch">
+                <span id="switch-text">Need an account?</span> <a href="#" id="switch-auth-link">Register</a>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-container">
+    <div class="app-container">
         
         <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-area">
-                    <i class="fa-solid fa-gamepad cyber-glow-text"></i>
-                    <span class="cyber-title-short">CRAFT<span class="cyber-magenta-text">MEET</span></span>
-                </div>
-            </div>
-
-            <div class="online-counter-box">
-                <div class="pulse-dot"></div>
-                <div class="counter-text">ONLINE USERS: <span id="online-count">1</span></div>
-            </div>
-
-            <div class="daily-loot-box-panel">
-                <div class="loot-title"><i class="fa-solid fa-box-open"></i> Daily Reward</div>
-                <div id="loot-box-trigger" class="loot-box-icon ready-to-claim">🎁</div>
-                <div id="loot-timer" class="loot-timer-text">Loot Box Ready!</div>
-                <button id="claim-loot-btn" class="claim-loot-btn">CLAIM LOOT</button>
-            </div>
-
-            <div class="menu-section">
-                <div class="section-title">NEXUS ROOMS</div>
+            <div class="sidebar-brand">CRAFTMEET //</div>
+            
+            <div class="room-section">
+                <div class="section-title"><span>TEXT & VOICE CHANNELS</span></div>
                 <ul class="room-list">
-                    <li class="room-item active" data-room="lobby"><i class="fa-solid fa-hashtag"></i> lobby-chat</li>
-                    <li class="room-item" data-room="announcements"><i class="fa-solid fa-bullhorn"></i> announcements</li>
-                    <li class="room-item" data-room="matchmaking"><i class="fa-solid fa-crosshairs"></i> matchmaking</li>
-                    <li class="room-item" data-room="clips"><i class="fa-solid fa-clapperboard"></i> gaming-clips</li>
+                    <li class="room-item active" id="room-global">
+                        <i class="fa-solid fa-hashtag"></i> <span>global-chat</span>
+                    </li>
+                    <li class="room-item" id="room-sri-lankan-esports">
+                        <i class="fa-solid fa-hashtag"></i> <span>sl-esports</span>
+                    </li>
+                    <li class="room-item" id="room-pc-gamers">
+                        <i class="fa-solid fa-hashtag"></i> <span>pc-gamers</span>
+                    </li>
+                    <li class="room-item" id="room-mobile-legends">
+                        <i class="fa-solid fa-hashtag"></i> <span>mobile-legends</span>
+                    </li>
+                </ul>
+
+                <div class="section-title"><span>DIRECT MESSAGES</span></div>
+                <ul class="room-list" id="private-rooms-list">
+                    <li class="no-dm-notice">No active DMs</li>
+                </ul>
+
+                <div class="section-title"><span>COMMUNITY LINK INDEX</span></div>
+                <ul class="room-list">
+                    <li class="room-item" id="search-gamerlk-btn">
+                        <i class="fa-brands fa-youtube cyber-magenta-text"></i> <span>search gamerlk yt</span>
+                    </li>
+                    <li class="room-item" id="register-channel-btn">
+                        <i class="fa-solid fa-circle-plus"></i> <span style="color: #ffd700;">register channel</span>
+                    </li>
                 </ul>
             </div>
 
-            <div class="menu-section">
-                <div class="section-title">LIVE LEADERBOARD</div>
-                <ul class="room-list" id="leaderboard-display-list">
-                    </ul>
+            <div class="dashboard-xp-container">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a5b4fc; margin-bottom: 4px;">
+                    <span>RANK PROGRESS</span>
+                    <span id="dashboard-xp-text">0 / 500 XP</span>
+                </div>
+                <div class="xp-bar-container">
+                    <div id="dashboard-xp-fill" class="xp-bar-fill" style="width: 0%;"></div>
+                </div>
             </div>
 
             <div class="user-profile-footer">
-                <div class="user-meta" id="footer-profile-trigger">
-                    <div class="deco-frame-container footer-avatar-frame" id="footer-avatar-wrapper">
-                        <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Avatar">
-                    </div>
-                    <div class="user-details">
-                        <h4 id="user-display-name">Loading...</h4>
-                        <div class="status-tag"><div class="dot-neon"></div><span id="user-display-level">LVL 1 (0 XP)</span></div>
-                    </div>
+                <div class="avatar-wrapper">
+                    <img id="user-avatar" class="user-avatar-img" src="https://via.placeholder.com/40" alt="Avatar">
+                    <div id="user-footer-deco-frame" class="deco-frame-container footer-avatar-frame"></div>
                 </div>
-                <div class="profile-footer-actions">
-                    <button id="logout-btn" class="icon-logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <div class="user-meta">
+                    <h4 id="user-display-name">Gamer</h4>
+                    <div id="user-specialty" class="user-specialty-txt"><span class="dot-neon"></span> Multi-Game Athlete</div>
                 </div>
+                <button class="footer-action-btn" id="open-profile-settings" title="Edit Profile"><i class="fa-solid fa-gear"></i></button>
+                <button class="footer-action-btn" id="logout-btn" title="Log Out" style="color: var(--cyber-magenta);"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </div>
 
-        <div class="chat-wrapper">
-            <div class="messages-display" id="messages-container">
+        <div class="main-chat-workspace">
+            <div class="top-navbar-header">
+                <div class="header-room-title" id="current-room-title">global chat</div>
+                <div class="header-online-indicator">
+                    <i class="fa-solid fa-circle" style="color: #0f0; font-size: 0.75rem; margin-right: 4px;"></i> <span id="online-count">1</span> ONLINE
                 </div>
+            </div>
+
+            <div class="chat-messages-container" id="chat-messages">
+                </div>
+
+            <div id="typing-indicator" class="hidden">
+                <span id="typing-user">Someone</span> is typing
+                <div class="typing-dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>
+
+            <div class="chat-input-operations-area">
+                <div class="input-wrapper-node">
+                    <input type="text" id="message-input" placeholder="Message arena...">
+                    <button class="send-btn" id="emoji-picker-btn" title="Insert Emoji"><i class="fa-regular fa-face-smile"></i></button>
+                </div>
+                <button class="send-btn" id="send-msg-btn" style="color: var(--cyber-cyan);"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <div class="comms-voice-panel">
+            <div class="panel-header-node" id="active-voice-channel">CONNECTED: GLOBAL CHAT</div>
+            <div class="voice-status-dashboard">
+                <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
+                    <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
+                </div>
+                <div class="voice-description" id="voice-status-desc">Voice link operational. Transmission LIVE.</div>
+                <button id="comms-mute-btn" class="comms-mute-btn unmuted">
+                    <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
+                </button>
+            </div>
+            <iframe id="jitsi-voice-frame" allow="microphone"></iframe>
+        </div>
+
+    </div>
+
+    <div id="profile-modal" class="modal-view-backdrop hidden">
+        <div class="modal-content-card">
+            <button class="modal-close-trigger" id="close-profile-settings"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="font-family: 'Orbitron', sans-serif; margin-bottom: 20px; color:#fff;">EDIT USER PROFILE</h3>
+            <div class="form-group">
+                <label>AVATAR IMAGE SECURE LINK URL</label>
+                <input type="url" id="profile-pic-input">
+            </div>
+            <div class="form-group">
+                <label>ARENA BIO DESCRIPTION</label>
+                <textarea id="profile-bio-input" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>PRIMARY CORE GAME SPECIALTY</label>
+                <select id="profile-game-input">
+                    <option value="Multi-Game Athlete">Multi-Game Athlete</option>
+                    <option value="Dota 2 Professional">Dota 2 Professional</option>
+                    <option value="PUBG Mobile Conqueror">PUBG Mobile Conqueror</option>
+                    <option value="Valorant Radiant">Valorant Radiant</option>
+                    <option value="Apex Predator">Apex Predator</option>
+                </select>
+            </div>
+            <button class="auth-btn" id="save-profile-btn">Apply Changes</button>
+        </div>
+    </div>
+
+    <div id="user-card-modal" class="modal-view-backdrop hidden">
+        <div class="modal-content-card">
+            <button class="modal-close-trigger" id="close-user-card"><i class="fa-solid fa-xmark"></i></button>
+            <div class="card-avatar-container">
+                <img id="view-card-avatar" class="card-avatar-img" src="https://via.placeholder.com/80" alt="Avatar">
+                <div id="view-card-deco-frame" class="card-deco-frame"></div>
+            </div>
+            <h3 id="view-card-name" class="card-gamer-name">Gamer</h3>
+            <div id="view-card-game" class="card-gamer-specialty">Multi-Game Athlete</div>
+            <div id="view-card-bio" class="card-bio-block">No statement configured in database matrix.</div>
             
-            <div class="typing-box">
-                <span id="typing-indicator" class="typing-glow-text"></span>
-            </div>
-
-            <div class="message-input-box">
-                <div class="neon-border-soft">
-                    <div class="input-container" style="display: flex; width: 100%; align-items: center;">
-                        <input type="text" id="chat-message-input" placeholder="Broadcast to the server...">
-                        <button id="emoji-trigger-btn" class="send-btn" style="font-size: 1.2rem;"><i class="fa-regular fa-face-smile"></i></button>
-                        <button id="chat-send-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
+            <div class="card-xp-stats-container">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--cyber-cyan);">
+                    <span>ARENA LEVEL EXPERTISE</span>
+                    <span id="view-card-xp-text">0 / 500 XP</span>
+                </div>
+                <div class="xp-bar-container" style="height: 10px;">
+                    <div id="view-card-xp-fill" class="xp-bar-fill"></div>
                 </div>
             </div>
+            
+            <button id="view-card-dm-btn" class="auth-btn" style="background: linear-gradient(45deg, var(--cyber-magenta), #b0005d); color:#fff; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-message"></i> INITIATE SECURE DM LINK
+            </button>
         </div>
+    </div>
 
-        <div class="right-panel">
-            <div class="voice-section-box">
-                <div class="online-counter-box" style="margin: 20px 20px 0 20px;">
-                    <span class="room-header-text"><i class="fa-solid fa-headset cyber-glow-text"></i> COMMS LINK ALPHA</span>
-                </div>
-                <div class="voice-status-container">
-                    <div class="voice-status-card">
-                        <div id="voice-pulse" class="voice-pulse-icon"><i class="fa-solid fa-microphone"></i></div>
-                        <div id="voice-status-lbl" class="counter-text">VOICE DISCONNECTED</div>
-                        <button id="toggle-voice-btn" class="comms-mute-btn unmuted">CONNECT COMMS</button>
-                    </div>
-                </div>
-            </div>
+    <div id="reward-popup-modal" class="modal-view-backdrop hidden">
+        <div class="modal-content-card" style="border: 2px dashed #ffd700; text-align: center;">
+            <h2 style="color: #ffd700; font-family: 'Orbitron', sans-serif; margin-bottom: 12px; font-size: 1.6rem;">⚡ LEVEL UP UNLOCKED ⚡</h2>
+            <p style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; color: var(--text-light);">
+                Congratulations Gamer! You have accrued over <span style="color: var(--cyber-cyan); font-weight: bold;">500 XP Matrix units</span> inside the global platform. You are eligible to claim a Legendary Core Custom Border Decoration Frame valid for exactly 7 days!
+            </p>
+            <button class="auth-btn" id="claim-deco-btn" style="background: linear-gradient(45deg, #ffd700, #ff8c00); color: #000; font-size: 1.1rem; letter-spacing: 1px;">
+                CLAIM MY LEGENDARY BORDER
+            </button>
+        </div>
+    </div>
 
-            <div class="streamers-hub-box">
-                <span class="room-header-text"><i class="fa-brands fa-youtube cyber-magenta-text"></i> STREAMERS PORTAL</span>
-                <div class="hub-content">
-                    <div class="game-yt-box">
-                        <h4>POPULAR GAMING LINKS</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="window.open('https://youtube.com', '_blank')"><i class="fa-brands fa-youtube"></i> Gaming Live</button>
-                            <button onclick="window.open('https://twitch.tv', '_blank')"><i class="fa-brands fa-twitch"></i> Twitch Portal</button>
+    <script type="module">
+        // Firebase v9+ Modular SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+        import { getDatabase, ref, set, update, onValue, once, push, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
+            authDomain: "craftmeet-bea37.firebaseapp.com",
+            databaseURL: "https://craftmeet-bea37-default-rtdb.firebaseio.com",
+            projectId: "craftmeet-bea37",
+            storageBucket: "craftmeet-bea37.firebasestorage.app",
+            messagingSenderId: "861031856963",
+            appId: "1:861031856963:web:b795f7bfa69877ef920df6",
+            measurementId: "G-JPF9GEPXSJ"
+        };
+
+        // Initialize Firebase Components
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Core App States
+        let currentUser = null;
+        let currentRoom = "global"; 
+        let isInitialLoad = true; 
+        let typingTimeout = null;
+        let isMuted = false; 
+        let isRegisterMode = false; 
+        let currentDbRef = null;
+
+        const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
+
+        function playIncomingSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch (e) { console.log(e); }
+        }
+
+        function toggleAuthMode(e) {
+            e.preventDefault();
+            isRegisterMode = !isRegisterMode;
+            const title = document.getElementById('auth-title'), subtitle = document.getElementById('auth-subtitle');
+            const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch-text');
+            const usernameGroup = document.getElementById('reg-username-group'), regExtras = document.getElementById('reg-extras');
+
+            if (isRegisterMode) {
+                title.innerText = "CREATE AN ACCOUNT"; subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
+                mainBtn.innerText = "Continue & Register"; switchText.innerText = "Already have an account?"; switchLink.innerText = "Log In";
+                usernameGroup.style.display = "flex"; regExtras.style.display = "block";
+            } else {
+                title.innerText = "WELCOME BACK!"; subtitle.innerText = "We're so excited to see you again!";
+                mainBtn.innerText = "Log In"; switchText.innerText = "Need an account?"; switchLink.innerText = "Register";
+                usernameGroup.style.display = "none"; regExtras.style.display = "none";
+            }
+        }
+
+        function handlePrimaryAuth() {
+            const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
+            const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
+
+            if (!email || !password) { alert("Please fill in all required fields."); return; }
+
+            if (isRegisterMode) {
+                if (!username) { alert("Please choose a Gamertag/Username."); return; }
+                createUserWithEmailAndPassword(auth, email, password).then(credential => {
+                    const user = credential.user;
+                    updateProfile(user, { displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
+                        set(ref(db, `users/${user.uid}`), { name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
+                        .then(() => { location.reload(); });
+                    });
+                }).catch(err => alert("Registration Fault: " + err.message));
+            } else {
+                signInWithEmailAndPassword(auth, email, password).catch(err => alert("Login Fault: " + err.message));
+            }
+        }
+
+        getRedirectResult(auth).then(result => {
+            if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
+        }).catch(err => console.warn("Redirect Auth Info:", err.message));
+
+        onAuthStateChanged(auth, user => {
+            const authScreen = document.getElementById('auth-screen');
+            const jitsiFrame = document.getElementById('jitsi-voice-frame');
+            
+            if (user) {
+                currentUser = user;
+                if (authScreen) authScreen.classList.add('hidden');
+                
+                const userDispName = document.getElementById('user-display-name');
+                if (userDispName) userDispName.innerText = user.displayName || "Gamer";
+                
+                syncUserProfileData(user);
+                setupOnlineCounter();
+                loadMessages(currentRoom);
+                listenToTyping(currentRoom);
+                initVoiceConference(currentRoom);
+                loadPrivateRoomsList();
+            } else {
+                currentUser = null;
+                if (authScreen) authScreen.classList.remove('hidden');
+                if (jitsiFrame) jitsiFrame.src = "";
+            }
+        });
+
+        function syncUserProfileData(user) {
+            const userRef = ref(db, `users/${user.uid}`);
+            onValue(userRef, snapshot => {
+                const data = snapshot.val();
+                const avatarImg = document.getElementById('user-avatar');
+                const specialtyText = document.getElementById('user-specialty');
+                
+                if (data) {
+                    if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
+                        const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
+                        const currentTime = Date.now();
+                        
+                        if (currentTime - data.decorationClaimedAt > oneWeekInMs) {
+                            update(ref(db, `users/${user.uid}`), {
+                                currentDecoration: "none",
+                                decorationClaimedAt: 0
+                            });
+                            alert("⏰ YOUR DECORATION EXPIRED!\n\nYour 7-day avatar decoration frame time has ended. Keep chatting to earn more XP and unlock it again!");
+                            return; 
+                        }
+                    }
+
+                    if (avatarImg) avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
+                    if (specialtyText) specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
+                    
+                    const footerFrame = document.getElementById('user-footer-deco-frame');
+                    if (footerFrame) {
+                        footerFrame.className = "deco-frame-container footer-avatar-frame"; 
+                        if (data.currentDecoration && data.currentDecoration !== "none") {
+                            footerFrame.classList.add(data.currentDecoration);
+                        }
+                    }
+
+                    const userXp = data.xp || 0;
+                    const barPercent = Math.min(100, (userXp / 500) * 100);
+                    const dashXpFill = document.getElementById('dashboard-xp-fill');
+                    const dashXpText = document.getElementById('dashboard-xp-text');
+                    
+                    if (dashXpFill) dashXpFill.style.width = `${barPercent}%`;
+                    if (dashXpText) dashXpText.innerText = `${userXp} / 500 XP`;
+
+                    const picInput = document.getElementById('profile-pic-input');
+                    const bioInput = document.getElementById('profile-bio-input');
+                    const gameInput = document.getElementById('profile-game-input');
+                    
+                    if (picInput) picInput.value = data.profilePic || '';
+                    if (bioInput) bioInput.value = data.bio || '';
+                    if (gameInput) gameInput.value = data.gameSpecialty || 'Multi-Game Athlete';
+
+                    const rewardModal = document.getElementById('reward-popup-modal');
+                    if (rewardModal) {
+                        if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
+                            rewardModal.classList.remove('hidden');
+                        } else {
+                            rewardModal.classList.add('hidden');
+                        }
+                    }
+                } else {
+                    const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
+                    set(ref(db, `users/${user.uid}`), { name: defaultName, profilePic: defaultAvatar, bio: "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 });
+                    if (avatarImg) avatarImg.src = defaultAvatar; 
+                    if (specialtyText) specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
+                }
+            });
+        }
+
+        function claimAvatarDecoration() {
+            if (!currentUser) return;
+            const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
+            
+            const userXpRef = ref(db, `users/${currentUser.uid}`);
+            runTransaction(userXpRef, (currentData) => {
+                if (currentData) {
+                    const currentXp = currentData.xp || 0;
+                    currentData.xp = Math.max(0, currentXp - 500);
+                    currentData.currentDecoration = randomDeco;
+                    currentData.decorationClaimedAt = Date.now();
+                }
+                return currentData;
+            }).then(() => {
+                const rewardModal = document.getElementById('reward-popup-modal');
+                if (rewardModal) rewardModal.classList.add('hidden');
+                alert(`🎉 LEGENDARY CLAIM SUCCESSFUL!\n\nYou unlocked the [${randomDeco.replace('deco-', '').replace('-', ' ').toUpperCase()}] Avatar border!\n\n*Note: This decoration is valid for exactly 7 days!`);
+            });
+        }
+
+        function toggleProfileModal() { 
+            const profModal = document.getElementById('profile-modal');
+            if (profModal) profModal.classList.toggle('hidden'); 
+        }
+
+        function loginWithGoogle() { 
+            const provider = new GoogleAuthProvider(); 
+            signInWithRedirect(auth, provider).catch(err => console.error(err)); 
+        }
+
+        function saveUserProfile() {
+            if (!currentUser) return;
+            update(ref(db, `users/${currentUser.uid}`), {
+                profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
+                bio: document.getElementById('profile-bio-input').value.trim(),
+                gameSpecialty: document.getElementById('profile-game-input').value
+            }).then(() => toggleProfileModal()).catch(err => alert(err.message));
+        }
+
+        function logout() { signOut(auth).then(() => location.reload()); }
+        
+        function toggleUserCardModal() { 
+            const cardModal = document.getElementById('user-card-modal');
+            if (cardModal) cardModal.classList.toggle('hidden'); 
+        }
+
+        window.viewUserProfileCard = function(targetUid) {
+            if (!currentUser) return;
+            onValue(ref(db, `users/${targetUid}`), snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
+                    const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+                    if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
+                        update(ref(db, `users/${targetUid}`), { currentDecoration: "none", decorationClaimedAt: 0 });
+                        data.currentDecoration = "none"; 
+                    }
+                }
+
+                document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
+                document.getElementById('view-card-name').innerText = data.name || 'Gamer';
+                document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
+                document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
+                
+                const userXp = data.xp || 0;
+                const barPercent = Math.min(100, (userXp / 500) * 100);
+                document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
+                document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
+
+                const cardFrame = document.getElementById('view-card-deco-frame');
+                if (cardFrame) {
+                    cardFrame.className = "deco-frame-container";
+                    if (data.currentDecoration && data.currentDecoration !== "none") {
+                        cardFrame.classList.add(data.currentDecoration);
+                    }
+                }
+
+                const dmBtn = document.getElementById('view-card-dm-btn');
+                if (dmBtn) {
+                    if (targetUid === currentUser.uid) {
+                        dmBtn.style.display = "none";
+                    } else {
+                        dmBtn.style.display = "flex";
+                        dmBtn.onclick = function() { initiatePrivateDM(targetUid, data.name); };
+                    }
+                }
+                toggleUserCardModal();
+            }, { onlyOnce: true });
+        }
+
+        function initiatePrivateDM(targetUid, targetName) {
+            toggleUserCardModal();
+            const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
+            set(ref(db, `users/${currentUser.uid}/active_dms/${dmRoomId}`), { roomName: targetName, targetId: targetUid });
+            set(ref(db, `users/${targetUid}/active_dms/${dmRoomId}`), { roomName: currentUser.displayName, targetId: currentUser.uid });
+            switchRoom(dmRoomId);
+        }
+
+        function loadPrivateRoomsList() {
+            if (!currentUser) return;
+            onValue(ref(db, `users/${currentUser.uid}/active_dms`), snapshot => {
+                const dmList = document.getElementById('private-rooms-list');
+                if (!dmList) return;
+                dmList.innerHTML = "";
+                if (!snapshot.exists()) {
+                    dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
+                    return;
+                }
+                snapshot.forEach(child => {
+                    const roomId = child.key; const dmData = child.val();
+                    const isActive = currentRoom === roomId ? 'active' : '';
+                    
+                    const li = document.createElement('li');
+                    li.className = `room-item priv-item ${isActive}`;
+                    li.id = `room-${roomId}`;
+                    li.innerHTML = `<i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>`;
+                    li.addEventListener('click', () => switchRoom(roomId));
+                    dmList.appendChild(li);
+                });
+            });
+        }
+
+        function setupOnlineCounter() {
+            onValue(ref(db, '.info/connected'), snap => {
+                if (snap.val() === false) return;
+                const myOnlineRef = ref(db, `online_users/${currentUser.uid}`);
+                set(myOnlineRef, { name: currentUser.displayName, active: true });
+                // Note: onDisconnect module handles automatic deletion upon loss of node sync
+            });
+            onValue(ref(db, 'online_users'), snap => { 
+                const onlineCount = document.getElementById('online-count');
+                if (onlineCount) onlineCount.innerText = snap.numChildren() || 1; 
+            });
+        }
+
+        function handleTyping() {
+            if (!currentUser) return;
+            set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), { name: currentUser.displayName, typing: true });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => { set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null); }, 2000); 
+        }
+
+        function listenToTyping(roomName) {
+            onValue(ref(db, `typing/${roomName}`), snapshot => {
+                const typingBox = document.getElementById('typing-indicator'), typingUserSpan = document.getElementById('typing-user');
+                if (!typingBox || !typingUserSpan) return;
+                let typers = []; snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
+                if (typers.length > 0) { typingUserSpan.innerText = typers.join(', '); typingBox.classList.remove('hidden'); } else { typingBox.classList.add('hidden'); }
+            });
+        }
+
+        function toggleVoiceMute() {
+            isMuted = !isMuted;
+            const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
+            const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
+            if (isMuted) {
+                if (muteBtn) muteBtn.className = "comms-mute-btn muted"; if (btnIcon) btnIcon.className = "fa-solid fa-microphone-lines-slash"; if (btnText) btnText.innerText = "UNMUTE MIC";
+                if (pulseNode) pulseNode.className = "voice-pulse-icon muted-pulse"; if (statusIcon) statusIcon.className = "fa-solid fa-microphone-slash"; if (statusDesc) statusDesc.innerText = "Transmission terminated. Microphone locked.";
+            } else {
+                if (muteBtn) muteBtn.className = "comms-mute-btn unmuted"; if (btnIcon) btnIcon.className = "fa-solid fa-microphone-lines"; if (btnText) btnText.innerText = "MUTE MIC";
+                if (pulseNode) pulseNode.className = "voice-pulse-icon active-pulse"; if (statusIcon) statusIcon.className = "fa-solid fa-microphone"; if (statusDesc) statusDesc.innerText = "Voice link operational. Transmission LIVE.";
+            }
+            initVoiceConference(currentRoom);
+        }
+
+        function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
+        function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
+
+        function switchRoom(roomName) {
+            if (currentUser) set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null);
+            currentRoom = roomName; isInitialLoad = true;
+            
+            document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
+            const activeTarget = document.getElementById(`room-${roomName}`);
+            if (activeTarget) activeTarget.classList.add('active');
+            
+            const isDM = roomName.startsWith('dm_');
+            const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
+            
+            const roomTitleEl = document.getElementById('current-room-title');
+            const voiceChanEl = document.getElementById('active-voice-channel');
+            if (roomTitleEl) roomTitleEl.innerText = visualTitle;
+            if (voiceChanEl) voiceChanEl.innerText = `CONNECTED: ${visualTitle}`;
+            
+            loadMessages(roomName); 
+            listenToTyping(roomName); 
+            initVoiceConference(roomName);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            if (!input || !currentUser) return;
+            const text = input.value.trim(); 
+            if (text === "") return;
+            
+            const gainedXp = text.length > 25 ? 10 : 5;
+            push(ref(db, `rooms/${currentRoom}`), { uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
+            
+            const userXpRef = ref(db, `users/${currentUser.uid}/xp`);
+            runTransaction(userXpRef, (currentValue) => {
+                return (currentValue || 0) + gainedXp;
+            });
+
+            set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null); 
+            input.value = "";
+        }
+
+        function loadMessages(roomName) {
+            const chatDisplay = document.getElementById('chat-messages');
+            if (!chatDisplay) return;
+            
+            // Unsubscribe existing listeners
+            // In v9, simply reassigning listeners handles dynamic data streams natively
+            const chatRef = ref(db, `rooms/${roomName}`);
+            
+            isInitialLoad = true;
+            onValue(chatRef, snapshot => {
+                chatDisplay.innerHTML = "";
+                let totalChildren = snapshot.numChildren(), counter = 0;
+                
+                if (totalChildren === 0) { isInitialLoad = false; }
+                
+                snapshot.forEach(child => {
+                    const data = child.val(); const isOwn = data.uid === currentUser.uid;
+                    const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    counter++;
+                    
+                    chatDisplay.innerHTML += `
+                        <div class="msg-container ${isOwn ? 'own-msg' : ''}">
+                            <div class="msg-info">
+                                <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
+                                <span class="msg-time">${timeStr}</span>
+                            </div>
+                            <div class="msg-bubble">${data.message}</div>
                         </div>
-                    </div>
-                    <div class="membership-promo-box">
-                        <h5>BECOME A NEXUS ELITE</h5>
-                        <p>Unlock premium avatar styles and custom fonts.</p>
-                        <button class="buy-membership-btn">UPGRADE NOW</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    `;
+                    if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
+                });
+                isInitialLoad = false;
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            });
+        }
 
-    </div>
+        function initVoiceConference(roomName) {
+            if (!currentUser) return;
+            const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
+            const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
+            const voiceFrame = document.getElementById('jitsi-voice-frame');
+            if (voiceFrame) voiceFrame.src = voiceServerUrl;
+        }            
 
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>MOD-OS // PROFILE EDIT</h3>
-                <button id="close-profile-modal" class="close-modal-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Change Username</label>
-                    <input type="text" id="modal-username-input">
-                </div>
-                <div class="form-group">
-                    <label>Choose Avatar Decoration</label>
-                    <select id="modal-deco-select">
-                        <option value="none">None (Standard Pleb)</option>
-                        <option value="deco-cyber-neon">Cyber Neon Dashed Ring</option>
-                        <option value="deco-golden-flame">Golden Flame Pulse Ring</option>
-                        <option value="deco-magic-star">Magic Star Dotted Purple</option>
-                        <option value="deco-neon-vortex">⭐ Neon Vortex (Dual Glow)</option>
-                        <option value="deco-toxic-waste">☣️ Toxic Waste (Vibrating Green)</option>
-                        <option value="deco-glitch-master">👾 Glitch Master (Cyber Matrix)</option>
-                    </select>
-                </div>
-                <button id="save-profile-btn" class="save-profile-btn">COMMIT CHANGES</button>
-            </div>
-        </div>
-    </div>
+        // DOM Element Event Binding Configuration Matrix
+        document.addEventListener('DOMContentLoaded', () => {
+            // Text Input Fields Event Setup
+            const msgInput = document.getElementById('message-input');
+            if (msgInput) {
+                msgInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+                msgInput.addEventListener('input', handleTyping);
+            }
 
-    <div id="emoji-picker-container" style="position: fixed; display: none; z-index: 10000;"></div>
+            // Button Event Triggers Mapping
+            document.getElementById('switch-auth-link').addEventListener('click', toggleAuthMode);
+            document.getElementById('primary-auth-form').addEventListener('submit', (e) => { e.preventDefault(); handlePrimaryAuth(); });
+            document.getElementById('google-auth-btn').addEventListener('click', loginWithGoogle);
+            document.getElementById('open-profile-settings').addEventListener('click', toggleProfileModal);
+            document.getElementById('close-profile-settings').addEventListener('click', toggleProfileModal);
+            document.getElementById('save-profile-btn').addEventListener('click', saveUserProfile);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('close-user-card').addEventListener('click', toggleUserCardModal);
+            document.getElementById('claim-deco-btn').addEventListener('click', claimAvatarDecoration);
+            document.getElementById('comms-mute-btn').addEventListener('click', toggleVoiceMute);
+            document.getElementById('send-msg-btn').addEventListener('click', sendMessage);
+            
+            // Channels Events
+            document.getElementById('room-global').addEventListener('click', () => switchRoom('global'));
+            document.getElementById('room-sri-lankan-esports').addEventListener('click', () => switchRoom('sri-lankan-esports'));
+            document.getElementById('room-pc-gamers').addEventListener('click', () => switchRoom('pc-gamers'));
+            document.getElementById('room-mobile-legends').addEventListener('click', () => switchRoom('mobile-legends'));
+            
+            // External YT Links Mapping
+            document.getElementById('search-gamerlk-btn').addEventListener('click', () => searchYT('GamerLK'));
+            document.getElementById('register-channel-btn').addEventListener('click', triggerMembershipAlert);
 
-    <script type="module" src="app.js"></script>
+            // Emoji Picker Core Instantiation
+            const pickerButton = document.getElementById('emoji-picker-btn');
+            if (typeof EmojiButton !== 'undefined' && pickerButton) {
+                const picker = new EmojiButton({ theme: 'dark', autoHide: true, position: 'top-start' });
+                picker.on('emoji', selection => {
+                    if (msgInput) { msgInput.value += selection.emoji; msgInput.focus(); }
+                });
+                pickerButton.addEventListener('click', () => picker.togglePicker(pickerButton));
+            }
+        });
+    </script>
 </body>
 </html>
