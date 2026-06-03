@@ -21,6 +21,7 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
+// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
 function playIncomingSound() {
@@ -84,11 +85,8 @@ auth.getRedirectResult().then(result => {
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
-        const authScreen = document.getElementById('auth-screen');
-        const displayNameElem = document.getElementById('user-display-name');
-        
-        if (authScreen) authScreen.classList.add('hidden');
-        if (displayNameElem) displayNameElem.innerText = user.displayName || "Gamer";
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
         
         syncUserProfileData(user);
         setupOnlineCounter();
@@ -96,26 +94,20 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
+        loadLiveLeaderboard(); // 🔥 Leaderboard එක මෙතනින් රන් වෙනවා
     } else {
         currentUser = null;
-        const authScreen = document.getElementById('auth-screen');
-        const jitsiFrame = document.getElementById('jitsi-voice-frame');
-        
-        if (authScreen) authScreen.classList.remove('hidden');
-        if (jitsiFrame) jitsiFrame.src = "";
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('jitsi-voice-frame').src = "";
     }
 });
 
 function syncUserProfileData(user) {
     const userRef = db.ref(`users/${user.uid}`);
     userRef.on('value', snapshot => {
-        const data = snapshot.val();
-        const avatarImg = document.getElementById('user-avatar');
-        const specialtyText = document.getElementById('user-specialty');
-        
-        if (!avatarImg || !specialtyText) return; 
-
+        const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
+            // 7-DAY EXPIRY CHECKER LOGIC
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
@@ -134,28 +126,20 @@ function syncUserProfileData(user) {
             specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
             const footerFrame = document.getElementById('user-footer-deco-frame');
-            if (footerFrame) {
-                footerFrame.className = "deco-frame-container footer-avatar-frame"; 
-                if(data.currentDecoration && data.currentDecoration !== "none"){
-                    footerFrame.classList.add(data.currentDecoration);
-                }
+            footerFrame.className = "deco-frame-container footer-avatar-frame"; 
+            if(data.currentDecoration && data.currentDecoration !== "none"){
+                footerFrame.classList.add(data.currentDecoration);
             }
 
-            const picInput = document.getElementById('profile-pic-input');
-            const bioInput = document.getElementById('profile-bio-input');
-            const gameInput = document.getElementById('profile-game-input');
-            const rewardModal = document.getElementById('reward-popup-modal');
+            document.getElementById('profile-pic-input').value = data.profilePic || '';
+            document.getElementById('profile-bio-input').value = data.bio || '';
+            document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            if (picInput) picInput.value = data.profilePic || '';
-            if (bioInput) bioInput.value = data.bio || '';
-            if (gameInput) gameInput.value = data.gameSpecialty || 'Multi-Game Athlete';
-
-            if (rewardModal) {
-                if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
-                    rewardModal.classList.remove('hidden');
-                } else {
-                    rewardModal.classList.add('hidden');
-                }
+            // ANTI-SPAM CONTROL LOGIC
+            if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
+                document.getElementById('reward-popup-modal').classList.remove('hidden');
+            } else {
+                document.getElementById('reward-popup-modal').classList.add('hidden');
             }
         } else {
             const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
@@ -165,6 +149,7 @@ function syncUserProfileData(user) {
     });
 }
 
+// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
 function claimAvatarDecoration() {
     if (!currentUser) return;
     const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
@@ -178,22 +163,14 @@ function claimAvatarDecoration() {
             currentDecoration: randomDeco,
             decorationClaimedAt: Date.now() 
         }).then(() => {
-            const rewardModal = document.getElementById('reward-popup-modal');
-            if (rewardModal) rewardModal.classList.add('hidden');
+            document.getElementById('reward-popup-modal').classList.add('hidden');
             alert(`🎉 LEGENDARY CLAIM SUCCESSFUL!\n\nYou unlocked the [${randomDeco.replace('deco-', '').replace('-', ' ').toUpperCase()}] Avatar border!\n\n*Note: This decoration is valid for exactly 7 days!`);
         });
     });
 }
 
-function toggleProfileModal() { 
-    const modal = document.getElementById('profile-modal');
-    if (modal) modal.classList.toggle('hidden'); 
-}
-
-function loginWithGoogle() { 
-    const provider = new firebase.auth.GoogleAuthProvider(); 
-    auth.signInWithRedirect(provider).catch(err => console.error(err)); 
-}
+function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
 function saveUserProfile() {
     if (!currentUser) return;
@@ -205,11 +182,7 @@ function saveUserProfile() {
 }
 
 function logout() { auth.signOut().then(() => location.reload()); }
-
-function toggleUserCardModal() { 
-    const modal = document.getElementById('user-card-modal');
-    if (modal) modal.classList.toggle('hidden'); 
-}
+function toggleUserCardModal() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
 
 function viewUserProfileCard(targetUid) {
     if (!currentUser) return;
@@ -217,6 +190,7 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
+        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -225,274 +199,239 @@ function viewUserProfileCard(targetUid) {
             }
         }
 
-        document.getElementById('view-card-name').innerText = data.name || "Gamer Tag";
         document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
-        document.getElementById('view-card-game').innerText = data.gameSpecialty || "Multi-Game Athlete";
-        document.getElementById('view-card-bio').innerText = data.bio || "No bio available.";
+        document.getElementById('view-card-name').innerText = data.name || 'Gamer';
+        document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
+        document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
-        const xpFill = document.getElementById('view-card-xp-fill');
-        const xpText = document.getElementById('view-card-xp-text');
-        if(xpFill && xpText) {
-            const currentXp = data.xp || 0;
-            const percentage = Math.min(100, (currentXp / 500) * 100);
-            xpFill.style.width = `${percentage}%`;
-            xpText.innerText = `${currentXp} / 500 XP`;
-        }
+        const userXp = data.xp || 0;
+        const barPercent = Math.min(100, (userXp / 500) * 100);
+        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
+        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
 
-        const cardDeco = document.getElementById('view-card-deco-frame');
-        if(cardDeco) {
-            cardDeco.className = "deco-frame-container";
-            if(data.currentDecoration && data.currentDecoration !== "none") {
-                cardDeco.classList.add(data.currentDecoration);
-            }
+        const cardFrame = document.getElementById('view-card-deco-frame');
+        cardFrame.className = "deco-frame-container";
+        if(data.currentDecoration && data.currentDecoration !== "none"){
+            cardFrame.classList.add(data.currentDecoration);
         }
 
         const dmBtn = document.getElementById('view-card-dm-btn');
-        if(dmBtn) {
-            dmBtn.onclick = () => {
-                toggleUserCardModal();
-                startPrivateChat(targetUid);
-            };
+        if (targetUid === currentUser.uid) {
+            dmBtn.style.display = "none";
+        } else {
+            dmBtn.style.display = "flex";
+            dmBtn.onclick = function() { initiatePrivateDM(targetUid, data.name); };
         }
-
         toggleUserCardModal();
     });
 }
 
-// =========================================================================
-// REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC
-// =========================================================================
-
-function setupOnlineCounter() {
-    if (!currentUser) return;
-    const onlineRef = db.ref(`online_users/${currentUser.uid}`);
-    onlineRef.set({
-        name: currentUser.displayName || "Gamer",
-        lastActive: Date.now()
-    });
-    onlineRef.onDisconnect().remove();
-
-    db.ref('online_users').on('value', snapshot => {
-        const count = snapshot.numChildren() || 1;
-        const countElem = document.getElementById('online-count');
-        if (countElem) countElem.innerText = count;
-    });
-}
-
-function loadMessages(roomName) {
-    const chatDisplay = document.getElementById('chat-messages');
-    if (!chatDisplay) return;
-
-    db.ref(`messages/${roomName}`).off();
-    chatDisplay.innerHTML = ""; 
-
-    db.ref(`messages/${roomName}`).limitToLast(50).on('child_added', snapshot => {
-        const msg = snapshot.val();
-        if (!msg) return;
-
-        const msgHtml = `
-            <div class="message-row" style="margin-bottom: 8px; display: flex; align-items: baseline;">
-                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
-                    <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
-                </div>
-                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
-                    ${msg.text}
-                </div>
-            </div>
-        `;
-        
-        chatDisplay.innerHTML += msgHtml;
-        chatDisplay.scrollTop = chatDisplay.scrollHeight; 
-
-        if (!isInitialLoad && msg.senderUid !== currentUser?.uid) {
-            playIncomingSound();
-        }
-    });
-
-    db.ref(`messages/${roomName}`).once('value', () => {
-        isInitialLoad = false;
-    });
-}
-
-function sendMessage() {
-    const input = document.getElementById('message-input');
-    if (!input || !currentUser) return;
-
-    const textStr = input.value.trim();
-    if (textStr === "") return;
-
-    const msgData = {
-        senderUid: currentUser.uid,
-        senderName: currentUser.displayName || "Gamer",
-        text: textStr,
-        timestamp: Date.now()
-    };
-
-    db.ref(`messages/${currentRoom}`).push(msgData).then(() => {
-        input.value = ""; 
-        input.focus();
-
-        db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => {
-            return (currentXp || 0) + 10;
-        });
-    }).catch(err => console.error("Message Send Error:", err));
-}
-
-function switchRoom(roomName) {
-    if (currentRoom === roomName) return;
-    
-    document.getElementById(`room-${currentRoom}`)?.classList.remove('active');
-    document.getElementById(`room-${roomName}`)?.classList.add('active');
-    
-    document.getElementById(`dm-${currentRoom}`)?.classList.remove('active');
-    document.getElementById(`dm-${roomName}`)?.classList.add('active');
-
-    currentRoom = roomName;
-    isInitialLoad = true; 
-
-    const roomTitle = document.getElementById('current-room-title');
-    if (roomTitle) {
-        roomTitle.innerText = roomName.startsWith('dm-') ? `🔒 private-chat` : `${roomName}-chat`;
-    }
-
-    loadMessages(roomName);
-    listenToTyping(roomName);
-    initVoiceConference(roomName);
-}
-
-function handleTyping() {
-    if (!currentUser) return;
-    
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({
-        name: currentUser.displayName || "Gamer",
-        isTyping: true
-    });
-
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    }, 2000);
-}
-
-function listenToTyping(roomName) {
-    const indicator = document.getElementById('typing-indicator');
-    const typingUserText = document.getElementById('typing-user');
-    if (!indicator || !typingUserText) return;
-
-    db.ref(`typing/${roomName}`).on('value', snapshot => {
-        const data = snapshot.val();
-        let typers = [];
-
-        if (data) {
-            Object.keys(data).forEach(uid => {
-                if (uid !== currentUser?.uid && data[uid].isTyping) {
-                    typers.push(data[uid].name);
-                }
-            });
-        }
-
-        if (typers.length > 0) {
-            typingUserText.innerText = typers.join(', ');
-            indicator.classList.remove('hidden');
-        } else {
-            indicator.classList.add('hidden');
-        }
-    });
-}
-
-function startPrivateChat(targetUid) {
-    if (!currentUser) return;
-    if (currentUser.uid === targetUid) { alert("You cannot start a DM with yourself!"); return; }
-
-    const dmRoomId = currentUser.uid < targetUid ? `dm-${currentUser.uid}-${targetUid}` : `dm-${targetUid}-${currentUser.uid}`;
-
-    db.ref(`users/${currentUser.uid}/private_rooms/${dmRoomId}`).set({ targetUid: targetUid });
-    db.ref(`users/${targetUid}/private_rooms/${dmRoomId}`).set({ targetUid: currentUser.uid });
-
-    setTimeout(() => { switchRoom(dmRoomId); }, 300);
+function initiatePrivateDM(targetUid, targetName) {
+    toggleUserCardModal();
+    const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
+    db.ref(`users/${currentUser.uid}/active_dms/${dmRoomId}`).set({ roomName: targetName, targetId: targetUid });
+    db.ref(`users/${targetUid}/active_dms/${dmRoomId}`).set({ roomName: currentUser.displayName, targetId: currentUser.uid });
+    switchRoom(dmRoomId);
 }
 
 function loadPrivateRoomsList() {
     if (!currentUser) return;
-    const dmListContainer = document.getElementById('private-rooms-list');
-    if (!dmListContainer) return;
-
-    db.ref(`users/${currentUser.uid}/private_rooms`).on('value', snapshot => {
-        dmListContainer.innerHTML = "";
-        const rooms = snapshot.val();
-
-        if (!rooms) {
-            dmListContainer.innerHTML = `<li class="no-dm-notice">No active DMs</li>`;
+    db.ref(`users/${currentUser.uid}/active_dms`).on('value', snapshot => {
+        const dmList = document.getElementById('private-rooms-list');
+        dmList.innerHTML = "";
+        if (!snapshot.exists()) {
+            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
             return;
         }
-
-        Object.keys(rooms).forEach(roomId => {
-            const targetUid = rooms[roomId].targetUid;
-            
-            db.ref(`users/${targetUid}/name`).once('value').then(nameSnapshot => {
-                const targetName = nameSnapshot.val() || "Unknown Gamer";
-                const isActive = currentRoom === roomId ? "active" : "";
-
-                const liHtml = `
-                    <li class="room-item ${isActive}" id="dm-${roomId}" onclick="switchRoom('${roomId}')">
-                        <i class="fa-solid fa-lock" style="color: #ff007f;"></i> <span>${targetName}</span>
-                    </li>
-                `;
-                dmListContainer.innerHTML += liHtml;
-            });
+        snapshot.forEach(child => {
+            const roomId = child.key; const dmData = child.val();
+            const isActive = currentRoom === roomId ? 'active' : '';
+            dmList.innerHTML += `
+                <li class="room-item priv-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')">
+                    <i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>
+                </li>
+            `;
         });
     });
 }
 
-function searchYT(query) { window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank'); }
-function triggerMembershipAlert() { alert("🚀 CraftMeet PRO Membership Node coming soon!\n\nSoon you will be able to feature your YouTube channel here for $2/mo."); }
-function checkEnter(e) { if(e.key === 'Enter') sendMessage(); }
+// 🔥 REALTIME TOP 5 LEADERBOARD GENERATOR
+function loadLiveLeaderboard() {
+    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
+        const leaderboardList = document.getElementById('live-leaderboard-list');
+        if (!leaderboardList) return;
+        
+        let gamers = [];
+        snapshot.forEach(child => {
+            gamers.push({ uid: child.key, ...child.val() });
+        });
+        
+        gamers.reverse(); // Descending Order එකට හදාගන්නවා (වැඩිම කෙනා උඩට)
+        leaderboardList.innerHTML = "";
+        
+        gamers.forEach((gamer, index) => {
+            let trophy = `<span style="color: #949ba4; font-weight: bold; margin-right: 8px;">#${index + 1}</span>`;
+            if (index === 0) trophy = '🥇 ';
+            if (index === 1) trophy = '🥈 ';
+            if (index === 2) trophy = '🥉 ';
+            
+            leaderboardList.innerHTML += `
+                <li class="room-item" onclick="viewUserProfileCard('${gamer.uid}')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${trophy} <span style="margin-left: 4px;">${gamer.name}</span>
+                    </div>
+                    <span class="cyber-magenta-text" style="font-size: 0.85rem; font-weight: bold; font-family: 'Orbitron', sans-serif;">${gamer.xp || 0} XP</span>
+                </li>
+            `;
+        });
+    });
+}
 
-// JITSI VOICE CHAT INTEGRATION
-function initVoiceConference(roomName) {
-    const jitsiFrame = document.getElementById('jitsi-voice-frame');
-    if (!jitsiFrame) return;
-    const secureRoomId = `craftmeet-${roomName}-voice-v1`;
-    jitsiFrame.src = `https://meet.jit.si/${secureRoomId}#config.startWithVideoMuted=true&config.startWithAudioMuted=false&config.prejoinPageEnabled=false`;
+function setupOnlineCounter() {
+    db.ref('.info/connected').on('value', snap => {
+        if (snap.val() === false) return;
+        db.ref(`online_users/${currentUser.uid}`).onDisconnect().remove().then(() => {
+            db.ref(`online_users/${currentUser.uid}`).set({ name: currentUser.displayName, active: true });
+        });
+    });
+    db.ref('online_users').on('value', snap => { document.getElementById('online-count').innerText = snap.numChildren() || 1; });
+}
+
+function handleTyping() {
+    if (!currentUser) return;
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({ name: currentUser.displayName, typing: true });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000); 
+}
+
+function listenToTyping(roomName) {
+    db.ref(`typing/${roomName}`).on('value', snapshot => {
+        const typingBox = document.getElementById('typing-indicator'), typingUserSpan = document.getElementById('typing-user');
+        let typers = []; snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
+        if (typers.length > 0) { typingUserSpan.innerText = typers.join(', '); typingBox.classList.remove('hidden'); } else { typingBox.classList.add('hidden'); }
+    });
 }
 
 function toggleVoiceMute() {
-    const muteBtn = document.getElementById('comms-mute-btn');
-    const icon = document.getElementById('mute-btn-icon');
-    const text = document.getElementById('mute-btn-text');
-    
     isMuted = !isMuted;
+    const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
+    const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
     if (isMuted) {
-        muteBtn.className = "comms-mute-btn muted";
-        icon.className = "fa-solid fa-microphone-slash";
-        text.innerText = "UNMUTE MIC";
+        muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
+        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
     } else {
-        muteBtn.className = "comms-mute-btn unmuted";
-        icon.className = "fa-solid fa-microphone-lines";
-        text.innerText = "MUTE MIC";
+        muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
+        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
     }
+    initVoiceConference(currentRoom);
 }
 
-// 👑 EMOJI BUTTON SYSTEM INITIALIZATION
-window.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('message-input');
-    const triggerBtn = document.getElementById('emoji-trigger-btn');
+function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
+function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
+
+function switchRoom(roomName) {
+    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    currentRoom = roomName; isInitialLoad = true;
+    document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
+    setTimeout(() => {
+        const activeTarget = document.getElementById(`room-${roomName}`);
+        if (activeTarget) activeTarget.classList.add('active');
+    }, 2000);
+    const isDM = roomName.startsWith('dm_');
+    const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
+    document.getElementById('current-room-title').innerText = visualTitle;
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle}`;
+    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
+}
+
+function sendMessage() {
+    const input = document.getElementById('message-input'), text = input.value.trim(); if (text === "" || !currentUser) return;
     
-    if (typeof EmojiButton !== 'undefined' && input && triggerBtn) {
-        const picker = new EmojiButton({
-            theme: 'dark',
-            autoHide: true,
-            position: 'top-start'
-        });
+    const gainedXp = text.length > 25 ? 10 : 5;
+    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
+    
+    const userXpRef = db.ref(`users/${currentUser.uid}/xp`);
+    userXpRef.transaction(currentValue => {
+        return (currentValue || 0) + gainedXp;
+    });
 
-        picker.on('emoji', selection => {
-            input.value += selection.emoji;
-            input.focus(); 
-        });
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
+}
+function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
-        triggerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            picker.togglePicker(triggerBtn);
+// 🔥 REALTIME MESSAGE DELETION LOGIC
+function deleteChatMessage(messageKey) {
+    if (!confirm("Are you sure you want to completely incinerate this message transmission?")) return;
+    db.ref(`rooms/${currentRoom}/${messageKey}`).remove()
+        .then(() => { console.log("Message dropped successfully from database node."); })
+        .catch(err => alert("Transmission Dropping Interrupted: " + err.message));
+}
+
+let currentDbRef = null;
+function loadMessages(roomName) {
+    const chatDisplay = document.getElementById('chat-messages');
+    if (currentDbRef) currentDbRef.off();
+    currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
+    currentDbRef.once('value').then(() => { isInitialLoad = false; });
+    currentDbRef.on('value', snapshot => {
+        chatDisplay.innerHTML = "";
+        let totalChildren = snapshot.numChildren(), counter = 0;
+        snapshot.forEach(child => {
+            const data = child.val(); const isOwn = data.uid === currentUser.uid;
+            const messageKey = child.key; // Realtime Unique Firebase Database Key
+            const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            counter++;
+            
+            // 🔥 Hover කරන කොට Delete බටන් එක පේන විදිහට සකසා ඇත
+            let deleteButtonHtml = "";
+            if (isOwn) {
+                deleteButtonHtml = `
+                    <button class="msg-delete-btn" onclick="deleteChatMessage('${messageKey}')" title="Delete Message" style="background:none; border:none; color:#ff4d4d; cursor:pointer; margin-left:10px; font-size:0.85rem; opacity:0.6; transition: opacity 0.2s;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+            }
+            
+            chatDisplay.innerHTML += `
+                <div class="msg-container ${isOwn ? 'own-msg' : ''}" style="position: relative;">
+                    <div class="msg-info" style="display: flex; align-items: center; justify-content: ${isOwn ? 'flex-end' : 'flex-start'};">
+                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
+                        <span class="msg-time">${timeStr}</span>
+                        ${deleteButtonHtml}
+                    </div>
+                    <div class="msg-bubble">${data.message}</div>
+                </div>
+            `;
+            if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
         });
-    }
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    });
+}
+
+function initVoiceConference(roomName) {
+    if (!currentUser) return;
+    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
+    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
+    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
+}            
+
+// Emoji Picker Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('message-input');
+    const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
+
+    const picker = new EmojiButton({
+        theme: 'dark',
+        autoHide: true,
+        position: 'top-start'
+    });
+
+    picker.on('emoji', selection => {
+        input.value += selection.emoji;
+        input.focus(); 
+    });
+
+    window.openEmojiPicker = function() {
+        picker.togglePicker(pickerButton);
+    };
 });
