@@ -774,15 +774,15 @@ body {
 }
 
 /* ==========================================================================
-   8. DISCORD STYLE CENTERED USER PROFILE CARD (NEW ADDITION)
+   8. DISCORD STYLE CENTERED USER PROFILE CARD & FIXES
    ========================================================================== */
-.user-profile-card {
-    background: #181f2a;
-    width: 100%;
-    max-width: 340px;
-    border-radius: 12px;
-    overflow: hidden;
+.user-view-card {
     position: relative;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #181f2a !important;
+    max-width: 340px !important;
+    border-radius: 12px !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     animation: cardEntrance 0.25s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
@@ -792,45 +792,45 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 
-/* Card Visual Header Banner */
-.card-banner {
-    height: 70px;
-    background: linear-gradient(135deg, #ff0055 0%, #0077ff 100%);
-    position: relative;
+.user-card-banner {
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent-magenta), var(--neon-blue));
+    width: 100%;
 }
 
-/* Absolute Position Avatar Section */
-.card-avatar-section {
+/* Absolute Position Avatar Wrapper - Fixes the big image bug */
+.user-card-avatar-wrap {
     position: absolute;
-    top: 32px;
-    left: 16px;
+    top: 35px;
+    left: 20px;
     background: #181f2a;
-    padding: 6px;
+    padding: 5px;
     border-radius: 50%;
+    z-index: 2;
 }
 
-.card-avatar-section .deco-frame-container img {
-    width: 72px;
-    height: 72px;
+/* Avatar Image Constraints */
+#view-card-avatar {
+    width: 80px !important;
+    height: 80px !important;
     border-radius: 50%;
-    border: none;
+    object-fit: cover; /* ෆොටෝ එක ඇද නොවී රවුමට කැපෙන්න */
+    border: 3px solid #181f2a;
     display: block;
 }
 
-/* Details and Content Blocks */
-.card-details-section {
-    padding: 50px 18px 20px 18px;
-    background: #181f2a;
+.user-card-info {
+    padding: 50px 20px 20px 20px; /* ෆොටෝ එකට ඉඩ තබා text පහලට ගැනීම */
 }
 
-.card-details-section h2 {
+.user-card-info h3 {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.3rem;
     font-weight: 900;
     margin-bottom: 4px;
 }
 
-.card-specialty-tag {
+.user-card-badge {
     font-size: 0.85rem;
     color: var(--accent-cyan);
     background: rgba(0, 255, 204, 0.06);
@@ -842,78 +842,61 @@ body {
     margin-bottom: 18px;
 }
 
-.card-section-title {
+.user-card-section {
+    margin-bottom: 15px;
+}
+
+.user-card-section label {
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: 0.5px;
     margin-bottom: 6px;
-    text-transform: uppercase;
+    display: block;
 }
 
-.card-bio-text {
+#view-card-bio {
     font-size: 0.88rem;
     color: #dbdee1;
     background: #111720;
     padding: 10px;
     border-radius: 6px;
     line-height: 1.4;
-    margin-bottom: 16px;
     min-height: 45px;
 }
 
-/* Internal Progression Systems inside Card */
-.card-xp-wrapper {
-    background: #111720;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-
-.card-xp-bar {
+.cyber-dm-btn {
     width: 100%;
-    height: 8px;
-    background: #1e2735;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 5px;
-}
-
-.card-xp-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent-cyan) 0%, var(--neon-blue) 100%);
-    border-radius: 10px;
-    transition: width 0.5s ease-out;
-}
-
-.card-xp-num {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    display: block;
-    text-align: right;
-}
-
-/* Control Framework Components */
-.card-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.card-close-btn {
-    background: transparent;
-    border: 1px solid var(--border-soft);
-    color: var(--text-muted);
+    background: var(--accent-cyan);
+    color: #000;
+    border: none;
     padding: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
+    font-weight: 700;
     border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     transition: all 0.2s;
 }
-.card-close-btn:hover {
-    color: var(--text-main);
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.2);
+.cyber-dm-btn:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+.close-card-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
