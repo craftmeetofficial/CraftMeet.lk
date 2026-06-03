@@ -26,9 +26,9 @@ body {
 .cyber-magenta-text { color: var(--neon-magenta); text-shadow: 0 0 8px var(--neon-magenta); }
 .room-header-text { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; }
 
-/* Discord Forms */
-.auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030407; display: flex; justify-content: center; align-items: center; z-index: 999; overflow-y: auto; padding: 20px; }
-.auth-card { background: #1e1f22; padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+/* Discord Forms Overlay UI */
+.auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030407; display: flex; justify-content: center; align-items: center; z-index: 999; overflow-y: auto; padding: 20px; transition: opacity 0.3s ease; }
+.auth-card { background: #1e1f22; padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid rgba(0, 240, 255, 0.3); }
 .auth-card p { color: #b5bac1; font-size: 0.95rem; margin-top: 5px; margin-bottom: 25px; }
 .auth-form-container { display: flex; flex-direction: column; gap: 16px; text-align: left; }
 .req-star { color: #f23f43; }
@@ -49,8 +49,8 @@ body {
 .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid #313338; }
 .auth-divider span { padding: 0 10px; }
 
-#login-btn { background: transparent; border: 1px solid #4e5058; color: #dbdee1; padding: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-#login-btn:hover { background: rgba(255,255,255,0.05); border-color: #bbb; }
+#google-login-btn { background: transparent; border: 1px solid #4e5058; color: #dbdee1; padding: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+#google-login-btn:hover { background: rgba(255,255,255,0.05); border-color: #bbb; }
 
 /* MODALS CONFIG */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 4, 7, 0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -75,11 +75,11 @@ body {
 .xp-bar-container { background: #1e1f22; height: 10px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-top: 5px; }
 .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #00f0ff); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
 
-/* NEW: AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
+/* AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
 .deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
 .deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
 
-/* 3 Core Custom Decoration Variations */
+/* Core Custom Decoration Variations */
 .deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
 .deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
 .deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
@@ -91,7 +91,7 @@ body {
 @keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
 
-/* Discord Layout Layout & Navigation */
+/* Layout Structure */
 .dashboard-container { display: flex; width: 100%; height: 100vh; }
 .sidebar { width: 280px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-glow); }
 .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-glow); }
@@ -109,21 +109,58 @@ body {
 .room-item.active { background: rgba(0, 240, 255, 0.08); border-left: 3px solid var(--neon-cyan); color: #fff; padding-left: 11px; }
 .no-dm-notice { font-size: 0.8rem; color: #4e5670; padding-left: 10px; font-style: italic; }
 
-/* Profile Footer */
-.user-profile-footer { padding: 12px 16px; background: #111214; border-top: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
-.user-meta { display: flex; align-items: center; gap: 10px; max-width: 65%; cursor: pointer; }
+/* Profile Sidebar Footer Component Actions Layout */
+.user-profile-footer { 
+    padding: 10px 12px; 
+    background: #111214; 
+    border-top: 1px solid rgba(0,0,0,0.2); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-top: auto; 
+    gap: 5px;
+}
+.user-meta { display: flex; align-items: center; gap: 8px; max-width: 70%; cursor: pointer; }
 #user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
 .user-details h4 { font-size: 0.9rem; font-weight: 700; color: #f2f3f5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status-tag { font-size: 0.75rem; color: #949ba4; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dot-neon { width: 6px; height: 6px; background: #23a55a; border-radius: 50%; }
 
-.profile-footer-actions { display: flex; align-items: center; gap: 8px; }
-.footer-reg-btn { background: #23a55a; border: none; color: #fff; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 3px; cursor: pointer; font-family: 'Orbitron', sans-serif; display: flex; align-items: center; gap: 4px; }
-.footer-reg-btn:hover { background: #1a7f43; }
-.icon-logout-btn { background: none; border: none; color: #949ba4; font-size: 0.95rem; cursor: pointer; padding: 6px; }
-.icon-logout-btn:hover { color: #f23f43; }
+.profile-footer-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-/* Main Chat Panels */
+.footer-reg-btn-mini { 
+    background: #23a55a; 
+    border: none; 
+    color: #fff; 
+    width: 26px; 
+    height: 26px; 
+    font-size: 0.75rem; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: background 0.2s; 
+}
+.footer-reg-btn-mini:hover { background: #1a7f43; }
+
+.icon-logout-btn-mini { 
+    background: #2b2d31; 
+    border: 1px solid rgba(242, 63, 67, 0.2); 
+    color: #949ba4; 
+    width: 26px; 
+    height: 26px; 
+    font-size: 0.75rem; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.2s; 
+}
+.icon-logout-btn-mini:hover { background: rgba(242, 63, 67, 0.1); color: #f23f43; border-color: #f23f43; }
+
+/* Chat Core Wrapper Window Styles */
 .chat-wrapper { flex: 1.1; display: flex; flex-direction: column; background: var(--panel-bg); border-right: 1px solid var(--border-glow); }
 .messages-display { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
 
@@ -146,7 +183,7 @@ body {
 .input-container input { flex: 1; padding: 10px; border: none; background: transparent; color: #fff; font-size: 0.95rem; outline: none; }
 .send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; }
 
-/* Right Section Panels */
+/* Right Section Control Desk Panels */
 .right-panel { flex: 1.4; display: flex; flex-direction: column; background: #040508; overflow-y: auto; }
 .voice-section-box { height: 42%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
 .voice-status-container { flex: 1; padding: 15px; display: flex; justify-content: center; align-items: center; }
@@ -161,7 +198,7 @@ body {
 .comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); }
 .hidden-voice-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-/* Streamers Grid */
+/* Streamers Feed Hub Grid Architecture */
 .streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); }
 .hub-content { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
 .game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; }
@@ -186,23 +223,11 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 .hidden { display: none !important; }
 
-/* ==========================================
-   NEW: EMOJI PICKER CUSTOM STYLE FIX
-   ========================================== */
-.emoji-picker {
-    z-index: 9999 !important; 
-    font-family: 'Rajdhani', sans-serif !important;
-}
+/* Emoji Engine Elements Overrides */
+.emoji-picker { z-index: 9999 !important; font-family: 'Rajdhani', sans-serif !important; }
+.emoji-picker__search { background-color: #111214 !important; border: 1px solid rgba(0, 240, 255, 0.2) !important; color: #fff !important; }
 
-.emoji-picker__search {
-    background-color: #111214 !important;
-    border: 1px solid rgba(0, 240, 255, 0.2) !important;
-    color: #fff !important;
-}
-
-/* ==========================================
-   NEW: DISCORD STYLED LEVEL ENGINE GRAPHICS
-   ========================================== */
+/* Level Mapping Typography Badging Engines */
 .chat-level-tag {
     background: rgba(88, 101, 242, 0.15);
     border: 1px solid rgba(88, 101, 242, 0.4);
@@ -217,12 +242,7 @@ body {
     vertical-align: middle;
 }
 
-.footer-name-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
+.footer-name-wrap { display: flex; align-items: center; gap: 6px; }
 .footer-level-tag {
     background: linear-gradient(135deg, #00f0ff, #ff007f);
     color: #fff;
@@ -233,11 +253,7 @@ body {
     font-weight: 900;
 }
 
-.user-card-avatar-wrap {
-    position: relative;
-    display: inline-block;
-}
-
+.user-card-avatar-wrap { position: relative; display: inline-block; }
 .card-level-badge {
     position: absolute;
     bottom: -5px;
