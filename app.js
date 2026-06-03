@@ -362,3 +362,28 @@ function initVoiceConference(roomName) {
     const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
     document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
 }            
+
+// Emoji Picker Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('message-input');
+    const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
+
+    // Picker එක create කරනවා (Dark theme එකත් එක්ක)
+    const picker = new EmojiButton({
+        theme: 'dark',
+        autoHide: true,
+        position: 'top-start'
+    });
+
+    // Emoji එකක් තෝරපුහම input box එකට එකතු කරන logic එක
+    picker.on('emoji', selection => {
+        input.value += selection.emoji;
+        input.focus(); // ආයෙත් input එකට focus කරනවා type කරන්න ලේසි වෙන්න
+    });
+
+    // දැනට HTML එකේ තියෙන inline onclick="openEmojiPicker()" එක වෙනුවට 
+    // මේ function එක හරහා picker එක toggle කරනවා
+    window.openEmojiPicker = function() {
+        picker.togglePicker(pickerButton);
+    };
+});
