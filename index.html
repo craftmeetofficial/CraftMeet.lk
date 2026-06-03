@@ -3,292 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet | Ultimate Gaming HQ</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <title>CraftMeet - Cyber Gaming Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-overlay">
-        <div class="auth-card neon-border">
-            <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
-            <h2 class="cyber-title" id="auth-title">WELCOME BACK!</h2>
-            <p id="auth-subtitle">We're so excited to see you again!</p>
-            
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2 class="cyber-title">CRAFTMEET</h2>
+            <p>Welcome back, Trooper! Access the Nexus.</p>
             <div class="auth-form-container">
-                <div class="form-group" id="reg-username-group" style="display: none;">
-                    <label>GAMERTAG (USERNAME) <span class="req-star">*</span></label>
-                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight">
-                </div>
-                
                 <div class="form-group">
-                    <label>EMAIL ADDRESS <span class="req-star">*</span></label>
-                    <input type="email" id="auth-email" placeholder="name@domain.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>PASSWORD <span class="req-star">*</span></label>
-                    <input type="password" id="auth-password" placeholder="••••••••">
-                </div>
-
-                <div id="reg-extras" style="display: none;">
-                    <div class="form-group">
-                        <label>AVATAR IMAGE URL</label>
-                        <input type="text" id="auth-avatar" placeholder="Paste image link here...">
-                    </div>
-                    <div class="form-group">
-                        <label>ABOUT ME</label>
-                        <textarea id="auth-bio" rows="2" placeholder="Tell the squad about yourself..."></textarea>
-                    </div>
-                </div>
-
-                <button id="main-auth-btn" onclick="handlePrimaryAuth()" class="cyber-action-btn">Log In</button>
-                
-                <div class="auth-switcher">
-                    <span id="switch-text">Need an account?</span> 
-                    <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)">Register</a>
-                </div>
-
-                <div class="auth-divider"><span>OR</span></div>
-
-                <button id="login-btn" onclick="loginWithGoogle()">
-                    <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reward-popup-modal" class="modal-overlay hidden">
-        <div class="modal-card reward-glow-box text-center">
-            <div class="animated-chest"><i class="fa-solid fa-gift fa-bounce"></i></div>
-            <h2 class="reward-title">REWARD UNLOCKED!</h2>
-            <p>You have accumulated 500+ Chat XP! Your legendary activity has granted you a rare profile decoration.</p>
-            <div class="reward-stat-preview">Current XP Resetting by -500 for Reward Node</div>
-            <button class="claim-reward-btn" onclick="claimAvatarDecoration()">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> CLAIM DECORATION NOW
-            </button>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-card neon-border-magenta">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT MY PROFILE</h3>
-                <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>// AVATAR URL</label>
-                    <input type="text" id="profile-pic-input" placeholder="Image Link...">
+                    <label>Email <span class="req-star">*</span></label>
+                    <input type="email" id="auth-email" placeholder="Enter your email">
                 </div>
                 <div class="form-group">
-                    <label>// ABOUT ME</label>
-                    <textarea id="profile-bio-input" rows="3" placeholder="Bio..."></textarea>
+                    <label>Password <span class="req-star">*</span></label>
+                    <input type="password" id="auth-password" placeholder="Enter your password">
                 </div>
-                <div class="form-group">
-                    <label>// MAIN GAME</label>
-                    <select id="profile-game-input">
-                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                        <option value="Minecraft Builder">Minecraft Builder</option>
-                        <option value="Valorant Duelist">Valorant Duelist</option>
-                        <option value="Apex Champion">Apex Champion</option>
-                    </select>
+                <div class="form-group hidden" id="username-group">
+                    <label>Gamer Tag / Username <span class="req-star">*</span></label>
+                    <input type="text" id="auth-username" placeholder="Choose a badass name">
                 </div>
-                <button class="save-profile-btn" onclick="saveUserProfile()">
-                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="user-card-modal" class="modal-overlay hidden">
-        <div class="modal-card user-view-card neon-border">
-            <div class="user-card-banner"></div>
-            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="user-card-avatar-wrap">
-                <div class="deco-frame-container" id="view-card-deco-frame">
-                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
+                <button id="auth-action-btn" class="cyber-action-btn">Log In</button>
+                <div class="auth-switcher" id="auth-switcher-text">
+                    Need an account? <a href="#" id="toggle-auth-mode">Register</a>
                 </div>
-            </div>
-            <div class="user-card-info">
-                <h3 id="view-card-name">GamerTag</h3>
-                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
-                
-                <div class="user-card-section">
-                    <label>XP LEVEL BAR</label>
-                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 50%;"></div></div>
-                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
-                </div>
-
-                <div class="user-card-section">
-                    <label>ABOUT ME</label>
-                    <p id="view-card-bio">No bio available.</p>
-                </div>
-
-                <button id="view-card-dm-btn" class="cyber-dm-btn">
-                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
-                </button>
             </div>
         </div>
     </div>
 
     <div class="dashboard-container">
         
-        <aside class="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-area">
-                    <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
-                    <span class="cyber-title-short">CraftMeet</span>
+                    <i class="fa-solid <div class="logo-area">
+                    <i class="fa-solid fa-gamepad cyber-glow-text"></i>
+                    <span class="cyber-title-short">CRAFT<span class="cyber-magenta-text">MEET</span></span>
                 </div>
             </div>
-            
+
             <div class="online-counter-box">
-                <span class="pulse-dot"></span>
-                <span class="counter-text">ONLINE USERS: <strong id="online-count">1</strong></span>
+                <div class="pulse-dot"></div>
+                <div class="counter-text">ONLINE USERS: <span id="online-count">1</span></div>
             </div>
-            
+
+            <div class="daily-loot-box-panel">
+                <div class="loot-title"><i class="fa-solid fa-box-open"></i> Daily Reward</div>
+                <div id="loot-box-trigger" class="loot-box-icon ready-to-claim">🎁</div>
+                <div id="loot-timer" class="loot-timer-text">Loot Box Ready!</div>
+                <button id="claim-loot-btn" class="claim-loot-btn">CLAIM LOOT</button>
+            </div>
+
             <div class="menu-section">
-                <p class="section-title">// PUBLIC CHANNELS</p>
+                <div class="section-title">NEXUS ROOMS</div>
                 <ul class="room-list">
-                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
-                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
-                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
-                    <li class="room-item" id="room-apex" onclick="switchRoom('apex')"><i class="fa-solid fa-person-rifle"></i> <span>apex-legends</span></li>
+                    <li class="room-item active" data-room="lobby"><i class="fa-solid fa-hashtag"></i> lobby-chat</li>
+                    <li class="room-item" data-room="announcements"><i class="fa-solid fa-bullhorn"></i> announcements</li>
+                    <li class="room-item" data-room="matchmaking"><i class="fa-solid fa-crosshairs"></i> matchmaking</li>
+                    <li class="room-item" data-room="clips"><i class="fa-solid fa-clapperboard"></i> gaming-clips</li>
                 </ul>
             </div>
 
             <div class="menu-section">
-                <p class="section-title">// DIRECT MESSAGES</p>
-                <ul class="room-list" id="private-rooms-list">
-                    <li class="no-dm-notice">No active DMs</li>
-                </ul>
-            </div>
-
-            <div class="menu-section">
-                <p class="section-title">// LIVE LEADERBOARD (XP)</p>
-                <ul class="room-list" id="live-leaderboard-list">
+                <div class="section-title">LIVE LEADERBOARD</div>
+                <ul class="room-list" id="leaderboard-display-list">
                     </ul>
             </div>
 
             <div class="user-profile-footer">
-                <div class="user-meta" onclick="toggleProfileModal()" title="View Profile">
-                    <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame">
-                        <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
+                <div class="user-meta" id="footer-profile-trigger">
+                    <div class="deco-frame-container footer-avatar-frame" id="footer-avatar-wrapper">
+                        <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Avatar">
                     </div>
                     <div class="user-details">
                         <h4 id="user-display-name">Loading...</h4>
-                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
+                        <div class="status-tag"><div class="dot-neon"></div><span id="user-display-level">LVL 1 (0 XP)</span></div>
                     </div>
                 </div>
                 <div class="profile-footer-actions">
-                    <button class="footer-reg-btn" onclick="toggleProfileModal()" title="Edit Profile Data">
-                        <i class="fa-solid fa-user-plus"></i> EDIT
-                    </button>
-                    <button class="icon-logout-btn" onclick="logout();" title="Logout">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
+                    <button id="logout-btn" class="icon-logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>
             </div>
-        </aside>
+        </div>
 
-        <main class="chat-wrapper">
-            <div class="panel-header">
-                <div class="header-title">
-                    <i class="fa-solid fa-satellite-dish cyber-glow-text"></i>
-                    <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
+        <div class="chat-wrapper">
+            <div class="messages-display" id="messages-container">
                 </div>
-            </div>
             
-            <div class="messages-display" id="chat-messages"></div>
-            
-            <div id="typing-indicator" class="typing-box hidden">
-                <span class="typing-glow-text"><i class="fa-solid fa-keyboard fa-fade"></i> <span id="typing-user">Someone</span> is transmitting data...</span>
+            <div class="typing-box">
+                <span id="typing-indicator" class="typing-glow-text"></span>
             </div>
 
             <div class="message-input-box">
-                <div class="input-container neon-border-soft">
-                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
-                    <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                <div class="neon-border-soft">
+                    <div class="input-container" style="display: flex; width: 100%; align-items: center;">
+                        <input type="text" id="chat-message-input" placeholder="Broadcast to the server...">
+                        <button id="emoji-trigger-btn" class="send-btn" style="font-size: 1.2rem;"><i class="fa-regular fa-face-smile"></i></button>
+                        <button id="chat-send-btn" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <section class="right-panel">
+        <div class="right-panel">
             <div class="voice-section-box">
-                <div class="panel-header">
-                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Voice Comms</h2></div>
+                <div class="online-counter-box" style="margin: 20px 20px 0 20px;">
+                    <span class="room-header-text"><i class="fa-solid fa-headset cyber-glow-text"></i> COMMS LINK ALPHA</span>
                 </div>
                 <div class="voice-status-container">
-                    <div class="voice-status-card neon-border">
-                        <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
-                            <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
-                        </div>
-                        <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
-                        
-                        <button id="comms-mute-btn" class="comms-mute-btn unmuted" onclick="toggleVoiceMute()">
-                            <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
-                        </button>
-
-                        <p id="voice-status-desc">Voice link fully operational. Transmission is currently LIVE.</p>
+                    <div class="voice-status-card">
+                        <div id="voice-pulse" class="voice-pulse-icon"><i class="fa-solid fa-microphone"></i></div>
+                        <div id="voice-status-lbl" class="counter-text">VOICE DISCONNECTED</div>
+                        <button id="toggle-voice-btn" class="comms-mute-btn unmuted">CONNECT COMMS</button>
                     </div>
-                    <iframe id="jitsi-voice-frame" allow="microphone; autoplay" class="hidden-voice-frame"></iframe>
                 </div>
             </div>
 
-            <div class="streamers-hub-box neon-border-magenta">
-                <div class="hub-header">
-                    <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
-                </div>
+            <div class="streamers-hub-box">
+                <span class="room-header-text"><i class="fa-brands fa-youtube cyber-magenta-text"></i> STREAMERS PORTAL</span>
                 <div class="hub-content">
                     <div class="game-yt-box">
-                        <h4>// APEX LEGENDS</h4>
+                        <h4>POPULAR GAMING LINKS</h4>
                         <div class="yt-buttons-grid">
-                            <button onclick="searchYT('maxruchira')"><i class="fa-brands fa-youtube"></i> maxruchira</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
+                            <button onclick="window.open('https://youtube.com', '_blank')"><i class="fa-brands fa-youtube"></i> Gaming Live</button>
+                            <button onclick="window.open('https://twitch.tv', '_blank')"><i class="fa-brands fa-twitch"></i> Twitch Portal</button>
                         </div>
                     </div>
-
-                    <div class="game-yt-box">
-                        <h4>// VALORANT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('max ruchira')"><i class="fa-brands fa-youtube"></i> max ruchira</button>
-                        </div>
-                    </div>
-
-                    <div class="game-yt-box">
-                        <h4>// MINECRAFT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('Mr kaveeya bro')"><i class="fa-brands fa-youtube"></i> Mr kaveeya bro</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('slash cat')"><i class="fa-brands fa-youtube"></i> slash cat</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('lazy bird')"><i class="fa-brands fa-youtube"></i> lazy bird</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                        </div>
-                    </div>
-
                     <div class="membership-promo-box">
-                        <h5><i class="fa-solid fa-gem animated-glow"></i> WANT TO ADD YOUR CHANNEL?</h5>
-                        <p>Unlock promotional spaces & add unlimited custom channels to this dashboard Grid.</p>
-                        <button class="buy-membership-btn" onclick="triggerMembershipAlert()">
-                            <i class="fa-solid fa-cart-shopping"></i> GET MEMBERSHIP — $2 / MO
-                        </button>
+                        <h5>BECOME A NEXUS ELITE</h5>
+                        <p>Unlock premium avatar styles and custom fonts.</p>
+                        <button class="buy-membership-btn">UPGRADE NOW</button>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>MOD-OS // PROFILE EDIT</h3>
+                <button id="close-profile-modal" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Change Username</label>
+                    <input type="text" id="modal-username-input">
+                </div>
+                <div class="form-group">
+                    <label>Choose Avatar Decoration</label>
+                    <select id="modal-deco-select">
+                        <option value="none">None (Standard Pleb)</option>
+                        <option value="deco-cyber-neon">Cyber Neon Dashed Ring</option>
+                        <option value="deco-golden-flame">Golden Flame Pulse Ring</option>
+                        <option value="deco-magic-star">Magic Star Dotted Purple</option>
+                        <option value="deco-neon-vortex">⭐ Neon Vortex (Dual Glow)</option>
+                        <option value="deco-toxic-waste">☣️ Toxic Waste (Vibrating Green)</option>
+                        <option value="deco-glitch-master">👾 Glitch Master (Cyber Matrix)</option>
+                    </select>
+                </div>
+                <button id="save-profile-btn" class="save-profile-btn">COMMIT CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="emoji-picker-container" style="position: fixed; display: none; z-index: 10000;"></div>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
