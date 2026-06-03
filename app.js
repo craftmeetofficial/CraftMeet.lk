@@ -327,17 +327,25 @@ function loadMessages(roomName) {
         if (total === 0) isInitialLoad = false;
 
         snapshot.forEach(child => {
-            const data = child.val(); const isOwn = data.uid === currentUser.uid;
+            const msgId = child.key; // Firebase unique ID for deletion
+            const data = child.val(); 
+            const isOwn = data.uid === currentUser.uid;
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             count++;
 
+            // Injecting Delete Trash button conditionally if the user owns the message
+            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:0.8rem; margin-left:8px; opacity:0; transition:opacity 0.2s;"><i class="fa-solid fa-trash-can"></i></button>` : '';
+
             chatDisplay.innerHTML += `
-                <div class="msg-container ${isOwn ? 'own-msg' : ''}">
+                <div class="msg-container ${isOwn ? 'own-msg' : ''}" onmouseenter="this.querySelector('.delete-msg-btn') ? this.querySelector('.delete-msg-btn').style.opacity=1 : null" onmouseleave="this.querySelector('.delete-msg-btn') ? this.querySelector('.delete-msg-btn').style.opacity=0 : null">
                     <div class="msg-info">
                         <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;">${isOwn ? 'You' : data.sender}</span>
                         <span class="msg-time" style="font-size:0.75rem; margin-left:8px; opacity:0.6;">${timeStr}</span>
                     </div>
-                    <div class="msg-bubble" style="display:inline-block; padding:8px 12px; border-radius:6px; margin-top:4px;">${data.message}</div>
+                    <div class="msg-bubble-wrapper" style="display:flex; align-items:center; ${isOwn ? 'flex-direction:row-reverse;' : ''} gap:4px;">
+                        <div class="msg-bubble" style="display:inline-block; padding:8px 12px; border-radius:6px; margin-top:4px;">${data.message}</div>
+                        ${deleteBtnHtml}
+                    </div>
                 </div>
             `;
             if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
@@ -345,6 +353,14 @@ function loadMessages(roomName) {
         isInitialLoad = false;
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
+}
+
+// Injected Delete Transmission Logic
+window.deleteMessage = function(roomName, msgId) {
+    if (confirm("Are you sure you want to delete this transmission from orbit?")) {
+        db.ref(`rooms/${roomName}/${msgId}`).remove()
+            .catch(err => alert("Error deleting transmission: " + err.message));
+    }
 }
 
 window.switchRoom = function(roomName) {
