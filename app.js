@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-const storage = firebase.storage(); // Storage Initialization
+const storage = firebase.storage();
 
 let currentUser = null;
 let currentRoom = "global"; 
@@ -22,7 +22,6 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
-// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
 function playIncomingSound() {
@@ -123,7 +122,6 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
-        initVoiceConference(currentRoom);
         loadPrivateRoomsList();
     } else {
         currentUser = null;
@@ -341,4 +339,60 @@ function listenToTyping(roomName) {
 }
 
 function switchRoom(roomName) {
-    if (currentUser) db.ref(`typing/${currentRoom
+    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    currentRoom = roomName; isInitialLoad = true;
+    document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
+    
+    const activeTarget = document.getElementById(`room-${roomName}`);
+    if (activeTarget) activeTarget.classList.add('active');
+    
+    const isDM = roomName.startsWith('dm_');
+    const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
+    document.getElementById('current-room-title').innerText = visualTitle;
+    loadMessages(roomName); listenToTyping(roomName);
+}
+
+function sendMessage() {
+    const input = document.getElementById('message-input'), text = input.value.trim(); if (text === "" || !currentUser) return;
+    
+    const gainedXp = text.length > 25 ? 10 : 5;
+    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
+    
+    const userXpRef = db.ref(`users/${currentUser.uid}/xp`);
+    userXpRef.transaction(currentValue => {
+        return (currentValue || 0) + gainedXp;
+    });
+
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
+}
+function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
+
+let currentDbRef = null;
+function loadMessages(roomName) {
+    const chatDisplay = document.getElementById('chat-messages');
+    if (currentDbRef) currentDbRef.off();
+    currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
+    currentDbRef.once('value').then(() => { isInitialLoad = false; });
+    currentDbRef.on('value', snapshot => {
+        chatDisplay.innerHTML = "";
+        let totalChildren = snapshot.numChildren(), counter = 0;
+        snapshot.forEach(child => {
+            const data = child.val(); const isOwn = data.uid === currentUser.uid;
+            const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            counter++;
+            
+            // USER CLICK ACTION INTERFACE RE-ENGINEERED
+            chatDisplay.innerHTML += `
+                <div class="msg-container ${isOwn ? 'own-msg' : ''}">
+                    <div class="msg-info">
+                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
+                        <span class="msg-time">${timeStr}</span>
+                    </div>
+                    <div class="msg-bubble">${data.message}</div>
+                </div>
+            `;
+            if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
+        });
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    });
+}
