@@ -102,33 +102,37 @@
         </div>
     </div>
 
-    <div id="user-card-modal" class="modal-overlay hidden">
-        <div class="modal-card user-view-card neon-border">
-            <div class="user-card-banner"></div>
-            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="user-card-avatar-wrap">
-                <div class="deco-frame-container" id="view-card-deco-frame">
-                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
+    <div id="user-card-modal" class="modal-overlay hidden" onclick="if(event.target === this) toggleUserCardModal()">
+        <div class="user-profile-card neon-border">
+            <div class="card-banner"></div>
+            
+            <div class="card-avatar-section">
+                <div id="view-card-deco-frame" class="deco-frame-container">
+                    <img id="view-card-avatar" src="" alt="Gamer Avatar">
                 </div>
             </div>
-            <div class="user-card-info">
-                <h3 id="view-card-name">GamerTag</h3>
-                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
+
+            <div class="card-details-section">
+                <h2 id="view-card-name" class="cyber-glow-text">GAMERTAG</h2>
+                <div id="view-card-game" class="card-specialty-tag">Multi-Game Athlete</div>
                 
-                <div class="user-card-section">
-                    <label>XP LEVEL BAR</label>
-                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 0%;"></div></div>
-                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
+                <p class="card-section-title">ABOUT ME</p>
+                <p id="view-card-bio" class="card-bio-text">No bio available.</p>
+                
+                <p class="card-section-title">XP LEVEL PROGRESSION</p>
+                <div class="card-xp-wrapper">
+                    <div class="card-xp-bar">
+                        <div id="view-card-xp-fill" class="card-xp-fill"></div>
+                    </div>
+                    <span id="view-card-xp-text" class="card-xp-num">0 / 500 XP</span>
                 </div>
 
-                <div class="user-card-section">
-                    <label>ABOUT ME</label>
-                    <p id="view-card-bio">No bio available.</p>
+                <div class="card-actions">
+                    <button id="view-card-dm-btn" class="cyber-action-btn">
+                        <i class="fa-solid fa-paper-plane"></i> Send Private Message
+                    </button>
+                    <button class="card-close-btn" onclick="toggleUserCardModal()">Close</button>
                 </div>
-
-                <button id="view-card-dm-btn" class="cyber-dm-btn">
-                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
-                </button>
             </div>
         </div>
     </div>
@@ -272,7 +276,7 @@
                         </div>
                     </div>
 
-                    <div class="dev-yt-box">
+                    <div class="game-yt-box">
                         <h4><i class="fa-solid fa-code"></i> FOUNDER / DEVELOPER</h4>
                         <a href="http://www.youtube.com/@kaveeshasehara4708" target="_blank" class="dev-link-btn">
                             <i class="fa-brands fa-youtube"></i> VISIT KAVEESHA SEHARA
