@@ -96,7 +96,7 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
-        setupLeaderboard(); // Leaderboard listener setup
+        setupLeaderboard();
     } else {
         currentUser = null;
         const authScreen = document.getElementById('auth-screen');
@@ -191,6 +191,7 @@ function toggleProfileModal() {
     if (modal) modal.classList.toggle('hidden'); 
 }
 
+// Fixed Redirect Info
 function loginWithGoogle() { 
     const provider = new firebase.auth.GoogleAuthProvider(); 
     auth.signInWithRedirect(provider).catch(err => console.error(err)); 
@@ -260,10 +261,7 @@ function viewUserProfileCard(targetUid) {
     });
 }
 
-// =========================================================================
-// 👑 REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC (UPDATED WITH ADVANCED LOGIC)
-// =========================================================================
-
+// CORE SYSTEMS
 function setupOnlineCounter() {
     if (!currentUser) return;
     const onlineRef = db.ref(`online_users/${currentUser.uid}`);
@@ -293,17 +291,17 @@ function loadMessages(roomName) {
 
         const msgId = snapshot.key;
         const isMyMsg = msg.senderUid === currentUser?.uid;
-        const deleteBtnHtml = isMyMsg ? `<i class="fa-solid fa-trash" onclick="deleteMessage('${roomName}', '${msgId}')" style="color: #ff4d4d; margin-left: 10px; cursor: pointer; font-size: 11px;" title="Delete Message"></i>` : "";
+        
+        // 🗑️ Delete Button Structure matched with exact inline styling to not break the look
+        const deleteBtnHtml = isMyMsg ? `<i class="fa-solid fa-trash" onclick="deleteMessage('${roomName}', '${msgId}')" style="color: #ff4d4d; margin-left: auto; padding-left:10px; cursor: pointer; font-size: 12px;" title="Delete Message"></i>` : "";
 
         const msgHtml = `
-            <div class="message-row" id="msg-${msgId}" style="margin-bottom: 8px; display: flex; align-items: baseline; justify-content: space-between;">
-                <div style="display: flex; align-items: baseline;">
-                    <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
-                        <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
-                    </div>
-                    <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
-                        ${msg.text}
-                    </div>
+            <div class="message-row" id="msg-${msgId}" style="display: flex; align-items: baseline; width: 100%;">
+                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer;">
+                    <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
+                </div>
+                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word; flex-grow: 1;">
+                    ${msg.text}
                 </div>
                 ${deleteBtnHtml}
             </div>
@@ -317,7 +315,6 @@ function loadMessages(roomName) {
         }
     });
 
-    // Real-time message UI deletion handler
     db.ref(`messages/${roomName}`).on('child_removed', snapshot => {
         const deletedMsgElem = document.getElementById(`msg-${snapshot.key}`);
         if (deletedMsgElem) deletedMsgElem.remove();
@@ -443,7 +440,7 @@ function loadPrivateRoomsList() {
         const rooms = snapshot.val();
 
         if (!rooms) {
-            dmListContainer.innerHTML = `<li class="no-dm-notice">No active DMs</li>`;
+            dmListContainer.innerHTML = `<li class="no-dm-notice" style="padding: 10px; color:#666; font-size:12px;">No active DMs</li>`;
             return;
         }
 
@@ -480,26 +477,26 @@ function setupLeaderboard() {
             });
         });
 
-        gamers.reverse(); // Descending Order Setup
+        gamers.reverse();
 
         if (gamers.length === 0) {
-            leaderboardContainer.innerHTML = `<li style="color: #888; font-size: 13px; padding: 5px;">No rankings yet</li>`;
+            leaderboardContainer.innerHTML = `<li style="color: #666; font-size: 12px; padding: 10px;">No rankings</li>`;
             return;
         }
 
         gamers.forEach((gamer, index) => {
-            let rankBadge = `<span style="color: #aaa; margin-right: 8px;">#${index + 1}</span>`;
+            let rankBadge = `<span style="color: #888; margin-right: 5px;">#${index + 1}</span>`;
             if (index === 0) rankBadge = `🥇 `;
             if (index === 1) rankBadge = `🥈 `;
             if (index === 2) rankBadge = `🥉 `;
 
+            // Uses your exact layout rules (.room-item style) dynamically
             const liHtml = `
-                <li onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); margin-bottom: 4px; border-radius: 4px; cursor: pointer; border-left: 2px solid #00ffcc;">
-                    <div style="display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        ${rankBadge}
-                        <span style="color: #fff; font-weight: 500; font-size: 13px;">${gamer.name || 'Gamer'}</span>
-                    </div>
-                    <span style="color: #00ffcc; font-size: 12px; font-weight: bold;">${gamer.xp || 0} XP</span>
+                <li class="room-item" onclick="viewUserProfileCard('${gamer.uid}')" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${rankBadge} ${gamer.name || 'Gamer'}
+                    </span>
+                    <span style="color: #00ffcc; font-size: 11px; font-weight: bold;">${gamer.xp || 0}xp</span>
                 </li>
             `;
             leaderboardContainer.innerHTML += liHtml;
@@ -536,7 +533,7 @@ function toggleVoiceMute() {
     }
 }
 
-// 👑 EMOJI BUTTON SYSTEM INITIALIZATION
+// EMOJI BUTTON SYSTEM INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('message-input');
     const triggerBtn = document.getElementById('emoji-trigger-btn');
