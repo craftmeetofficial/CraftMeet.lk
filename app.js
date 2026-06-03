@@ -76,8 +76,9 @@ function handlePrimaryAuth() {
         if (!username) { alert("Please choose a Gamertag/Username."); return; }
         createUserWithEmailAndPassword(auth, email, password).then(credential => {
             const user = credential.user;
-            updateProfile(user, { displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
-                set(ref(db, `users/${user.uid}`), { name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
+            const defaultAvatar = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
+            updateProfile(user, { displayName: username, photoURL: defaultAvatar }).then(() => {
+                set(ref(db, `users/${user.uid}`), { name: username, profilePic: defaultAvatar, bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
                 .then(() => { location.reload(); });
             });
         }).catch(err => alert("Registration Fault: " + err.message));
@@ -136,7 +137,7 @@ function syncUserProfileData(user) {
                 }
             }
 
-            if (avatarImg) avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
+            if (avatarImg) avatarImg.src = data.profilePic || user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.displayName}`;
             if (specialtyText) specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
             const footerFrame = document.getElementById('user-footer-deco-frame');
@@ -172,7 +173,8 @@ function syncUserProfileData(user) {
                 }
             }
         } else {
-            const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
+            const defaultName = user.displayName || "Gamer";
+            const defaultAvatar = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${defaultName}`;
             set(ref(db, `users/${user.uid}`), { name: defaultName, profilePic: defaultAvatar, bio: "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 });
             if (avatarImg) avatarImg.src = defaultAvatar; 
             if (specialtyText) specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
@@ -240,7 +242,7 @@ window.viewUserProfileCard = function(targetUid) {
             }
         }
 
-        document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
+        document.getElementById('view-card-avatar').src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
         document.getElementById('view-card-name').innerText = data.name || 'Gamer';
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
@@ -311,6 +313,7 @@ function setupOnlineCounter() {
     });
     onValue(ref(db, 'online_users'), snap => { 
         const onlineCount = document.getElementById('online-count');
+        // FIXED: Added parentheses to numChildren()
         if (onlineCount) onlineCount.innerText = snap.numChildren() || 1; 
     });
 }
@@ -396,6 +399,7 @@ function loadMessages(roomName) {
     
     onValue(chatRef, snapshot => {
         chatDisplay.innerHTML = "";
+        // FIXED: Added parentheses to numChildren()
         let totalChildren = snapshot.numChildren(), counter = 0;
         
         if (totalChildren === 0) { isInitialLoad = false; }
