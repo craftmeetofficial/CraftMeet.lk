@@ -88,9 +88,9 @@
                     </ul>
             </div>
 
-            <div class="sidebar-section" style="margin-top: 15px;">
-                <div class="section-title" style="color: #ff007f;"><i class="fa-solid fa-trophy"></i> TOP GAMERS (XP)</div>
-                <ul id="live-leaderboard-list" style="list-style: none; padding: 0; margin: 8px 0 0 0;">
+            <div class="sidebar-section">
+                <div class="section-title"><i class="fa-solid fa-trophy"></i> TOP GAMERS (XP)</div>
+                <ul id="live-leaderboard-list" class="rooms-list-ul">
                     </ul>
             </div>
 
@@ -133,7 +133,7 @@
                     <button id="emoji-trigger-btn" class="input-addon-utility-btn">
                         <i class="fa-regular fa-face-smile"></i>
                     </button>
-                    <input type="text" id="message-input" placeholder="Type data stream into terminal... Press Enter to broadcast." oninput="handleTyping()" onkeydown="checkEnter(event)">
+                    <input type="text" id="message-input" placeholder="Type data stream into terminal..." oninput="handleTyping()" onkeydown="checkEnter(event)">
                     <button onclick="sendMessage()" class="input-addon-utility-btn broadcast-trigger">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -158,93 +158,4 @@
 
             <div class="comms-hardware-controls-footer">
                 <button id="comms-mute-btn" onclick="toggleVoiceMute()" class="comms-mute-btn unmuted">
-                    <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i>
-                    <span id="mute-btn-text">MUTE MIC</span>
-                </button>
-                <button onclick="triggerMembershipAlert()" class="comms-premium-upgrade-btn">
-                    <i class="fa-solid fa-bolt"></i> FEATURE YT CHANNEL
-                </button>
-            </div>
-        </section>
-    </div>
-
-    <div id="profile-modal" class="auth-overlay-container hidden">
-        <div class="auth-central-card profile-customization-card">
-            <h3>USER CONFIGURATION PORT</h3>
-            <p>Modify your metadata stored inside the database matrix.</p>
-            
-            <div class="input-form-group">
-                <label>AVATAR IMAGE URL</label>
-                <input type="url" id="profile-pic-input" placeholder="https://domain.com/avatar.jpg">
-            </div>
-            <div class="input-form-group">
-                <label>BIOGRAPHY STREAM</label>
-                <input type="text" id="profile-bio-input" placeholder="Tell others who you are...">
-            </div>
-            <div class="input-form-group">
-                <label>GAME SPECIALTY NODE</label>
-                <select id="profile-game-input">
-                    <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                    <option value="Minecraft Speedrunner">Minecraft Speedrunner</option>
-                    <option value="GTA Chaos Master">GTA Chaos Master</option>
-                    <option value="FPS Competitive Pro">FPS Competitive Pro</option>
-                    <option value="RPG Lore Keeper">RPG Lore Keeper</option>
-                </select>
-            </div>
-
-            <div class="profile-modal-buttons-mesh">
-                <button onclick="saveUserProfile()" class="auth-primary-submit-btn save-profile-btn">Commit Changes</button>
-                <button onclick="toggleProfileModal()" class="auth-google-shortcut-btn cancel-profile-btn">Close Node</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="user-card-modal" class="auth-overlay-container hidden">
-        <div class="gamer-profile-card-node">
-            <div class="gamer-card-top-banner"></div>
-            <div class="gamer-card-avatar-absolute-row">
-                <div id="view-card-deco-frame" class="deco-frame-container">
-                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
-                </div>
-            </div>
-            <div class="gamer-card-contents-mesh">
-                <h3 id="view-card-name">Gamer Tag</h3>
-                <p id="view-card-game" class="gamer-card-tag-sub">Multi-Game Athlete</p>
-                <p id="view-card-bio" class="gamer-card-bio-paragraph">No data broadcasted yet from this unit.</p>
-                
-                <div class="gamer-card-xp-section">
-                    <div class="xp-meta-text-row">
-                        <span>LOBBY RANK PROGRESS</span>
-                        <span id="view-card-xp-text">0 / 500 XP</span>
-                    </div>
-                    <div class="xp-bar-container-back">
-                        <div id="view-card-xp-fill" class="xp-bar-fill-neon" style="width: 0%;"></div>
-                    </div>
-                </div>
-
-                <div class="gamer-card-actions-row">
-                    <button id="view-card-dm-btn" class="gamer-card-primary-action-btn">
-                        <i class="fa-solid fa-comment-nodes"></i> SEND PRIVATE MESSAGE
-                    </button>
-                    <button onclick="toggleUserCardModal()" class="gamer-card-secondary-close-btn">CLOSE PORT</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="reward-popup-modal" class="auth-overlay-container hidden">
-        <div class="auth-central-card reward-congratulations-card">
-            <div class="reward-icon-animation-mesh">👑</div>
-            <h3>500+ XP DETECTED!</h3>
-            <p>Congratulations! You have generated enough activity data to unlock a Legendary Avatar Decoration Frame.</p>
-            <button onclick="claimAvatarDecoration()" class="auth-primary-submit-btn reward-claim-trigger-btn">CLAIM RANDOM COSMETIC BORDER (7 DAYS)</button>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@joypixels/emoji-button@4.6.0/dist/index.min.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+                    <i id="mute
