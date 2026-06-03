@@ -259,23 +259,200 @@ function viewUserProfileCard(targetUid) {
     });
 }
 
-// dummy helper placeholders for missing functions in snippet
-function setupOnlineCounter() { db.ref('online').setValue(true); }
-function loadMessages(room) { console.log("Loading room: " + room); }
-function listenToTyping(room) {}
-function loadPrivateRoomsList() {}
-function switchRoom(room) { currentRoom = room; document.getElementById('current-room-title').innerText = room; initVoiceConference(room); }
-function searchYT(query) { window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank'); }
-function triggerMembershipAlert() { alert("Membership module coming soon!"); }
-function checkEnter(e) { if(e.key === 'Enter') sendMessage(); }
-function handleTyping() {}
-function sendMessage() { const inp = document.getElementById('message-input'); if(inp) inp.value = ""; }
+// =========================================================================
+// 👑 REAL CHAT, TYPING & PRIVATE DM SYSTEM LOGIC
+// =========================================================================
 
-// JITSI VOICE CHAT INTEGRATION (FIXED & FULLY FUNCTIONAL)
+function setupOnlineCounter() {
+    if (!currentUser) return;
+    const onlineRef = db.ref(`online_users/${currentUser.uid}`);
+    onlineRef.set({
+        name: currentUser.displayName || "Gamer",
+        lastActive: Date.now()
+    });
+    onlineRef.onDisconnect().remove();
+
+    db.ref('online_users').on('value', snapshot => {
+        const count = snapshot.numChildren() || 1;
+        const countElem = document.getElementById('online-count');
+        if (countElem) countElem.innerText = count;
+    });
+}
+
+function loadMessages(roomName) {
+    const chatDisplay = document.getElementById('chat-messages');
+    if (!chatDisplay) return;
+
+    db.ref(`messages/${roomName}`).off();
+    chatDisplay.innerHTML = ""; 
+
+    db.ref(`messages/${roomName}`).limitToLast(50).on('child_added', snapshot => {
+        const msg = snapshot.val();
+        if (!msg) return;
+
+        const msgHtml = `
+            <div class="message-row" style="margin-bottom: 8px; display: flex; align-items: baseline;">
+                <div class="message-user-wrap" onclick="viewUserProfileCard('${msg.senderUid}')" style="cursor:pointer; font-weight: bold;">
+                    <strong style="color: #00ffcc;">[${msg.senderName}]</strong>
+                </div>
+                <div class="message-content-text" style="color: #fff; margin-left: 10px; word-break: break-word;">
+                    ${msg.text}
+                </div>
+            </div>
+        `;
+        
+        chatDisplay.innerHTML += msgHtml;
+        chatDisplay.scrollTop = chatDisplay.scrollHeight; 
+
+        if (!isInitialLoad && msg.senderUid !== currentUser?.uid) {
+            playIncomingSound();
+        }
+    });
+
+    db.ref(`messages/${roomName}`).once('value', () => {
+        isInitialLoad = false;
+    });
+}
+
+function sendMessage() {
+    const input = document.getElementById('message-input');
+    if (!input || !currentUser) return;
+
+    const textStr = input.value.trim();
+    if (textStr === "") return;
+
+    const msgData = {
+        senderUid: currentUser.uid,
+        senderName: currentUser.displayName || "Gamer",
+        text: textStr,
+        timestamp: Date.now()
+    };
+
+    db.ref(`messages/${currentRoom}`).push(msgData).then(() => {
+        input.value = ""; 
+        input.focus();
+
+        db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => {
+            return (currentXp || 0) + 10;
+        });
+    }).catch(err => console.error("Message Send Error:", err));
+}
+
+function switchRoom(roomName) {
+    if (currentRoom === roomName) return;
+    
+    document.getElementById(`room-${currentRoom}`)?.classList.remove('active');
+    document.getElementById(`room-${roomName}`)?.classList.add('active');
+    
+    document.getElementById(`dm-${currentRoom}`)?.classList.remove('active');
+    document.getElementById(`dm-${roomName}`)?.classList.add('active');
+
+    currentRoom = roomName;
+    isInitialLoad = true; 
+
+    const roomTitle = document.getElementById('current-room-title');
+    if (roomTitle) {
+        roomTitle.innerText = roomName.startsWith('dm-') ? `🔒 private-chat` : `${roomName}-chat`;
+    }
+
+    loadMessages(roomName);
+    listenToTyping(roomName);
+    initVoiceConference(roomName);
+}
+
+function handleTyping() {
+    if (!currentUser) return;
+    
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({
+        name: currentUser.displayName || "Gamer",
+        isTyping: true
+    });
+
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    }, 2000);
+}
+
+function listenToTyping(roomName) {
+    const indicator = document.getElementById('typing-indicator');
+    const typingUserText = document.getElementById('typing-user');
+    if (!indicator || !typingUserText) return;
+
+    db.ref(`typing/${roomName}`).on('value', snapshot => {
+        const data = snapshot.val();
+        let typers = [];
+
+        if (data) {
+            Object.keys(data).forEach(uid => {
+                if (uid !== currentUser?.uid && data[uid].isTyping) {
+                    typers.push(data[uid].name);
+                }
+            });
+        }
+
+        if (typers.length > 0) {
+            typingUserText.innerText = typers.join(', ');
+            indicator.classList.remove('hidden');
+        } else {
+            indicator.classList.add('hidden');
+        }
+    });
+}
+
+function startPrivateChat(targetUid) {
+    if (!currentUser) return;
+    if (currentUser.uid === targetUid) { alert("You cannot start a DM with yourself!"); return; }
+
+    const dmRoomId = currentUser.uid < targetUid ? `dm-${currentUser.uid}-${targetUid}` : `dm-${targetUid}-${currentUser.uid}`;
+
+    db.ref(`users/${currentUser.uid}/private_rooms/${dmRoomId}`).set({ targetUid: targetUid });
+    db.ref(`users/${targetUid}/private_rooms/${dmRoomId}`).set({ targetUid: currentUser.uid });
+
+    setTimeout(() => { switchRoom(dmRoomId); }, 300);
+}
+
+function loadPrivateRoomsList() {
+    if (!currentUser) return;
+    const dmListContainer = document.getElementById('private-rooms-list');
+    if (!dmListContainer) return;
+
+    db.ref(`users/${currentUser.uid}/private_rooms`).on('value', snapshot => {
+        dmListContainer.innerHTML = "";
+        const rooms = snapshot.val();
+
+        if (!rooms) {
+            dmListContainer.innerHTML = `<li class="no-dm-notice">No active DMs</li>`;
+            return;
+        }
+
+        Object.keys(rooms).forEach(roomId => {
+            const targetUid = rooms[roomId].targetUid;
+            
+            db.ref(`users/${targetUid}/name`).once('value').then(nameSnapshot => {
+                const targetName = nameSnapshot.val() || "Unknown Gamer";
+                const isActive = currentRoom === roomId ? "active" : "";
+
+                const liHtml = `
+                    <li class="room-item ${isActive}" id="dm-${roomId}" onclick="switchRoom('${roomId}')">
+                        <i class="fa-solid fa-lock" style="color: #ff007f;"></i> <span>${targetName}</span>
+                    </li>
+                `;
+                dmListContainer.innerHTML += liHtml;
+            });
+        });
+    });
+}
+
+function searchYT(query) { window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank'); }
+function triggerMembershipAlert() { alert("🚀 CraftMeet PRO Membership Node coming soon!\n\nSoon you will be able to feature your YouTube channel here for $2/mo."); }
+function checkEnter(e) { if(e.key === 'Enter') sendMessage(); }
+
+// JITSI VOICE CHAT INTEGRATION
 function initVoiceConference(roomName) {
     const jitsiFrame = document.getElementById('jitsi-voice-frame');
     if (!jitsiFrame) return;
-    const secureRoomId = `craftmeet-${roomName}-voice`;
+    const secureRoomId = `craftmeet-${roomName}-voice-v1`;
     jitsiFrame.src = `https://meet.jit.si/${secureRoomId}#config.startWithVideoMuted=true&config.startWithAudioMuted=false&config.prejoinPageEnabled=false`;
 }
 
@@ -296,7 +473,7 @@ function toggleVoiceMute() {
     }
 }
 
-// 👑 EMOJI BUTTON SYSTEM INITIALIZATION (FIXED FROM CRASHING)
+// 👑 EMOJI BUTTON SYSTEM INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('message-input');
     const triggerBtn = document.getElementById('emoji-trigger-btn');
@@ -313,7 +490,8 @@ window.addEventListener('DOMContentLoaded', () => {
             input.focus(); 
         });
 
-        triggerBtn.addEventListener('click', () => {
+        triggerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             picker.togglePicker(triggerBtn);
         });
     }
