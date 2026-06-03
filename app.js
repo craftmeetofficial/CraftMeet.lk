@@ -214,22 +214,28 @@ window.viewUserProfileCard = function(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
+        // ඩේටා ටික මැදින් මතුවෙන Discord Style කාඩ් එකේ අදාළ තැන්වලට ඉන්ජෙක්ට් කරනවා
+        document.getElementById('view-card-avatar').src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
         document.getElementById('view-card-name').innerText = data.name || 'Gamer';
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
+        // XP Bar Progress ගණනය කිරීම්
         const userXp = data.xp || 0;
         const barPercent = Math.min(100, (userXp / 500) * 100);
         document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
         document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
 
+        // කාඩ් එක ඇතුළේ තියෙන Avatar එක වටේට Frame Border එක ලස්සනට සෙට් කරනවා
         const cardFrame = document.getElementById('view-card-deco-frame');
         if (cardFrame) {
             cardFrame.className = "deco-frame-container";
-            if (data.currentDecoration && data.currentDecoration !== "none") cardFrame.classList.add(data.currentDecoration);
+            if (data.currentDecoration && data.currentDecoration !== "none") {
+                cardFrame.classList.add(data.currentDecoration);
+            }
         }
 
+        // තමන්ගේම නම ක්ලික් කරොත් DM Button එක Hide කරනවා, වෙන කෙනෙක්ගේ නම් පෙන්වනවා
         const dmBtn = document.getElementById('view-card-dm-btn');
         if (targetUid === currentUser.uid) {
             dmBtn.style.display = "none";
@@ -243,7 +249,10 @@ window.viewUserProfileCard = function(targetUid) {
                 switchRoom(dmRoomId);
             };
         }
-        toggleUserCardModal();
+        
+        // Modal එක Screen එක මැදින් ලස්සනට පෙන්වීමට 'hidden' ක්ලාස් එක අයින් කරනවා
+        const cardModal = document.getElementById('user-card-modal');
+        if (cardModal) cardModal.classList.remove('hidden');
     });
 }
 
@@ -349,7 +358,7 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             count++;
 
-            // Fallback default avatar values (ආරක්ෂාවට)
+            // Fallback default avatar values
             const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
             const senderSpecialty = data.senderSpecialty || "Gamer";
 
