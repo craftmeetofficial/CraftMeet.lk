@@ -9,13 +9,14 @@ import {
 
 // ====== FIREBASE INITIALIZATION ======
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
+    authDomain: "craftmeet-bea37.firebaseapp.com",
+    databaseURL: "https://craftmeet-bea37-default-rtdb.firebaseio.com",
+    projectId: "craftmeet-bea37",
+    storageBucket: "craftmeet-bea37.firebasestorage.app",
+    messagingSenderId: "861031856963",
+    appId: "1:861031856963:web:b795f7bfa69877ef920df6",
+    measurementId: "G-JPF9GEPXSJ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -58,7 +59,7 @@ const modalDecoSelect = document.getElementById("modal-deco-select");
 const saveProfileBtn = document.getElementById("save-profile-btn");
 const leaderboardDisplayList = document.getElementById("leaderboard-display-list");
 
-// NEW LOOT BOX DOM ELEMENTS
+// LOOT BOX DOM ELEMENTS
 const lootBoxTrigger = document.getElementById("loot-box-trigger");
 const lootTimerText = document.getElementById("loot-timer");
 const claimLootBtn = document.getElementById("claim-loot-btn");
@@ -77,7 +78,6 @@ toggleAuthMode.addEventListener("click", (e) => {
         authActionBtn.innerText = "Log In";
         authSwitcherText.innerHTML = 'Need an account? <a href="#" id="toggle-auth-mode">Register</a>';
     }
-    // Re-bind click event safely
     document.getElementById("toggle-auth-mode").addEventListener("click", () => toggleAuthMode.click());
 });
 
@@ -96,7 +96,6 @@ authActionBtn.addEventListener("click", async () => {
                 displayName: username,
                 photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`
             });
-            // Init user in Realtime database
             await set(ref(db, `users/${userCredential.user.uid}`), {
                 uid: userCredential.user.uid,
                 username: username,
@@ -124,7 +123,6 @@ onAuthStateChanged(auth, (user) => {
         userDisplayName.innerText = user.displayName || "Unknown Rogue";
         userAvatarImg.src = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=Rogue`;
         
-        // Track stats live
         syncUserStatsAndLootSystem(user.uid);
         listenToLeaderboard();
         listenToChatMessages(currentRoom);
@@ -135,24 +133,21 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// ====== CORE USER STATS & LOOT SYSTEM (FIREBASE ENGINE) ======
+// ====== CORE USER STATS & LOOT SYSTEM ======
 function syncUserStatsAndLootSystem(uid) {
     const userRef = ref(db, `users/${uid}`);
     onValue(userRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            // Level algorithm calculation
             const xp = data.xp || 0;
             const currentLevel = Math.floor(Math.sqrt(xp / 100)) + 1;
             userDisplayLevel.innerText = `LVL ${currentLevel} (${xp} XP)`;
             
-            // Frame Setup Engine
             footerAvatarWrapper.className = "deco-frame-container footer-avatar-frame";
             if (data.decoration && data.decoration !== "none") {
                 footerAvatarWrapper.classList.add(data.decoration);
             }
 
-            // Realtime Loot Box Countdown Logic
             const lastClaimed = data.lastLootClaimed || 0;
             setupLootBoxTimer(lastClaimed);
         }
@@ -160,7 +155,7 @@ function syncUserStatsAndLootSystem(uid) {
 }
 
 function setupLootBoxTimer(lastClaimedTimestamp) {
-    const cooldownTime = 24 * 60 * 60 * 1000; // 24 Hours in ms
+    const cooldownTime = 24 * 60 * 60 * 1000;
     
     function updateTimer() {
         const now = Date.now();
@@ -168,7 +163,7 @@ function setupLootBoxTimer(lastClaimedTimestamp) {
         
         if (timePassed >= cooldownTime) {
             lootTimerText.innerText = "Loot Box Ready!";
-            lootTimerText.style.color = "#22c55e"; // Green color when active
+            lootTimerText.style.color = "#22c55e";
             lootBoxTrigger.classList.add("ready-to-claim");
             claimLootBtn.disabled = false;
         } else {
@@ -185,12 +180,10 @@ function setupLootBoxTimer(lastClaimedTimestamp) {
     }
     
     updateTimer();
-    // Clear old intervals if any and set new live ticking
     if (window.lootInterval) clearInterval(window.lootInterval);
     window.lootInterval = setInterval(updateTimer, 1000);
 }
 
-// Trigger Reward Action on Loot Claim Click
 async function claimDailyLoot() {
     if (!currentUser) return;
     const userRef = ref(db, `users/${currentUser.uid}`);
@@ -201,7 +194,6 @@ async function claimDailyLoot() {
         const now = Date.now();
         
         if (data && (now - (data.lastLootClaimed || 0) >= 24 * 60 * 60 * 1000)) {
-            // Random Loot Generator Engine (10 - 100 XP Points)
             const randomXPBonus = Math.floor(Math.random() * 91) + 10;
             const currentTotalXP = (data.xp || 0) + randomXPBonus;
             
@@ -228,8 +220,6 @@ function listenToChatMessages(room) {
             Object.keys(data).forEach((msgId) => {
                 const msg = data[msgId];
                 const isOwn = msg.senderUid === currentUser?.uid;
-                
-                // Fetch dynamic decoration at generation time
                 let userDecoClass = msg.senderDeco && msg.senderDeco !== "none" ? msg.senderDeco : "";
 
                 const msgHTML = `
@@ -251,7 +241,6 @@ function listenToChatMessages(room) {
             });
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             
-            // Link delete listeners dynamically
             document.querySelectorAll(".msg-delete-btn").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     const id = e.currentTarget.getAttribute("data-id");
@@ -265,16 +254,13 @@ function listenToChatMessages(room) {
     });
 }
 
-// Sending messages
 async function sendMessage() {
     const text = chatMessageInput.value.trim();
     if (!text || !currentUser) return;
 
-    // Get fresh snapshot info for user framework tracking
     const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
     const userData = userSnapshot.val() || {};
     
-    // Auto incremental matrix rewarding (+2 XP per chat)
     const newXP = (userData.xp || 0) + 2;
     await update(ref(db, `users/${currentUser.uid}`), { xp: newXP });
 
@@ -289,7 +275,6 @@ async function sendMessage() {
 
     await push(ref(db, `messages/${currentRoom}`), msgData);
     chatMessageInput.value = "";
-    // Clear typing states
     set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null);
 }
 
@@ -365,7 +350,6 @@ function listenToLeaderboard() {
         const usersData = snapshot.val();
         if (!usersData) return;
 
-        // Convert, rank sort, and crop to top 5
         const sortedUsers = Object.values(usersData)
             .sort((a, b) => (b.xp || 0) - (a.xp || 0))
             .slice(0, 5);
