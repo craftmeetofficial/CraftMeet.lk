@@ -202,6 +202,7 @@
 
             <div class="message-input-box">
                 <div class="input-container neon-border-soft">
+                    <button id="emoji-trigger-btn" class="send-btn" style="margin-right: 5px;"><i class="fa-regular fa-face-smile"></i></button>
                     <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
                     <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
@@ -266,13 +267,6 @@
                         </div>
                     </div>
 
-                    <div class="dev-yt-box neon-border-soft">
-                        <h4><i class="fa-solid fa-code"></i> FOUNDER / DEVELOPER</h4>
-                        <a href="http://www.youtube.com/@kaveeshasehara4708" target="_blank" class="dev-link-btn">
-                            <i class="fa-brands fa-youtube"></i> VISIT KAVEESHA SEHARA
-                        </a>
-                    </div>
-
                     <div class="membership-promo-box">
                         <h5><i class="fa-solid fa-gem animated-glow"></i> WANT TO ADD YOUR CHANNEL?</h5>
                         <p>Unlock promotional spaces & add unlimited custom channels to this dashboard Grid.</p>
@@ -289,7 +283,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="app.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
+    
+    <script src="app.js"></script>
 </body>
-</html>                                   
+</html>
