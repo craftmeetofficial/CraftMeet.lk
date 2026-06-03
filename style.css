@@ -79,12 +79,12 @@ body {
 .deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
 .deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
 
-/* Old 3 Core Decorations */
+/* Core Decorations */
 .deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
 .deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
 .deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
 
-/* NEW: 3 Cyberpunk/Gaming Decorations */
+/* PREMIUM Cyberpunk Decorations */
 .deco-neon-vortex { border: 3px solid transparent; background: linear-gradient(var(--sidebar-bg), var(--sidebar-bg)) padding-box, linear-gradient(135deg, #00f0ff, #ff007f) border-box; box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); animation: rotateDeco 6s linear infinite; }
 .deco-toxic-waste { border: 3px dashed #22c55e; box-shadow: 0 0 12px #22c55e, inset 0 0 8px #22c55e; animation: shakeDeco 0.5s infinite ease-in-out; }
 .deco-glitch-master { border: 3px double #facc15; box-shadow: 0 0 14px #facc15; animation: glitchDeco 2s infinite steps(2); }
@@ -92,14 +92,14 @@ body {
 .footer-avatar-frame { padding: 2px !important; }
 .footer-avatar-frame img { width: 34px !important; height: 34px !important; }
 
-/* All Decoration Animations */
+/* Decoration Animations */
 @keyframes rotateDeco { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
 @keyframes shakeDeco { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04) rotate(2deg); } }
 @keyframes glitchDeco { 0%, 100% { transform: translate(0); text-shadow: none; border-color: #facc15; } 20% { transform: translate(-2px, 1px); border-color: #ff007f; } 40% { transform: translate(1px, -1px); border-color: #00f0ff; } 60% { transform: translate(-1px, -1px); } }
 
-/* Discord Layout Layout & Navigation */
+/* Discord Layout Configuration */
 .dashboard-container { display: flex; width: 100%; height: 100vh; }
 .sidebar { width: 280px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-glow); }
 .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-glow); }
@@ -109,7 +109,7 @@ body {
 .pulse-dot { width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; animation: pulseEffect 2s infinite; }
 .counter-text { font-size: 0.85rem; font-weight: 600; color: #a5b4fc; }
 
-/* NEW: DAILY LOOT BOX SIDEBAR COMPONENT */
+/* DAILY LOOT BOX SIDEBAR COMPONENT */
 .daily-loot-box-panel { margin: 10px 15px; padding: 12px; background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 6px; text-align: center; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.05); }
 .loot-box-icon { font-size: 1.8rem; color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); cursor: pointer; transition: transform 0.2s; }
 .loot-box-icon.ready-to-claim { animation: boxShake 1.2s infinite ease-in-out; }
@@ -170,37 +170,41 @@ body {
 .input-container input { flex: 1; padding: 10px; border: none; background: transparent; color: #fff; font-size: 0.95rem; outline: none; }
 .send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; }
 
-/* Right Section Panels */
-.right-panel { flex: 1.4; display: flex; flex-direction: column; background: #040508; overflow-y: auto; }
-.voice-section-box { height: 42%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
-.voice-status-container { flex: 1; padding: 15px; display: flex; justify-content: center; align-items: center; }
-.voice-status-card { background: #111214; padding: 20px; border-radius: 8px; text-align: center; width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+/* Right Section Panels FIXES */
+.right-panel { width: 320px; min-width: 320px; display: flex; flex-direction: column; background: #040508; border-left: 1px solid var(--border-glow); height: 100vh; }
+.voice-section-box { padding-bottom: 15px; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); }
+.voice-status-container { padding: 15px; display: flex; justify-content: center; align-items: center; }
+.voice-status-card { background: #111214; padding: 20px; border-radius: 8px; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.02); }
 
 .voice-pulse-icon { width: 46px; height: 46px; background: rgba(0, 240, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); }
 .active-pulse { animation: voiceGlowPulse 1.5s infinite ease-in-out; }
 .muted-pulse { background: rgba(255, 0, 127, 0.1) !important; color: var(--neon-magenta) !important; border-color: var(--neon-magenta) !important; animation: none !important; }
 
-.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; }
+.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; transition: all 0.2s ease; }
 .comms-mute-btn.unmuted { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+.comms-mute-btn.unmuted:hover { background: rgba(0, 240, 255, 0.1); box-shadow: 0 0 10px var(--neon-cyan); }
 .comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); }
-.hidden-voice-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.comms-mute-btn.muted:hover { background: rgba(255, 0, 127, 0.1); box-shadow: 0 0 10px var(--neon-magenta); }
 
-/* Streamers Grid */
-.streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); }
-.hub-content { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
-.game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; }
-.yt-buttons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #949ba4; padding: 8px 6px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; text-align: left; padding-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.yt-buttons-grid button i { color: #ef4444; margin-right: 4px; }
-.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; }
+/* Streamers Portal Area FIXES */
+.streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); overflow-y: auto; }
+.hub-content { display: flex; flex-direction: column; gap: 16px; }
+.game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Fixed overlapping button issue */
+.yt-buttons-grid { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #dbdee1; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; width: 100%; }
+.yt-buttons-grid button i { color: #ef4444; font-size: 1rem; }
+.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; background: rgba(0, 240, 255, 0.05); box-shadow: 0 0 8px rgba(0, 240, 255, 0.2); }
 
 .dev-yt-box { padding: 12px; background: rgba(0, 240, 255, 0.02); border-radius: 6px; }
 .dev-link-btn { display: inline-flex; align-items: center; gap: 8px; color: #fff; background: linear-gradient(135deg, #ff007f, #9d4edd); padding: 10px 16px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; text-decoration: none; }
 
 .membership-promo-box { background: #111214; border: 1px solid rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 8px; text-align: center; }
-.membership-promo-box h5 { font-family: 'Orbitron', sans-serif; color: #f59e0b; font-size: 0.85rem; }
+.membership-promo-box h5 { font-family: 'Orbitron', sans-serif; color: #f59e0b; font-size: 0.85rem; margin-bottom: 4px; }
 .membership-promo-box p { font-size: 0.8rem; color: #949ba4; margin-bottom: 12px; }
-.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; width: 100%; }
+.buy-membership-btn:hover { background: #f59e0b; color: #000; box-shadow: 0 0 10px #f59e0b; }
 
 @keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 @keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
@@ -210,14 +214,11 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 .hidden { display: none !important; }
 
-/* ==========================================
-   EMOJI PICKER CUSTOM STYLE FIX
-   ========================================== */
+/* EMOJI PICKER CUSTOM STYLE FIX */
 .emoji-picker {
     z-index: 9999 !important; 
     font-family: 'Rajdhani', sans-serif !important;
 }
-
 .emoji-picker__search {
     background-color: #111214 !important;
     border: 1px solid rgba(0, 240, 255, 0.2) !important;
