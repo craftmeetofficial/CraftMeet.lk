@@ -52,7 +52,7 @@
 
                 <div class="auth-divider"><span>OR</span></div>
 
-                <button id="login-btn" onclick="loginWithGoogle()">
+                <button id="google-login-btn" onclick="loginWithGoogle()">
                     <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
                 </button>
             </div>
@@ -89,4 +89,25 @@
                 <div class="form-group">
                     <label>// MAIN GAME</label>
                     <select id="profile-game-input">
-                        <option value="Multi-Game Athlete">Multi-Game Athlete</option
+                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
+                        <option value="Minecraft Builder">Minecraft Builder</option>
+                        <option value="Valorant Duelist">Valorant Duelist</option>
+                        <option value="Apex Champion">Apex Champion</option>
+                    </select>
+                </div>
+                <button class="save-profile-btn" onclick="saveUserProfile()">
+                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="user-card-modal" class="modal-overlay hidden">
+        <div class="modal-card user-view-card neon-border">
+            <div class="user-card-banner"></div>
+            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="user-card-avatar-wrap">
+                <div class="deco-frame-container" id="view-card-deco-frame">
+                    <img id="view-card-avatar" src="https://via.placeholder.com/80" alt="Gamer Avatar">
+                </div>
+                <div class="card-level-badge"
