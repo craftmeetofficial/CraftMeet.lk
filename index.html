@@ -172,8 +172,8 @@
             </div>
 
             <div class="user-profile-footer">
-                <div class="user-meta" onclick="toggleProfileModal()" title="View Profile">
-                    <div class="deco-frame-container footer-avatar-frame" id="user-footer-deco-frame">
+                <div class="user-meta" onclick="toggleProfileModal()">
+                    <div class="deco-frame-container" id="user-footer-deco-frame">
                         <img id="user-avatar" src="https://via.placeholder.com/40" alt="Avatar">
                     </div>
                     <div class="user-details">
@@ -182,10 +182,10 @@
                     </div>
                 </div>
                 <div class="profile-footer-actions">
-                    <button class="footer-reg-btn" onclick="toggleProfileModal()" title="Edit Profile Data">
+                    <button class="footer-reg-btn" onclick="toggleProfileModal()">
                         <i class="fa-solid fa-user-plus"></i> EDIT
                     </button>
-                    <button class="icon-logout-btn" onclick="logout();" title="Logout">
+                    <button class="icon-logout-btn" onclick="logout();">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>
@@ -216,11 +216,11 @@
 
         <section class="right-panel">
             <div class="voice-section-box">
-                <div class="panel-header">
-                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Voice Comms</h2></div>
+                <div class="panel-header" style="height:auto; padding:0; margin-bottom:10px; background:transparent; border:none;">
+                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Comms</h2></div>
                 </div>
                 <div class="voice-status-container">
-                    <div class="voice-status-card neon-border">
+                    <div class="voice-status-card">
                         <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
                             <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
                         </div>
@@ -236,7 +236,7 @@
                 </div>
             </div>
 
-            <div class="streamers-hub-box neon-border-magenta">
+            <div class="streamers-hub-box">
                 <div class="hub-header">
                     <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
                 </div>
@@ -272,7 +272,7 @@
                         </div>
                     </div>
 
-                    <div class="dev-yt-box neon-border-soft">
+                    <div class="dev-yt-box">
                         <h4><i class="fa-solid fa-code"></i> FOUNDER / DEVELOPER</h4>
                         <a href="http://www.youtube.com/@kaveeshasehara4708" target="_blank" class="dev-link-btn">
                             <i class="fa-brands fa-youtube"></i> VISIT KAVEESHA SEHARA
