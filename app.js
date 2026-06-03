@@ -1,437 +1,415 @@
-// Firebase Live Config Matrix
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+    getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+    signOut, onAuthStateChanged, updateProfile 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getDatabase, ref, set, push, onValue, serverTimestamp, update, get, remove
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// ====== FIREBASE INITIALIZATION ======
 const firebaseConfig = {
-    apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
-    authDomain: "craftmeet-bea37.firebaseapp.com",
-    databaseURL: "https://craftmeet-bea37-default-rtdb.firebaseio.com/",
-    projectId: "craftmeet-bea37",
-    storageBucket: "craftmeet-bea37.firebasestorage.app",
-    messagingSenderId: "861031856963",
-    appId: "1:861031856963:web:b795f7bfa69877ef920df6",
-    measurementId: "G-JPF9GEPXSJ"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
+// ====== GLOBAL UTILITIES & STATE ======
 let currentUser = null;
-let currentRoom = "global"; 
-let isInitialLoad = true; 
+let currentRoom = "lobby";
+let authMode = "login";
 let typingTimeout = null;
-let isMuted = false; 
-let isRegisterMode = false; 
 
-// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
-const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
+// DOM Elements
+const authOverlay = document.getElementById("auth-overlay");
+const authEmail = document.getElementById("auth-email");
+const authPassword = document.getElementById("auth-password");
+const authUsername = document.getElementById("auth-username");
+const usernameGroup = document.getElementById("username-group");
+const authActionBtn = document.getElementById("auth-action-btn");
+const toggleAuthMode = document.getElementById("toggle-auth-mode");
+const authSwitcherText = document.getElementById("auth-switcher-text");
 
-function playIncomingSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch (e) { console.log(e); }
-}
+const messagesContainer = document.getElementById("messages-container");
+const chatMessageInput = document.getElementById("chat-message-input");
+const chatSendBtn = document.getElementById("chat-send-btn");
+const typingIndicator = document.getElementById("typing-indicator");
+const roomItems = document.querySelectorAll(".room-item");
 
-function toggleAuthMode(e) {
+const footerProfileTrigger = document.getElementById("footer-profile-trigger");
+const footerAvatarWrapper = document.getElementById("footer-avatar-wrapper");
+const userAvatarImg = document.getElementById("user-avatar");
+const userDisplayName = document.getElementById("user-display-name");
+const userDisplayLevel = document.getElementById("user-display-level");
+const logoutBtn = document.getElementById("logout-btn");
+
+const profileModal = document.getElementById("profile-modal");
+const closeProfileModal = document.getElementById("close-profile-modal");
+const modalUsernameInput = document.getElementById("modal-username-input");
+const modalDecoSelect = document.getElementById("modal-deco-select");
+const saveProfileBtn = document.getElementById("save-profile-btn");
+const leaderboardDisplayList = document.getElementById("leaderboard-display-list");
+
+// NEW LOOT BOX DOM ELEMENTS
+const lootBoxTrigger = document.getElementById("loot-box-trigger");
+const lootTimerText = document.getElementById("loot-timer");
+const claimLootBtn = document.getElementById("claim-loot-btn");
+
+// ====== AUTH ENGINE LOGIC ======
+toggleAuthMode.addEventListener("click", (e) => {
     e.preventDefault();
-    isRegisterMode = !isRegisterMode;
-    const title = document.getElementById('auth-title'), subtitle = document.getElementById('auth-subtitle');
-    const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch-text');
-    const usernameGroup = document.getElementById('reg-username-group'), regExtras = document.getElementById('reg-extras');
-
-    if (isRegisterMode) {
-        title.innerText = "CREATE AN ACCOUNT"; subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
-        mainBtn.innerText = "Continue & Register"; switchText.innerText = "Already have an account?"; switchLink.innerText = "Log In";
-        usernameGroup.style.display = "flex"; regExtras.style.display = "block";
+    if (authMode === "login") {
+        authMode = "register";
+        usernameGroup.classList.remove("hidden");
+        authActionBtn.innerText = "Create Identity";
+        authSwitcherText.innerHTML = 'Already a member? <a href="#" id="toggle-auth-mode">Log In</a>';
     } else {
-        title.innerText = "WELCOME BACK!"; subtitle.innerText = "We're so excited to see you again!";
-        mainBtn.innerText = "Log In"; switchText.innerText = "Need an account?"; switchLink.innerText = "Register";
-        usernameGroup.style.display = "none"; regExtras.style.display = "none";
+        authMode = "login";
+        usernameGroup.classList.add("hidden");
+        authActionBtn.innerText = "Log In";
+        authSwitcherText.innerHTML = 'Need an account? <a href="#" id="toggle-auth-mode">Register</a>';
     }
-}
+    // Re-bind click event safely
+    document.getElementById("toggle-auth-mode").addEventListener("click", () => toggleAuthMode.click());
+});
 
-function handlePrimaryAuth() {
-    const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
+authActionBtn.addEventListener("click", async () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    const username = authUsername.value.trim();
 
-    if (!email || !password) { alert("Please fill in all required fields."); return; }
+    if (!email || !password) return alert("Fill essential clearcodes.");
 
-    if (isRegisterMode) {
-        if (!username) { alert("Please choose a Gamertag/Username."); return; }
-        auth.createUserWithEmailAndPassword(email, password).then(credential => {
-            const user = credential.user;
-            user.updateProfile({ displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
-                db.ref(`users/${user.uid}`).set({ name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
-                .then(() => { location.reload(); });
+    if (authMode === "register") {
+        if (!username) return alert("Select a username.");
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, {
+                displayName: username,
+                photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`
             });
-        }).catch(err => alert("Registration Fault: " + err.message));
+            // Init user in Realtime database
+            await set(ref(db, `users/${userCredential.user.uid}`), {
+                uid: userCredential.user.uid,
+                username: username,
+                photoURL: userCredential.user.photoURL,
+                xp: 0,
+                decoration: "none",
+                lastLootClaimed: 0
+            });
+            authOverlay.classList.add("hidden");
+        } catch (error) { alert(error.message); }
     } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Login Fault: " + err.message));
-    }
-}
-
-auth.getRedirectResult().then(result => {
-    if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
-}).catch(err => console.warn("Redirect Auth Info:", err.message));
-
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
-        
-        syncUserProfileData(user);
-        setupOnlineCounter();
-        loadMessages(currentRoom);
-        listenToTyping(currentRoom);
-        initVoiceConference(currentRoom);
-        loadPrivateRoomsList();
-        loadLiveLeaderboard(); // 🔥 Leaderboard එක මෙතනින් රන් වෙනවා
-    } else {
-        currentUser = null;
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('jitsi-voice-frame').src = "";
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            authOverlay.classList.add("hidden");
+        } catch (error) { alert(error.message); }
     }
 });
 
-function syncUserProfileData(user) {
-    const userRef = db.ref(`users/${user.uid}`);
-    userRef.on('value', snapshot => {
-        const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
-        if (data) {
-            // 7-DAY EXPIRY CHECKER LOGIC
-            if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
-                const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
-                const currentTime = Date.now();
-                
-                if (currentTime - data.decorationClaimedAt > oneWeekInMs) {
-                    db.ref(`users/${user.uid}`).update({
-                        currentDecoration: "none",
-                        decorationClaimedAt: 0
-                    });
-                    alert("⏰ YOUR DECORATION EXPIRED!\n\nYour 7-day avatar decoration frame time has ended. Keep chatting to earn more XP and unlock it again!");
-                    return; 
-                }
-            }
+logoutBtn.addEventListener("click", () => signOut(auth));
 
-            avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
-            specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
-            
-            const footerFrame = document.getElementById('user-footer-deco-frame');
-            footerFrame.className = "deco-frame-container footer-avatar-frame"; 
-            if(data.currentDecoration && data.currentDecoration !== "none"){
-                footerFrame.classList.add(data.currentDecoration);
-            }
-
-            document.getElementById('profile-pic-input').value = data.profilePic || '';
-            document.getElementById('profile-bio-input').value = data.bio || '';
-            document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
-
-            // ANTI-SPAM CONTROL LOGIC
-            if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
-                document.getElementById('reward-popup-modal').classList.remove('hidden');
-            } else {
-                document.getElementById('reward-popup-modal').classList.add('hidden');
-            }
-        } else {
-            const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
-            userRef.set({ name: defaultName, profilePic: defaultAvatar, bio: "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 });
-            avatarImg.src = defaultAvatar; specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
-        }
-    });
-}
-
-// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
-function claimAvatarDecoration() {
-    if (!currentUser) return;
-    const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
-    
-    db.ref(`users/${currentUser.uid}`).once('value').then(snapshot => {
-        const currentXp = snapshot.val().xp || 0;
-        const newXp = Math.max(0, currentXp - 500);
-
-        db.ref(`users/${currentUser.uid}`).update({
-            xp: newXp,
-            currentDecoration: randomDeco,
-            decorationClaimedAt: Date.now() 
-        }).then(() => {
-            document.getElementById('reward-popup-modal').classList.add('hidden');
-            alert(`🎉 LEGENDARY CLAIM SUCCESSFUL!\n\nYou unlocked the [${randomDeco.replace('deco-', '').replace('-', ' ').toUpperCase()}] Avatar border!\n\n*Note: This decoration is valid for exactly 7 days!`);
-        });
-    });
-}
-
-function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
-function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
-
-function saveUserProfile() {
-    if (!currentUser) return;
-    db.ref(`users/${currentUser.uid}`).update({
-        profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
-        bio: document.getElementById('profile-bio-input').value.trim(),
-        gameSpecialty: document.getElementById('profile-game-input').value
-    }).then(() => toggleProfileModal()).catch(err => alert(err.message));
-}
-
-function logout() { auth.signOut().then(() => location.reload()); }
-function toggleUserCardModal() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
-
-function viewUserProfileCard(targetUid) {
-    if (!currentUser) return;
-    db.ref(`users/${targetUid}`).once('value').then(snapshot => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
-        if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
-            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
-            if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
-                db.ref(`users/${targetUid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
-                data.currentDecoration = "none"; 
-            }
-        }
-
-        document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
-        document.getElementById('view-card-name').innerText = data.name || 'Gamer';
-        document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
-        document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        authOverlay.classList.add("hidden");
+        userDisplayName.innerText = user.displayName || "Unknown Rogue";
+        userAvatarImg.src = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=Rogue`;
         
-        const userXp = data.xp || 0;
-        const barPercent = Math.min(100, (userXp / 500) * 100);
-        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
-        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
-
-        const cardFrame = document.getElementById('view-card-deco-frame');
-        cardFrame.className = "deco-frame-container";
-        if(data.currentDecoration && data.currentDecoration !== "none"){
-            cardFrame.classList.add(data.currentDecoration);
-        }
-
-        const dmBtn = document.getElementById('view-card-dm-btn');
-        if (targetUid === currentUser.uid) {
-            dmBtn.style.display = "none";
-        } else {
-            dmBtn.style.display = "flex";
-            dmBtn.onclick = function() { initiatePrivateDM(targetUid, data.name); };
-        }
-        toggleUserCardModal();
-    });
-}
-
-function initiatePrivateDM(targetUid, targetName) {
-    toggleUserCardModal();
-    const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
-    db.ref(`users/${currentUser.uid}/active_dms/${dmRoomId}`).set({ roomName: targetName, targetId: targetUid });
-    db.ref(`users/${targetUid}/active_dms/${dmRoomId}`).set({ roomName: currentUser.displayName, targetId: currentUser.uid });
-    switchRoom(dmRoomId);
-}
-
-function loadPrivateRoomsList() {
-    if (!currentUser) return;
-    db.ref(`users/${currentUser.uid}/active_dms`).on('value', snapshot => {
-        const dmList = document.getElementById('private-rooms-list');
-        dmList.innerHTML = "";
-        if (!snapshot.exists()) {
-            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
-            return;
-        }
-        snapshot.forEach(child => {
-            const roomId = child.key; const dmData = child.val();
-            const isActive = currentRoom === roomId ? 'active' : '';
-            dmList.innerHTML += `
-                <li class="room-item priv-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')">
-                    <i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>
-                </li>
-            `;
-        });
-    });
-}
-
-// 🔥 REALTIME TOP 5 LEADERBOARD GENERATOR
-function loadLiveLeaderboard() {
-    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
-        const leaderboardList = document.getElementById('live-leaderboard-list');
-        if (!leaderboardList) return;
-        
-        let gamers = [];
-        snapshot.forEach(child => {
-            gamers.push({ uid: child.key, ...child.val() });
-        });
-        
-        gamers.reverse(); // Descending Order එකට හදාගන්නවා (වැඩිම කෙනා උඩට)
-        leaderboardList.innerHTML = "";
-        
-        gamers.forEach((gamer, index) => {
-            let trophy = `<span style="color: #949ba4; font-weight: bold; margin-right: 8px;">#${index + 1}</span>`;
-            if (index === 0) trophy = '🥇 ';
-            if (index === 1) trophy = '🥈 ';
-            if (index === 2) trophy = '🥉 ';
-            
-            leaderboardList.innerHTML += `
-                <li class="room-item" onclick="viewUserProfileCard('${gamer.uid}')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        ${trophy} <span style="margin-left: 4px;">${gamer.name}</span>
-                    </div>
-                    <span class="cyber-magenta-text" style="font-size: 0.85rem; font-weight: bold; font-family: 'Orbitron', sans-serif;">${gamer.xp || 0} XP</span>
-                </li>
-            `;
-        });
-    });
-}
-
-function setupOnlineCounter() {
-    db.ref('.info/connected').on('value', snap => {
-        if (snap.val() === false) return;
-        db.ref(`online_users/${currentUser.uid}`).onDisconnect().remove().then(() => {
-            db.ref(`online_users/${currentUser.uid}`).set({ name: currentUser.displayName, active: true });
-        });
-    });
-    db.ref('online_users').on('value', snap => { document.getElementById('online-count').innerText = snap.numChildren() || 1; });
-}
-
-function handleTyping() {
-    if (!currentUser) return;
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({ name: currentUser.displayName, typing: true });
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000); 
-}
-
-function listenToTyping(roomName) {
-    db.ref(`typing/${roomName}`).on('value', snapshot => {
-        const typingBox = document.getElementById('typing-indicator'), typingUserSpan = document.getElementById('typing-user');
-        let typers = []; snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
-        if (typers.length > 0) { typingUserSpan.innerText = typers.join(', '); typingBox.classList.remove('hidden'); } else { typingBox.classList.add('hidden'); }
-    });
-}
-
-function toggleVoiceMute() {
-    isMuted = !isMuted;
-    const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
-    const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
-    if (isMuted) {
-        muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
-        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
+        // Track stats live
+        syncUserStatsAndLootSystem(user.uid);
+        listenToLeaderboard();
+        listenToChatMessages(currentRoom);
+        listenToTyping();
     } else {
-        muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
-        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
+        currentUser = null;
+        authOverlay.classList.remove("hidden");
     }
-    initVoiceConference(currentRoom);
-}
+});
 
-function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
-function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
-
-function switchRoom(roomName) {
-    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    currentRoom = roomName; isInitialLoad = true;
-    document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    setTimeout(() => {
-        const activeTarget = document.getElementById(`room-${roomName}`);
-        if (activeTarget) activeTarget.classList.add('active');
-    }, 2000);
-    const isDM = roomName.startsWith('dm_');
-    const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
-    document.getElementById('current-room-title').innerText = visualTitle;
-    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle}`;
-    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
-}
-
-function sendMessage() {
-    const input = document.getElementById('message-input'), text = input.value.trim(); if (text === "" || !currentUser) return;
-    
-    const gainedXp = text.length > 25 ? 10 : 5;
-    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
-    
-    const userXpRef = db.ref(`users/${currentUser.uid}/xp`);
-    userXpRef.transaction(currentValue => {
-        return (currentValue || 0) + gainedXp;
-    });
-
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
-}
-function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
-
-// 🔥 REALTIME MESSAGE DELETION LOGIC
-function deleteChatMessage(messageKey) {
-    if (!confirm("Are you sure you want to completely incinerate this message transmission?")) return;
-    db.ref(`rooms/${currentRoom}/${messageKey}`).remove()
-        .then(() => { console.log("Message dropped successfully from database node."); })
-        .catch(err => alert("Transmission Dropping Interrupted: " + err.message));
-}
-
-let currentDbRef = null;
-function loadMessages(roomName) {
-    const chatDisplay = document.getElementById('chat-messages');
-    if (currentDbRef) currentDbRef.off();
-    currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
-    currentDbRef.once('value').then(() => { isInitialLoad = false; });
-    currentDbRef.on('value', snapshot => {
-        chatDisplay.innerHTML = "";
-        let totalChildren = snapshot.numChildren(), counter = 0;
-        snapshot.forEach(child => {
-            const data = child.val(); const isOwn = data.uid === currentUser.uid;
-            const messageKey = child.key; // Realtime Unique Firebase Database Key
-            const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            counter++;
+// ====== CORE USER STATS & LOOT SYSTEM (FIREBASE ENGINE) ======
+function syncUserStatsAndLootSystem(uid) {
+    const userRef = ref(db, `users/${uid}`);
+    onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            // Level algorithm calculation
+            const xp = data.xp || 0;
+            const currentLevel = Math.floor(Math.sqrt(xp / 100)) + 1;
+            userDisplayLevel.innerText = `LVL ${currentLevel} (${xp} XP)`;
             
-            // 🔥 Hover කරන කොට Delete බටන් එක පේන විදිහට සකසා ඇත
-            let deleteButtonHtml = "";
-            if (isOwn) {
-                deleteButtonHtml = `
-                    <button class="msg-delete-btn" onclick="deleteChatMessage('${messageKey}')" title="Delete Message" style="background:none; border:none; color:#ff4d4d; cursor:pointer; margin-left:10px; font-size:0.85rem; opacity:0.6; transition: opacity 0.2s;">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
+            // Frame Setup Engine
+            footerAvatarWrapper.className = "deco-frame-container footer-avatar-frame";
+            if (data.decoration && data.decoration !== "none") {
+                footerAvatarWrapper.classList.add(data.decoration);
             }
-            
-            chatDisplay.innerHTML += `
-                <div class="msg-container ${isOwn ? 'own-msg' : ''}" style="position: relative;">
-                    <div class="msg-info" style="display: flex; align-items: center; justify-content: ${isOwn ? 'flex-end' : 'flex-start'};">
-                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
-                        <span class="msg-time">${timeStr}</span>
-                        ${deleteButtonHtml}
-                    </div>
-                    <div class="msg-bubble">${data.message}</div>
-                </div>
-            `;
-            if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
-        });
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+
+            // Realtime Loot Box Countdown Logic
+            const lastClaimed = data.lastLootClaimed || 0;
+            setupLootBoxTimer(lastClaimed);
+        }
     });
 }
 
-function initVoiceConference(roomName) {
+function setupLootBoxTimer(lastClaimedTimestamp) {
+    const cooldownTime = 24 * 60 * 60 * 1000; // 24 Hours in ms
+    
+    function updateTimer() {
+        const now = Date.now();
+        const timePassed = now - lastClaimedTimestamp;
+        
+        if (timePassed >= cooldownTime) {
+            lootTimerText.innerText = "Loot Box Ready!";
+            lootTimerText.style.color = "#22c55e"; // Green color when active
+            lootBoxTrigger.classList.add("ready-to-claim");
+            claimLootBtn.disabled = false;
+        } else {
+            const timeLeft = cooldownTime - timePassed;
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            lootTimerText.innerText = `${hours}h ${minutes}m ${seconds}s`;
+            lootTimerText.style.color = "#949ba4";
+            lootBoxTrigger.classList.remove("ready-to-claim");
+            claimLootBtn.disabled = true;
+        }
+    }
+    
+    updateTimer();
+    // Clear old intervals if any and set new live ticking
+    if (window.lootInterval) clearInterval(window.lootInterval);
+    window.lootInterval = setInterval(updateTimer, 1000);
+}
+
+// Trigger Reward Action on Loot Claim Click
+async function claimDailyLoot() {
     if (!currentUser) return;
-    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
-    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
-    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
-}            
+    const userRef = ref(db, `users/${currentUser.uid}`);
+    
+    try {
+        const snapshot = await get(userRef);
+        const data = snapshot.val();
+        const now = Date.now();
+        
+        if (data && (now - (data.lastLootClaimed || 0) >= 24 * 60 * 60 * 1000)) {
+            // Random Loot Generator Engine (10 - 100 XP Points)
+            const randomXPBonus = Math.floor(Math.random() * 91) + 10;
+            const currentTotalXP = (data.xp || 0) + randomXPBonus;
+            
+            await update(userRef, {
+                xp: currentTotalXP,
+                lastLootClaimed: now
+            });
+            
+            alert(`🎁 LOOT DROP UNLOCKED!\nYou received +${randomXPBonus} XP Matrix Points.`);
+        }
+    } catch (err) { console.error(err); }
+}
 
-// Emoji Picker Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('message-input');
-    const pickerButton = document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
+claimLootBtn.addEventListener("click", claimDailyLoot);
+lootBoxTrigger.addEventListener("click", () => { if(!claimLootBtn.disabled) claimDailyLoot(); });
 
-    const picker = new EmojiButton({
-        theme: 'dark',
-        autoHide: true,
-        position: 'top-start'
+// ====== CHAT CORE LOGIC ======
+function listenToChatMessages(room) {
+    const chatRef = ref(db, `messages/${room}`);
+    onValue(chatRef, (snapshot) => {
+        messagesContainer.innerHTML = "";
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).forEach((msgId) => {
+                const msg = data[msgId];
+                const isOwn = msg.senderUid === currentUser?.uid;
+                
+                // Fetch dynamic decoration at generation time
+                let userDecoClass = msg.senderDeco && msg.senderDeco !== "none" ? msg.senderDeco : "";
+
+                const msgHTML = `
+                    <div class="msg-container ${isOwn ? 'own-msg' : ''}" id="msg-${msgId}">
+                        <div class="msg-info">
+                            <span class="msg-sender">${msg.senderName}</span>
+                            <span class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            ${isOwn ? `<button class="msg-delete-btn" data-id="${msgId}" data-room="${room}" style="background:none;border:none;color:#949ba4;cursor:pointer;font-size:0.8rem;margin-left:5px;"><i class="fa-solid fa-trash"></i></button>` : ''}
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:center; flex-direction: ${isOwn ? 'row-reverse' : 'row'};">
+                            <div class="deco-frame-container ${userDecoClass}" style="padding:2px;">
+                                <img src="${msg.senderPhoto}" style="width:32px; height:32px; border-radius:50%;">
+                            </div>
+                            <div class="msg-bubble">${msg.text}</div>
+                        </div>
+                    </div>
+                `;
+                messagesContainer.insertAdjacentHTML("beforeend", msgHTML);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Link delete listeners dynamically
+            document.querySelectorAll(".msg-delete-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const id = e.currentTarget.getAttribute("data-id");
+                    const r = e.currentTarget.getAttribute("data-room");
+                    if(confirm("Terminate message payload permanently?")) {
+                        remove(ref(db, `messages/${r}/${id}`));
+                    }
+                });
+            });
+        }
     });
+}
 
-    picker.on('emoji', selection => {
-        input.value += selection.emoji;
-        input.focus(); 
-    });
+// Sending messages
+async function sendMessage() {
+    const text = chatMessageInput.value.trim();
+    if (!text || !currentUser) return;
 
-    window.openEmojiPicker = function() {
-        picker.togglePicker(pickerButton);
+    // Get fresh snapshot info for user framework tracking
+    const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+    const userData = userSnapshot.val() || {};
+    
+    // Auto incremental matrix rewarding (+2 XP per chat)
+    const newXP = (userData.xp || 0) + 2;
+    await update(ref(db, `users/${currentUser.uid}`), { xp: newXP });
+
+    const msgData = {
+        text: text,
+        senderUid: currentUser.uid,
+        senderName: currentUser.displayName,
+        senderPhoto: currentUser.photoURL,
+        senderDeco: userData.decoration || "none",
+        timestamp: Date.now()
     };
+
+    await push(ref(db, `messages/${currentRoom}`), msgData);
+    chatMessageInput.value = "";
+    // Clear typing states
+    set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null);
+}
+
+chatSendBtn.addEventListener("click", sendMessage);
+chatMessageInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+
+// ====== TYPING SYSTEMS ======
+chatMessageInput.addEventListener("input", () => {
+    if (!currentUser) return;
+    set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), currentUser.displayName);
+    
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        set(ref(db, `typing/${currentRoom}/${currentUser.uid}`), null);
+    }, 2000);
+});
+
+function listenToTyping() {
+    onValue(ref(db, `typing/${currentRoom}`), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const typers = Object.values(data).filter(name => name !== currentUser?.displayName);
+            if (typers.length > 0) {
+                typingIndicator.innerText = `${typers.join(", ")} ${typers.length > 1 ? 'are' : 'is'} hacking text...`;
+            } else { typingIndicator.innerText = ""; }
+        } else { typingIndicator.innerText = ""; }
+    });
+}
+
+// ====== ROOM SWITCHER SYSTEM ======
+roomItems.forEach(item => {
+    item.addEventListener("click", (e) => {
+        roomItems.forEach(r => r.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        currentRoom = e.currentTarget.getAttribute("data-room");
+        listenToChatMessages(currentRoom);
+        listenToTyping();
+    });
+});
+
+// ====== PROFILE SETTINGS MODAL INTERFACES ======
+footerProfileTrigger.addEventListener("click", async () => {
+    if (!currentUser) return;
+    const snap = await get(ref(db, `users/${currentUser.uid}`));
+    const data = snap.val();
+    if (data) {
+        modalUsernameInput.value = data.username || currentUser.displayName;
+        modalDecoSelect.value = data.decoration || "none";
+    }
+    profileModal.classList.remove("hidden");
+});
+
+closeProfileModal.addEventListener("click", () => profileModal.classList.add("hidden"));
+
+saveProfileBtn.addEventListener("click", async () => {
+    const newName = modalUsernameInput.value.trim();
+    const newDeco = modalDecoSelect.value;
+    if (!newName) return alert("System requires a designation.");
+
+    try {
+        await updateProfile(currentUser, { displayName: newName });
+        await update(ref(db, `users/${currentUser.uid}`), {
+            username: newName,
+            decoration: newDeco
+        });
+        profileModal.classList.add("hidden");
+    } catch (err) { alert(err.message); }
+});
+
+// ====== REALTIME NEON LEADERBOARD ======
+function listenToLeaderboard() {
+    onValue(ref(db, 'users'), (snapshot) => {
+        const usersData = snapshot.val();
+        if (!usersData) return;
+
+        // Convert, rank sort, and crop to top 5
+        const sortedUsers = Object.values(usersData)
+            .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+            .slice(0, 5);
+
+        leaderboardDisplayList.innerHTML = "";
+        sortedUsers.forEach((user, index) => {
+            let rankBadge = `<span style="color:#6366f1; width:20px; display:inline-block;">#${index+1}</span>`;
+            if (index === 0) rankBadge = "🥇 ";
+            if (index === 1) rankBadge = "🥈 ";
+            if (index === 2) rankBadge = "🥉 ";
+
+            const itemHTML = `
+                <li class="room-item" style="cursor:default; justify-content:space-between; text-transform:none; color:#dbdee1;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        ${rankBadge}
+                        <span style="font-weight:700; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${user.username}</span>
+                    </div>
+                    <span class="cyber-glow-text" style="font-size:0.8rem; font-family:'Orbitron',sans-serif;">${user.xp || 0} XP</span>
+                </li>
+            `;
+            leaderboardDisplayList.insertAdjacentHTML("beforeend", itemHTML);
+        });
+    });
+}
+
+// ====== AUDIO VOICE EMULATION COMMS ======
+const toggleVoiceBtn = document.getElementById("toggle-voice-btn");
+const voicePulse = document.getElementById("voice-pulse");
+const voiceStatusLbl = document.getElementById("voice-status-lbl");
+let inVoice = false;
+
+toggleVoiceBtn.addEventListener("click", () => {
+    inVoice = !inVoice;
+    if (inVoice) {
+        toggleVoiceBtn.innerText = "KILL LINK";
+        toggleVoiceBtn.className = "comms-mute-btn muted";
+        voicePulse.classList.add("active-pulse");
+        voiceStatusLbl.innerText = "COMMS ACTIVE // BROADCASTING";
+        voiceStatusLbl.style.color = "var(--neon-cyan)";
+    } else {
+        toggleVoiceBtn.innerText = "CONNECT COMMS";
+        toggleVoiceBtn.className = "comms-mute-btn unmuted";
+        voicePulse.classList.remove("active-pulse");
+        voiceStatusLbl.innerText = "VOICE DISCONNECTED";
+        voiceStatusLbl.style.color = "var(--text-muted)";
+    }
 });
