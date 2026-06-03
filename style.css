@@ -1,420 +1,234 @@
-// Firebase Live Config Matrix
-const firebaseConfig = {
-    apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
-    authDomain: "craftmeet-bea37.firebaseapp.com",
-    databaseURL: "https://craftmeet-bea37-default-rtdb.firebaseio.com/",
-    projectId: "craftmeet-bea37",
-    storageBucket: "craftmeet-bea37.firebasestorage.app",
-    messagingSenderId: "861031856963",
-    appId: "1:861031856963:web:b795f7bfa69877ef920df6",
-    measurementId: "G-JPF9GEPXSJ"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-let currentUser = null;
-let currentRoom = "global"; 
-let isInitialLoad = true; 
-let typingTimeout = null;
-let isMuted = false; 
-let isRegisterMode = false; 
-
-// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
-const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
-
-function playIncomingSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch (e) { console.log(e); }
+:root {
+    --bg-dark: #05060b;
+    --panel-bg: rgba(10, 12, 22, 0.9);
+    --sidebar-bg: #07080f;
+    --neon-cyan: #00f0ff;
+    --neon-magenta: #ff007f;
+    --text-main: #e2e8f0;
+    --text-muted: #4e5670;
+    --border-glow: rgba(0, 240, 255, 0.15);
 }
 
-function toggleAuthMode(e) {
-    e.preventDefault();
-    isRegisterMode = !isRegisterMode;
-    const title = document.getElementById('auth-title'), subtitle = document.getElementById('auth-subtitle');
-    const mainBtn = document.getElementById('main-auth-btn'), switchLink = document.getElementById('switch-auth-link'), switchText = document.getElementById('switch-text');
-    const usernameGroup = document.getElementById('reg-username-group'), regExtras = document.getElementById('reg-extras');
-
-    if (isRegisterMode) {
-        title.innerText = "CREATE AN ACCOUNT"; subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
-        mainBtn.innerText = "Continue & Register"; switchText.innerText = "Already have an account?"; switchLink.innerText = "Log In";
-        usernameGroup.style.display = "flex"; regExtras.style.display = "block";
-    } else {
-        title.innerText = "WELCOME BACK!"; subtitle.innerText = "We're so excited to see you again!";
-        mainBtn.innerText = "Log In"; switchText.innerText = "Need an account?"; switchLink.innerText = "Register";
-        usernameGroup.style.display = "none"; regExtras.style.display = "none";
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
+body { 
+    background: var(--bg-dark); 
+    background-image: radial-gradient(circle at 50% 30%, #110e26 0%, #05060b 80%);
+    height: 100vh; 
+    display: flex; 
+    color: var(--text-main); 
+    overflow: hidden; 
 }
 
-function handlePrimaryAuth() {
-    const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
-
-    if (!email || !password) { alert("Please fill in all required fields."); return; }
-
-    if (isRegisterMode) {
-        if (!username) { alert("Please choose a Gamertag/Username."); return; }
-        auth.createUserWithEmailAndPassword(email, password).then(credential => {
-            const user = credential.user;
-            user.updateProfile({ displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
-                db.ref(`users/${user.uid}`).set({ name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
-                .then(() => { location.reload(); });
-            });
-        }).catch(err => alert("Registration Fault: " + err.message));
-    } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Login Fault: " + err.message));
-    }
+/* Base Neon Styles */
+.neon-border {
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.1);
+}
+.neon-border-magenta {
+    border: 1px solid var(--neon-magenta);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.2), inset 0 0 15px rgba(255, 0, 127, 0.1);
+}
+.gaming-glow {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px var(--neon-cyan);
+    font-size: 2.5rem;
+    margin-bottom: 15px;
 }
 
-auth.getRedirectResult().then(result => {
-    if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
-}).catch(err => console.warn("Redirect Auth Info:", err.message));
+.cyber-title { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: 3px; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
+.cyber-title-short { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); }
+.cyber-glow-text { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+.cyber-magenta-text { color: var(--neon-magenta); text-shadow: 0 0 8px var(--neon-magenta); }
+.room-header-text { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; }
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
-        
-        syncUserProfileData(user);
-        setupOnlineCounter();
-        loadMessages(currentRoom);
-        listenToTyping(currentRoom);
-        initVoiceConference(currentRoom);
-        loadPrivateRoomsList();
-    } else {
-        currentUser = null;
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('jitsi-voice-frame').src = "";
-    }
-});
+/* Auth / Login Overlay */
+.auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030407; display: flex; justify-content: center; align-items: center; z-index: 999; overflow-y: auto; padding: 20px; }
+.auth-card { background: #1e1f22; padding: 40px; border-radius: 8px; text-align: center; width: 100%; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.auth-card p { color: #b5bac1; font-size: 0.95rem; margin-top: 5px; margin-bottom: 25px; }
+.auth-form-container { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.req-star { color: #f23f43; }
 
-function syncUserProfileData(user) {
-    const userRef = db.ref(`users/${user.uid}`);
-    userRef.on('value', snapshot => {
-        const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
-        if (data) {
-            // 7-DAY EXPIRY CHECKER LOGIC
-            if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
-                const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
-                const currentTime = Date.now();
-                
-                if (currentTime - data.decorationClaimedAt > oneWeekInMs) {
-                    db.ref(`users/${user.uid}`).update({
-                        currentDecoration: "none",
-                        decorationClaimedAt: 0
-                    });
-                    alert("⏰ YOUR DECORATION EXPIRED!\n\nYour 7-day avatar decoration frame time has ended. Keep chatting to earn more XP and unlock it again!");
-                    return; 
-                }
-            }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 0.75rem; font-weight: 700; color: #b5bac1; letter-spacing: 0.5px; text-transform: uppercase; }
+.form-group input, .form-group textarea, .form-group select { background: #111214; border: 1px solid rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; color: #dbdee1; font-size: 0.95rem; outline: none; transition: border 0.2s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--neon-cyan); }
 
-            avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
-            specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
-            
-            const footerFrame = document.getElementById('user-footer-deco-frame');
-            if (footerFrame) {
-                footerFrame.className = "deco-frame-container footer-avatar-frame"; 
-                if(data.currentDecoration && data.currentDecoration !== "none"){
-                    footerFrame.classList.add(data.currentDecoration);
-                }
-            }
+.cyber-action-btn { background: #5865f2; border: none; color: #fff; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: background 0.2s; width: 100%; font-family: 'Rajdhani', sans-serif; }
+.cyber-action-btn:hover { background: #4752c4; }
 
-            // Dashboard එකේ තමන්ගේ XP Level Bar එක update කරන කොටස
-            const userXp = data.xp || 0;
-            const barPercent = Math.min(100, (userXp / 500) * 100);
-            const userXpFill = document.getElementById('user-xp-fill'); // Dashboard එකට අලුතින් දාපු ID එක
-            const userXpText = document.getElementById('user-xp-text'); // Dashboard එකට අලුතින් දාපු ID එක
-            
-            if (userXpFill) userXpFill.style.width = `${barPercent}%`;
-            if (userXpText) userXpText.innerText = `${userXp} / 500 XP`;
+.auth-switcher { font-size: 0.85rem; color: #949ba4; margin-top: 4px; }
+.auth-switcher a { color: #00a8fc; text-decoration: none; margin-left: 4px; }
+.auth-switcher a:hover { text-decoration: underline; }
 
-            document.getElementById('profile-pic-input').value = data.profilePic || '';
-            document.getElementById('profile-bio-input').value = data.bio || '';
-            document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
+.auth-divider { display: flex; align-items: center; text-align: center; color: #4e5058; font-size: 0.75rem; font-weight: bold; margin: 10px 0; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid #313338; }
+.auth-divider span { padding: 0 10px; }
 
-            // ANTI-SPAM CONTROL LOGIC
-            const rewardModal = document.getElementById('reward-popup-modal');
-            if (rewardModal) {
-                if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
-                    rewardModal.classList.remove('hidden');
-                } else {
-                    rewardModal.classList.add('hidden');
-                }
-            }
-        } else {
-            const defaultName = user.displayName || "Gamer", defaultAvatar = user.photoURL || 'https://via.placeholder.com/40';
-            userRef.set({ name: defaultName, profilePic: defaultAvatar, bio: "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 });
-            avatarImg.src = defaultAvatar; specialtyText.innerHTML = `<span class="dot-neon"></span> Multi-Game Athlete`;
-        }
-    });
+#login-btn { background: transparent; border: 1px solid #4e5058; color: #dbdee1; padding: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+#login-btn:hover { background: rgba(255,255,255,0.05); border-color: #bbb; }
+
+/* Modals System Configuration */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 4, 7, 0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.modal-card { background: #1e1f22; padding: 30px; border-radius: 8px; width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; position: relative; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #fff; }
+.close-modal-btn, .close-card-btn { background: none; border: none; color: #949ba4; font-size: 1.2rem; cursor: pointer; }
+.close-modal-btn:hover, .close-card-btn:hover { color: #fff; }
+.modal-body { display: flex; flex-direction: column; gap: 15px; }
+.save-profile-btn { background: #23a55a; border: none; color: #fff; padding: 12px; font-weight: bold; font-size: 0.9rem; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+.save-profile-btn:hover { background: #1a7f43; }
+
+/* Reward Popup Engine */
+.reward-glow-box { text-align: center; border: 2px solid #f59e0b; box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); background: #111214; padding: 35px; }
+.animated-chest { font-size: 3.5rem; color: #f59e0b; margin-bottom: 15px; text-shadow: 0 0 15px #f59e0b; }
+.reward-title { font-family: 'Orbitron', sans-serif; font-weight: 900; color: #fff; letter-spacing: 2px; }
+.reward-stat-preview { font-size: 0.85rem; color: #eab308; background: rgba(234, 179, 8, 0.1); padding: 6px; border-radius: 4px; display: inline-block; margin: 10px 0; font-family: 'Orbitron', sans-serif; }
+.claim-reward-btn { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; padding: 14px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.95rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(245,158,11,0.3); width: 100%; }
+.claim-reward-btn:hover { transform: scale(1.02); box-shadow: 0 0 20px #f59e0b; }
+
+/* XP Level Bar System */
+.xp-bar-container { background: #111214; height: 10px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-top: 5px; }
+.xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #00f0ff); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+
+/* Avatar Decoration System */
+.deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
+.deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
+
+.deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
+.deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
+.deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
+
+.footer-avatar-frame { padding: 2px !important; }
+.footer-avatar-frame img { width: 34px !important; height: 34px !important; }
+
+@keyframes rotateDeco { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
+
+/* User View Card Modal Specifics */
+.user-view-card { max-width: 360px; padding: 0 0 25px 0; overflow: hidden; }
+.user-card-banner { height: 90px; background: linear-gradient(135deg, var(--neon-magenta), #3b82f6); width: 100%; }
+.user-card-avatar-wrap { margin-top: -45px; text-align: center; position: relative; z-index: 2; }
+.user-card-avatar-wrap img { width: 80px; height: 80px; border: 4px solid #1e1f22; }
+.user-card-info { padding: 0 25px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
+.user-card-info h3 { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #fff; }
+.user-card-badge { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: inline-block; margin: 0 auto; }
+.user-card-section { text-align: left; }
+.user-card-section label { font-size: 0.7rem; font-weight: bold; color: var(--text-muted); letter-spacing: 1px; display: block; margin-bottom: 4px; }
+.user-card-section p { font-size: 0.9rem; color: #dbdee1; }
+.cyber-dm-btn { background: transparent; border: 1px solid var(--neon-magenta); color: var(--neon-magenta); padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: 0.2s; width: 100%; }
+.cyber-dm-btn:hover { background: rgba(255, 0, 127, 0.1); box-shadow: 0 0 10px var(--neon-magenta); }
+
+/* Dashboard Structural Layout */
+.dashboard-container { display: flex; width: 100%; height: 100vh; }
+.sidebar { width: 280px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid var(--border-glow); flex-shrink: 0; }
+.sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-glow); }
+.logo-area { display: flex; align-items: center; gap: 12px; font-size: 1.2rem; }
+
+.online-counter-box { display: flex; align-items: center; gap: 10px; margin: 15px 15px 0 15px; padding: 10px 15px; background: rgba(0, 240, 255, 0.05); border: 1px dashed rgba(0, 240, 255, 0.2); border-radius: 6px; }
+.pulse-dot { width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; animation: pulseEffect 2s infinite; }
+.counter-text { font-size: 0.85rem; font-weight: 600; color: #a5b4fc; }
+
+.menu-section { padding: 15px 15px 5px 15px; }
+.section-title { font-size: 0.75rem; font-weight: 700; color: #6366f1; letter-spacing: 2px; margin-bottom: 12px; padding-left: 8px; }
+.room-list { list-style: none; }
+.room-item { padding: 10px 14px; border-radius: 4px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 4px; font-size: 1rem; font-weight: 600; text-transform: lowercase; }
+.room-item:hover { background: rgba(0, 240, 255, 0.04); color: #fff; }
+.room-item.active { background: rgba(0, 240, 255, 0.08); border-left: 3px solid var(--neon-cyan); color: #fff; padding-left: 11px; }
+.no-dm-notice { font-size: 0.8rem; color: #4e5670; padding-left: 10px; font-style: italic; }
+
+/* Profile Footer Layout */
+.user-profile-footer { padding: 12px 16px; background: #111214; border-top: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.user-meta { display: flex; align-items: center; gap: 10px; max-width: 65%; cursor: pointer; }
+#user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.user-details h4 { font-size: 0.9rem; font-weight: 700; color: #f2f3f5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-tag { font-size: 0.75rem; color: #949ba4; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot-neon { width: 6px; height: 6px; background: #23a55a; border-radius: 50%; }
+
+.profile-footer-actions { display: flex; align-items: center; gap: 8px; }
+.footer-reg-btn { background: #23a55a; border: none; color: #fff; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; border-radius: 3px; cursor: pointer; font-family: 'Orbitron', sans-serif; display: flex; align-items: center; gap: 4px; }
+.footer-reg-btn:hover { background: #1a7f43; }
+.icon-logout-btn { background: none; border: none; color: #949ba4; font-size: 0.95rem; cursor: pointer; padding: 6px; }
+.icon-logout-btn:hover { color: #f23f43; }
+
+/* Main Dynamic Chat Panels */
+.chat-wrapper { flex: 1.1; display: flex; flex-direction: column; background: var(--panel-bg); border-right: 1px solid var(--border-glow); }
+.panel-header { padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.1); }
+.header-title { display: flex; align-items: center; gap: 10px; }
+.messages-display { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+
+.typing-box { padding: 4px 24px; background: rgba(0,0,0,0.15); height: 26px; display: flex; align-items: center; }
+.typing-glow-text { font-size: 0.8rem; color: #a5b4fc; font-style: italic; }
+
+/* Messages Bubble Configurations */
+.msg-container { display: flex; flex-direction: column; gap: 3px; max-width: 85%; align-self: flex-start; }
+.msg-container.own-msg { align-self: flex-end; }
+.msg-info { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+.own-msg .msg-info { flex-direction: row-reverse; }
+.msg-sender { font-weight: 700; color: var(--neon-cyan); cursor: pointer; text-decoration: none; }
+.msg-sender:hover { text-decoration: underline; color: #fff; }
+.own-msg .msg-sender { color: var(--neon-magenta); }
+.msg-time { color: var(--text-muted); }
+.msg-bubble { background: #2b2d31; padding: 10px 14px; border-radius: 2px 10px 10px 10px; color: #dbdee1; font-size: 0.95rem; }
+.own-msg .msg-bubble { background: rgba(255, 0, 127, 0.08); border: 1px solid var(--neon-magenta); border-radius: 10px 2px 10px 10px; color: #fff; }
+
+.message-input-box { padding: 20px 24px; background: rgba(0,0,0,0.2); }
+.neon-border-soft { border: 1px solid rgba(0, 240, 255, 0.2); background: #383a40; border-radius: 8px; padding: 4px 8px; display: flex; align-items: center; position: relative; } /* Emoji Button එක නිවැරදි තැන පිහිටන්න මෙතනට position relative එක් කළා */
+.input-container input { flex: 1; padding: 10px; border: none; background: transparent; color: #fff; font-size: 0.95rem; outline: none; }
+.send-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; font-size: 1.1rem; }
+
+/* Right Section Panels */
+.right-panel { flex: 1.4; display: flex; flex-direction: column; background: #040508; overflow-y: auto; }
+.voice-section-box { height: 40%; display: flex; flex-direction: column; border-bottom: 1px solid var(--border-glow); flex-shrink: 0; }
+.voice-status-container { flex: 1; padding: 15px; display: flex; justify-content: center; align-items: center; }
+.voice-status-card { background: #111214; padding: 18px; border-radius: 8px; text-align: center; width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.voice-pulse-icon { width: 44px; height: 44px; background: rgba(0, 240, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); }
+.active-pulse { animation: voiceGlowPulse 1.5s infinite ease-in-out; }
+.muted-pulse { background: rgba(255, 0, 127, 0.1) !important; color: var(--neon-magenta) !important; border-color: var(--neon-magenta) !important; animation: none !important; }
+
+.comms-mute-btn { width: 100%; padding: 10px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--neon-cyan); border-radius: 4px; cursor: pointer; background: transparent; }
+.comms-mute-btn.unmuted { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+.comms-mute-btn.muted { color: var(--neon-magenta); border-color: var(--neon-magenta); }
+.hidden-voice-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+#voice-status-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Streamers Grid Hub (Fixed overlap issue) */
+.streamers-hub-box { flex: 1; padding: 20px; background: rgba(10, 11, 20, 0.95); display: flex; flex-direction: column; gap: 15px; border-top: 2px solid var(--neon-magenta); }
+.hub-header h3 { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #fff; }
+.hub-content { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 4px; }
+.game-yt-box h4 { font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; }
+
+/* Grid layout with 2 clean columns */
+.yt-buttons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+.yt-buttons-grid button { background: #1e1f22; border: 1px solid rgba(255,255,255,0.05); color: #dbdee1; padding: 10px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; transition: all 0.2s ease; }
+.yt-buttons-grid button i { color: #ef4444; flex-shrink: 0; }
+.yt-buttons-grid button:hover { border-color: var(--neon-cyan); color: #fff; background: rgba(0, 240, 255, 0.03); }
+
+.dev-yt-box { padding: 12px; background: rgba(0, 240, 255, 0.02); border-radius: 6px; }
+.dev-link-btn { display: inline-flex; align-items: center; gap: 8px; color: #fff; background: linear-gradient(135deg, #ff007f, #9d4edd); padding: 10px 16px; border-radius: 4px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; text-decoration: none; width: 100%; justify-content: center; }
+
+.membership-promo-box { background: #111214; border: 1px solid rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 8px; text-align: center; }
+.membership-promo-box h5 { font-family: 'Orbitron', sans-serif; color: #f59e0b; font-size: 0.85rem; margin-bottom: 4px; }
+.membership-promo-box p { font-size: 0.8rem; color: #949ba4; margin-bottom: 12px; }
+.buy-membership-btn { background: transparent; border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; cursor: pointer; width: 100%; }
+
+/* Keyframes and Utilities */
+@keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+@keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
+
+.text-center { text-align: center; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.hidden { display: none !important; }
+
+/* Emoji Picker Overlay Style Engine Fix */
+.emoji-picker {
+    z-index: 9999 !important; 
+    font-family: 'Rajdhani', sans-serif !important;
 }
-
-// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
-function claimAvatarDecoration() {
-    if (!currentUser) return;
-    const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
-    
-    db.ref(`users/${currentUser.uid}`).once('value').then(snapshot => {
-        const currentXp = snapshot.val().xp || 0;
-        const newXp = Math.max(0, currentXp - 500);
-
-        db.ref(`users/${currentUser.uid}`).update({
-            xp: newXp,
-            currentDecoration: randomDeco,
-            decorationClaimedAt: Date.now() 
-        }).then(() => {
-            const rewardModal = document.getElementById('reward-popup-modal');
-            if (rewardModal) rewardModal.classList.add('hidden');
-            alert(`🎉 LEGENDARY CLAIM SUCCESSFUL!\n\nYou unlocked the [${randomDeco.replace('deco-', '').replace('-', ' ').toUpperCase()}] Avatar border!\n\n*Note: This decoration is valid for exactly 7 days!`);
-        });
-    });
+.emoji-picker__search {
+    background-color: #111214 !important;
+    border: 1px solid rgba(0, 240, 255, 0.2) !important;
+    color: #fff !important;
 }
-
-function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
-function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
-
-function saveUserProfile() {
-    if (!currentUser) return;
-    db.ref(`users/${currentUser.uid}`).update({
-        profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
-        bio: document.getElementById('profile-bio-input').value.trim(),
-        gameSpecialty: document.getElementById('profile-game-input').value
-    }).then(() => toggleProfileModal()).catch(err => alert(err.message));
-}
-
-function logout() { auth.signOut().then(() => location.reload()); }
-function toggleUserCardModal() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
-
-function viewUserProfileCard(targetUid) {
-    if (!currentUser) return;
-    db.ref(`users/${targetUid}`).once('value').then(snapshot => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
-        if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
-            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
-            if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
-                db.ref(`users/${targetUid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
-                data.currentDecoration = "none"; 
-            }
-        }
-
-        document.getElementById('view-card-avatar').src = data.profilePic || 'https://via.placeholder.com/80';
-        document.getElementById('view-card-name').innerText = data.name || 'Gamer';
-        document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
-        document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
-        
-        const userXp = data.xp || 0;
-        const barPercent = Math.min(100, (userXp / 500) * 100);
-        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
-        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
-
-        const cardFrame = document.getElementById('view-card-deco-frame');
-        if (cardFrame) {
-            cardFrame.className = "deco-frame-container";
-            if(data.currentDecoration && data.currentDecoration !== "none"){
-                cardFrame.classList.add(data.currentDecoration);
-            }
-        }
-
-        const dmBtn = document.getElementById('view-card-dm-btn');
-        if (targetUid === currentUser.uid) {
-            dmBtn.style.display = "none";
-        } else {
-            dmBtn.style.display = "flex";
-            dmBtn.onclick = function() { initiatePrivateDM(targetUid, data.name); };
-        }
-        toggleUserCardModal();
-    });
-}
-
-function initiatePrivateDM(targetUid, targetName) {
-    toggleUserCardModal();
-    const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
-    db.ref(`users/${currentUser.uid}/active_dms/${dmRoomId}`).set({ roomName: targetName, targetId: targetUid });
-    db.ref(`users/${targetUid}/active_dms/${dmRoomId}`).set({ roomName: currentUser.displayName, targetId: currentUser.uid });
-    switchRoom(dmRoomId);
-}
-
-function loadPrivateRoomsList() {
-    if (!currentUser) return;
-    db.ref(`users/${currentUser.uid}/active_dms`).on('value', snapshot => {
-        const dmList = document.getElementById('private-rooms-list');
-        if (!dmList) return;
-        dmList.innerHTML = "";
-        if (!snapshot.exists()) {
-            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
-            return;
-        }
-        snapshot.forEach(child => {
-            const roomId = child.key; const dmData = child.val();
-            const isActive = currentRoom === roomId ? 'active' : '';
-            dmList.innerHTML += `
-                <li class="room-item priv-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')">
-                    <i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>
-                </li>
-            `;
-        });
-    });
-}
-
-function setupOnlineCounter() {
-    db.ref('.info/connected').on('value', snap => {
-        if (snap.val() === false) return;
-        db.ref(`online_users/${currentUser.uid}`).onDisconnect().remove().then(() => {
-            db.ref(`online_users/${currentUser.uid}`).set({ name: currentUser.displayName, active: true });
-        });
-    });
-    db.ref('online_users').on('value', snap => { 
-        const onlineCountEl = document.getElementById('online-count');
-        if (onlineCountEl) onlineCountEl.innerText = snap.numChildren() || 1; 
-    });
-}
-
-function handleTyping() {
-    if (!currentUser) return;
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({ name: currentUser.displayName, typing: true });
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000); 
-}
-
-function listenToTyping(roomName) {
-    db.ref(`typing/${roomName}`).on('value', snapshot => {
-        const typingBox = document.getElementById('typing-indicator'), typingUserSpan = document.getElementById('typing-user');
-        if (!typingBox || !typingUserSpan) return;
-        let typers = []; snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
-        if (typers.length > 0) { typingUserSpan.innerText = typers.join(', '); typingBox.classList.remove('hidden'); } else { typingBox.classList.add('hidden'); }
-    });
-}
-
-function toggleVoiceMute() {
-    isMuted = !isMuted;
-    const muteBtn = document.getElementById('comms-mute-btn'), btnIcon = document.getElementById('mute-btn-icon'), btnText = document.getElementById('mute-btn-text');
-    const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
-    if (isMuted) {
-        if (muteBtn) muteBtn.className = "comms-mute-btn muted"; if (btnIcon) btnIcon.className = "fa-solid fa-microphone-lines-slash"; if (btnText) btnText.innerText = "UNMUTE MIC";
-        if (pulseNode) pulseNode.className = "voice-pulse-icon muted-pulse"; if (statusIcon) statusIcon.className = "fa-solid fa-microphone-slash"; if (statusDesc) statusDesc.innerText = "Transmission terminated. Microphone locked.";
-    } else {
-        if (muteBtn) muteBtn.className = "comms-mute-btn unmuted"; if (btnIcon) btnIcon.className = "fa-solid fa-microphone-lines"; if (btnText) btnText.innerText = "MUTE MIC";
-        if (pulseNode) pulseNode.className = "voice-pulse-icon active-pulse"; if (statusIcon) statusIcon.className = "fa-solid fa-microphone"; if (statusDesc) statusDesc.innerText = "Voice link operational. Transmission LIVE.";
-    }
-    initVoiceConference(currentRoom);
-}
-
-function searchYT(channelName) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channelName + " gaming youtube")}`, '_blank'); }
-function triggerMembershipAlert() { alert("⚡ CRAFTMEET MULTIVERSE UPGRADE ⚡\n\nTo register custom YouTube channels, purchase Membership Tier.\n\nFee: $2.00 / Month"); }
-
-function switchRoom(roomName) {
-    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    currentRoom = roomName; isInitialLoad = true;
-    document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    setTimeout(() => {
-        const activeTarget = document.getElementById(`room-${roomName}`);
-        if (activeTarget) activeTarget.classList.add('active');
-    }, 2000);
-    const isDM = roomName.startsWith('dm_');
-    const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
-    document.getElementById('current-room-title').innerText = visualTitle;
-    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle}`;
-    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
-}
-
-function sendMessage() {
-    const input = document.getElementById('message-input'), text = input.value.trim(); if (text === "" || !currentUser) return;
-    
-    const gainedXp = text.length > 25 ? 10 : 5;
-    db.ref(`rooms/${currentRoom}`).push({ uid: currentUser.uid, sender: currentUser.displayName, message: text, timestamp: Date.now() });
-    
-    const userXpRef = db.ref(`users/${currentUser.uid}/xp`);
-    userXpRef.transaction(currentValue => {
-        return (currentValue || 0) + gainedXp;
-    });
-
-    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); input.value = "";
-}
-function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
-
-let currentDbRef = null;
-function loadMessages(roomName) {
-    const chatDisplay = document.getElementById('chat-messages');
-    if (!chatDisplay) return;
-    if (currentDbRef) currentDbRef.off();
-    currentDbRef = db.ref(`rooms/${roomName}`).limitToLast(100);
-    currentDbRef.once('value').then(() => { isInitialLoad = false; });
-    currentDbRef.on('value', snapshot => {
-        chatDisplay.innerHTML = "";
-        let totalChildren = snapshot.numChildren(), counter = 0;
-        snapshot.forEach(child => {
-            const data = child.val(); const isOwn = data.uid === currentUser.uid;
-            const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            counter++;
-            
-            chatDisplay.innerHTML += `
-                <div class="msg-container ${isOwn ? 'own-msg' : ''}">
-                    <div class="msg-info">
-                        <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;" title="Click to View Profile & DM">${isOwn ? 'You' : data.sender}</span>
-                        <span class="msg-time">${timeStr}</span>
-                    </div>
-                    <div class="msg-bubble">${data.message}</div>
-                </div>
-            `;
-            if (!isInitialLoad && counter === totalChildren && !isOwn) playIncomingSound();
-        });
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
-    });
-}
-
-function initVoiceConference(roomName) {
-    if (!currentUser) return;
-    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
-    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
-    const jitsiFrame = document.getElementById('jitsi-voice-frame');
-    if (jitsiFrame) jitsiFrame.src = voiceServerUrl;
-}            
-
-// Emoji Picker Initialization (Fixed & Robust Version)
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('message-input');
-    // HTML එකේ emoji button එකේ ID එක හරි Class එක හරි හරියටම අල්ලගන්නවා
-    const pickerButton = document.getElementById('emoji-picker-btn') || document.querySelector('.send-btn[onclick="openEmojiPicker()"]');
-
-    if (typeof EmojiButton !== 'undefined') {
-        const picker = new EmojiButton({
-            theme: 'dark',
-            autoHide: true,
-            position: 'top-start'
-        });
-
-        picker.on('emoji', selection => {
-            if (input) {
-                input.value += selection.emoji;
-                input.focus();
-            }
-        });
-
-        window.openEmojiPicker = function() {
-            if (pickerButton) {
-                picker.togglePicker(pickerButton);
-            } else if (input) {
-                // බටන් එක හොයාගන්න බැරි වුනොත් ඉන්පුට් බොක්ස් එක ගාවින් හරි ඕපන් වෙන්න සෙට් කරා
-                picker.togglePicker(input);
-            }
-        };
-    } else {
-        console.warn("EmojiButton library is not loaded. Please ensure Vanilla Emoji Picker CDN is linked in HTML.");
-    }
-});
