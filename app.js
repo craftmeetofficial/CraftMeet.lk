@@ -13,7 +13,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
-const storage = firebase.storage(); // Active Reference to File Storage Buckets
 
 let currentUser = null;
 let currentRoom = "global"; 
@@ -22,6 +21,7 @@ let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
 
+// 3 Custom Core Avatar Decoration CSS Mapping Reference Arrays
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
 function playIncomingSound() {
@@ -60,52 +60,22 @@ function toggleAuthMode(e) {
 
 function handlePrimaryAuth() {
     const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim(), bio = document.getElementById('auth-bio').value.trim();
-    const fileInput = document.getElementById('auth-avatar-file'); 
+    const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
 
     if (!email || !password) { alert("Please fill in all required fields."); return; }
 
     if (isRegisterMode) {
         if (!username) { alert("Please choose a Gamertag/Username."); return; }
-        
         auth.createUserWithEmailAndPassword(email, password).then(credential => {
             const user = credential.user;
-            const defaultAvatar = 'https://via.placeholder.com/40';
-
-            // AT REGISTRATION: FILE UPLOAD MODULE FOR AVATARS
-            if (fileInput && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const storageRef = storage.ref(`avatars/${user.uid}_${Date.now()}_${file.name}`);
-                
-                storageRef.put(file).then(snapshot => {
-                    snapshot.ref.getDownloadURL().then(downloadURL => {
-                        completeRegistration(user, username, downloadURL, bio);
-                    });
-                }).catch(err => {
-                    console.error("Signup image upload failed, using default", err);
-                    completeRegistration(user, username, defaultAvatar, bio);
-                });
-            } else {
-                completeRegistration(user, username, defaultAvatar, bio);
-            }
+            user.updateProfile({ displayName: username, photoURL: avatar || 'https://via.placeholder.com/40' }).then(() => {
+                db.ref(`users/${user.uid}`).set({ name: username, profilePic: avatar || 'https://via.placeholder.com/40', bio: bio || "Hey there! I am using CraftMeet.", gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0 })
+                .then(() => { location.reload(); });
+            });
         }).catch(err => alert("Registration Fault: " + err.message));
     } else {
         auth.signInWithEmailAndPassword(email, password).catch(err => alert("Login Fault: " + err.message));
     }
-}
-
-function completeRegistration(user, username, avatarUrl, bio) {
-    user.updateProfile({ displayName: username, photoURL: avatarUrl }).then(() => {
-        db.ref(`users/${user.uid}`).set({ 
-            name: username, 
-            profilePic: avatarUrl, 
-            bio: bio || "Hey there! I am using CraftMeet.", 
-            gameSpecialty: "Multi-Game Athlete", 
-            xp: 0, 
-            currentDecoration: "none", 
-            decorationClaimedAt: 0 
-        }).then(() => { location.reload(); });
-    });
 }
 
 auth.getRedirectResult().then(result => {
@@ -122,7 +92,7 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
-        initVoiceConference(currentRoom); // Automated Room Synced Voice Engine
+        initVoiceConference(currentRoom);
         loadPrivateRoomsList();
     } else {
         currentUser = null;
@@ -136,20 +106,23 @@ function syncUserProfileData(user) {
     userRef.on('value', snapshot => {
         const data = snapshot.val(), avatarImg = document.getElementById('user-avatar'), specialtyText = document.getElementById('user-specialty');
         if (data) {
-            // 7-DAY AUTOMATIC DECORATION REMOVER ENGINE
+            // 7-DAY EXPIRY CHECKER LOGIC
             if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
                 const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; 
                 const currentTime = Date.now();
                 
                 if (currentTime - data.decorationClaimedAt > oneWeekInMs) {
-                    db.ref(`users/${user.uid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
+                    db.ref(`users/${user.uid}`).update({
+                        currentDecoration: "none",
+                        decorationClaimedAt: 0
+                    });
                     alert("⏰ YOUR DECORATION EXPIRED!\n\nYour 7-day avatar decoration frame time has ended. Keep chatting to earn more XP and unlock it again!");
                     return; 
                 }
             }
 
             avatarImg.src = data.profilePic || user.photoURL || 'https://via.placeholder.com/40';
-            specialtyText.innerHTML = `<span class="dot-neon" style="width:8px; height:8px; background:#00ff66; display:inline-block; border-radius:50%; box-shadow:0 0 6px #00ff66; margin-right:4px;"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
+            specialtyText.innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
             
             const footerFrame = document.getElementById('user-footer-deco-frame');
             footerFrame.className = "deco-frame-container footer-avatar-frame"; 
@@ -157,10 +130,11 @@ function syncUserProfileData(user) {
                 footerFrame.classList.add(data.currentDecoration);
             }
 
+            document.getElementById('profile-pic-input').value = data.profilePic || '';
             document.getElementById('profile-bio-input').value = data.bio || '';
             document.getElementById('profile-game-input').value = data.gameSpecialty || 'Multi-Game Athlete';
 
-            // REWARD MODAL MANAGER SPAM LOCK 
+            // ANTI-SPAM CONTROL LOGIC: XP 500ක් තිබ්බත් දැනටමත් Decoration එකක් තියෙනවා නම් Popup එක පෙන්නන්නේ නැත.
             if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 document.getElementById('reward-popup-modal').classList.remove('hidden');
             } else {
@@ -174,6 +148,7 @@ function syncUserProfileData(user) {
     });
 }
 
+// REWARD CLAIM ALGORITHM WITH TIMESTAMP (FOR 7-DAY VALIDITY)
 function claimAvatarDecoration() {
     if (!currentUser) return;
     const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
@@ -196,48 +171,13 @@ function claimAvatarDecoration() {
 function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
 function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
-// PROFILE DASHBOARD INTERFACE: DIRECT LOCAL IMAGE UPLOADING
 function saveUserProfile() {
     if (!currentUser) return;
-    
-    const fileInput = document.getElementById('profile-pic-file');
-    const bioValue = document.getElementById('profile-bio-input').value.trim();
-    const gameValue = document.getElementById('profile-game-input').value;
-    
-    const saveBtn = document.querySelector("#profile-modal button[onclick='saveUserProfile()']");
-    if(saveBtn) saveBtn.innerText = "Uploading Image...";
-
-    if (fileInput && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const storageRef = storage.ref(`avatars/${currentUser.uid}_${Date.now()}_${file.name}`);
-        
-        storageRef.put(file).then(snapshot => {
-            snapshot.ref.getDownloadURL().then(downloadURL => {
-                updateDatabaseProfile(downloadURL, bioValue, gameValue, saveBtn);
-            });
-        }).catch(err => {
-            alert("Image Upload Failed: " + err.message);
-            if(saveBtn) saveBtn.innerText = "Save Changes";
-        });
-    } else {
-        db.ref(`users/${currentUser.uid}/profilePic`).once('value').then(snap => {
-            updateDatabaseProfile(snap.val() || currentUser.photoURL, bioValue, gameValue, saveBtn);
-        });
-    }
-}
-
-function updateDatabaseProfile(picUrl, bio, game, buttonEl) {
     db.ref(`users/${currentUser.uid}`).update({
-        profilePic: picUrl,
-        bio: bio,
-        gameSpecialty: game
-    }).then(() => {
-        if(buttonEl) buttonEl.innerText = "Save Changes";
-        toggleProfileModal();
-    }).catch(err => {
-        alert(err.message);
-        if(buttonEl) buttonEl.innerText = "Save Changes";
-    });
+        profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
+        bio: document.getElementById('profile-bio-input').value.trim(),
+        gameSpecialty: document.getElementById('profile-game-input').value
+    }).then(() => toggleProfileModal()).catch(err => alert(err.message));
 }
 
 function logout() { auth.signOut().then(() => location.reload()); }
@@ -249,7 +189,7 @@ function viewUserProfileCard(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        // VERIFY DECORATION VALIDITY BEFORE INJECTING CARD
+        // CARD VIEW MODAL - ANOTHER USER EXPIRY VERIFICATION ON DEMAND
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
             if (Date.now() - data.decorationClaimedAt > oneWeekInMs) {
@@ -299,7 +239,7 @@ function loadPrivateRoomsList() {
         const dmList = document.getElementById('private-rooms-list');
         dmList.innerHTML = "";
         if (!snapshot.exists()) {
-            dmList.innerHTML = '<li class="no-dm-notice" style="padding:10px 20px; font-size:13px; color:#52527a;">No active DMs</li>';
+            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
             return;
         }
         snapshot.forEach(child => {
@@ -307,7 +247,7 @@ function loadPrivateRoomsList() {
             const isActive = currentRoom === roomId ? 'active' : '';
             dmList.innerHTML += `
                 <li class="room-item priv-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')">
-                    <i class="fa-solid fa-comment-medical" style="color: var(--neon-magenta);"></i> <span>${dmData.roomName.toLowerCase()}</span>
+                    <i class="fa-solid fa-comment-medical cyber-magenta-text"></i> <span>${dmData.roomName.toLowerCase()}</span>
                 </li>
             `;
         });
@@ -345,10 +285,10 @@ function toggleVoiceMute() {
     const pulseNode = document.getElementById('voice-pulse-node'), statusIcon = document.getElementById('voice-status-icon'), statusDesc = document.getElementById('voice-status-desc');
     if (isMuted) {
         muteBtn.className = "comms-mute-btn muted"; btnIcon.className = "fa-solid fa-microphone-lines-slash"; btnText.innerText = "UNMUTE MIC";
-        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusIcon.style.color = "#ff003c"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
+        pulseNode.className = "voice-pulse-icon muted-pulse"; statusIcon.className = "fa-solid fa-microphone-slash"; statusDesc.innerText = "Transmission terminated. Microphone locked.";
     } else {
         muteBtn.className = "comms-mute-btn unmuted"; btnIcon.className = "fa-solid fa-microphone-lines"; btnText.innerText = "MUTE MIC";
-        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusIcon.style.color = "#00ff66"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
+        pulseNode.className = "voice-pulse-icon active-pulse"; statusIcon.className = "fa-solid fa-microphone"; statusDesc.innerText = "Voice link operational. Transmission LIVE.";
     }
     initVoiceConference(currentRoom);
 }
@@ -360,17 +300,14 @@ function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
-    
     setTimeout(() => {
         const activeTarget = document.getElementById(`room-${roomName}`);
         if (activeTarget) activeTarget.classList.add('active');
-    }, 200);
-
+    }, 2000);
     const isDM = roomName.startsWith('dm_');
     const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
     document.getElementById('current-room-title').innerText = visualTitle;
-    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle.toUpperCase()}`;
-    
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle}`;
     loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
@@ -403,7 +340,7 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             counter++;
             
-            // ROUTER CLICKACTION: DIRECT ROUTE TO USER CARD PROFILE VIEWER
+            // USER NAME CLICK TRIGGER -> Opens Gamer Card with DM Capability
             chatDisplay.innerHTML += `
                 <div class="msg-container ${isOwn ? 'own-msg' : ''}">
                     <div class="msg-info">
