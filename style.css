@@ -75,21 +75,29 @@ body {
 .xp-bar-container { background: #1e1f22; height: 10px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-top: 5px; }
 .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #00f0ff); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
 
-/* NEW: AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
+/* AVATAR DECORATIONS ENGINE SYSTEM ARCHITECTURE */
 .deco-frame-container { position: relative; display: inline-block; border-radius: 50%; padding: 4px; }
 .deco-frame-container img { border-radius: 50%; display: block; object-fit: cover; }
 
-/* 3 Core Custom Decoration Variations */
+/* Old 3 Core Decorations */
 .deco-cyber-neon { border: 3px dashed #00f0ff; box-shadow: 0 0 12px #00f0ff; animation: rotateDeco 8s linear infinite; }
 .deco-golden-flame { border: 3px double #f59e0b; box-shadow: 0 0 14px #ef4444; animation: pulseDeco 1.5s infinite ease-in-out; }
 .deco-magic-star { border: 3px dotted #a855f7; box-shadow: 0 0 15px #ff007f; animation: rotateDecoReverse 12s linear infinite; }
 
+/* NEW: 3 Cyberpunk/Gaming Decorations */
+.deco-neon-vortex { border: 3px solid transparent; background: linear-gradient(var(--sidebar-bg), var(--sidebar-bg)) padding-box, linear-gradient(135deg, #00f0ff, #ff007f) border-box; box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); animation: rotateDeco 6s linear infinite; }
+.deco-toxic-waste { border: 3px dashed #22c55e; box-shadow: 0 0 12px #22c55e, inset 0 0 8px #22c55e; animation: shakeDeco 0.5s infinite ease-in-out; }
+.deco-glitch-master { border: 3px double #facc15; box-shadow: 0 0 14px #facc15; animation: glitchDeco 2s infinite steps(2); }
+
 .footer-avatar-frame { padding: 2px !important; }
 .footer-avatar-frame img { width: 34px !important; height: 34px !important; }
 
+/* All Decoration Animations */
 @keyframes rotateDeco { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes rotateDecoReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes pulseDeco { 0% { box-shadow: 0 0 5px #f59e0b; } 50% { box-shadow: 0 0 16px #ef4444; } 100% { box-shadow: 0 0 5px #f59e0b; } }
+@keyframes shakeDeco { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04) rotate(2deg); } }
+@keyframes glitchDeco { 0%, 100% { transform: translate(0); text-shadow: none; border-color: #facc15; } 20% { transform: translate(-2px, 1px); border-color: #ff007f; } 40% { transform: translate(1px, -1px); border-color: #00f0ff; } 60% { transform: translate(-1px, -1px); } }
 
 /* Discord Layout Layout & Navigation */
 .dashboard-container { display: flex; width: 100%; height: 100vh; }
@@ -100,6 +108,18 @@ body {
 .online-counter-box { display: flex; align-items: center; gap: 10px; margin: 15px 15px 0 15px; padding: 10px 15px; background: rgba(0, 240, 255, 0.05); border: 1px dashed rgba(0, 240, 255, 0.2); border-radius: 6px; }
 .pulse-dot { width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; animation: pulseEffect 2s infinite; }
 .counter-text { font-size: 0.85rem; font-weight: 600; color: #a5b4fc; }
+
+/* NEW: DAILY LOOT BOX SIDEBAR COMPONENT */
+.daily-loot-box-panel { margin: 10px 15px; padding: 12px; background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 6px; text-align: center; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.05); }
+.loot-box-icon { font-size: 1.8rem; color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); cursor: pointer; transition: transform 0.2s; }
+.loot-box-icon.ready-to-claim { animation: boxShake 1.2s infinite ease-in-out; }
+.loot-box-icon:hover { transform: scale(1.1); }
+.loot-title { font-size: 0.8rem; font-weight: 700; color: #f2f3f5; letter-spacing: 1px; text-transform: uppercase; }
+.loot-timer-text { font-size: 0.75rem; color: #949ba4; font-family: 'Orbitron', sans-serif; }
+.claim-loot-btn { background: #f59e0b; border: none; color: #000; padding: 6px; font-size: 0.75rem; font-weight: 800; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
+.claim-loot-btn:hover:not(:disabled) { background: #d97706; box-shadow: 0 0 10px #f59e0b; }
+.claim-loot-btn:disabled { background: #2b2d31; color: #4e5670; cursor: not-allowed; }
+@keyframes boxShake { 0%, 100% { transform: rotate(0); } 20%, 60% { transform: rotate(-6deg); } 40%, 80% { transform: rotate(6deg); } }
 
 .menu-section { padding: 15px 15px 5px 15px; }
 .section-title { font-size: 0.75rem; font-weight: 700; color: #6366f1; letter-spacing: 2px; margin-bottom: 12px; padding-left: 8px; }
@@ -134,6 +154,10 @@ body {
 .msg-container.own-msg { align-self: flex-end; }
 .msg-info { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
 .own-msg .msg-info { flex-direction: row-reverse; }
+.msg-container img.msg-delete-btn, .msg-container button.msg-delete-btn { opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; }
+.msg-container:hover .msg-delete-btn { opacity: 0.7 !important; visibility: visible !important; }
+.msg-container .msg-delete-btn:hover { opacity: 1 !important; color: #ff0055 !important; }
+
 .msg-sender { font-weight: 700; color: var(--neon-cyan); cursor: pointer; text-decoration: none; }
 .msg-sender:hover { text-decoration: underline; color: #fff; }
 .own-msg .msg-sender { color: var(--neon-magenta); }
@@ -186,26 +210,14 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
 .hidden { display: none !important; }
 
-
-/* ... උඩින් ඔයාගේ පැරණි CSS Code එක දිගටම තියෙනවා ... */
-
-@keyframes pulseEffect { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-@keyframes voiceGlowPulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
-
-.text-center { text-align: center; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
-.hidden { display: none !important; }
-
 /* ==========================================
-   NEW: EMOJI PICKER CUSTOM STYLE FIX
+   EMOJI PICKER CUSTOM STYLE FIX
    ========================================== */
 .emoji-picker {
-    z-index: 9999 !important; /* චැට් එකට හෝ වෙනත් පැනල් වලට යට නොවී උඩින්ම පේන්න */
+    z-index: 9999 !important; 
     font-family: 'Rajdhani', sans-serif !important;
 }
 
-/* Emoji Picker එක ඇතුලේ තියෙන text එකත් dark theme එකට ගැලපෙන්න */
 .emoji-picker__search {
     background-color: #111214 !important;
     border: 1px solid rgba(0, 240, 255, 0.2) !important;
