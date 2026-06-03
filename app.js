@@ -1,4 +1,4 @@
-// Firebase Live Config Matrix
+// Firebase Live Config Matrix Configuration Data
 const firebaseConfig = {
     apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
     authDomain: "craftmeet-bea37.firebaseapp.com",
@@ -10,6 +10,7 @@ const firebaseConfig = {
     measurementId: "G-JPF9GEPXSJ"
 };
 
+// Initialize Firebase App Instance
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
@@ -23,7 +24,7 @@ let isRegisterMode = false;
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
-// Discord Style Level Calculator
+// Level Engine Processor Architecture
 function calculateLevel(xp) {
     if (!xp || xp < 0) return { level: 1, currentXp: 0, nextLevelXp: 100, progress: 0 };
     let level = Math.floor(Math.sqrt(xp / 100));
@@ -64,6 +65,7 @@ function playIncomingSound() {
     } catch (e) { console.log(e); }
 }
 
+// Toggle Interfaces inside Authentication overlay window panel
 function toggleAuthMode(e) {
     e.preventDefault();
     isRegisterMode = !isRegisterMode;
@@ -82,6 +84,7 @@ function toggleAuthMode(e) {
     }
 }
 
+// Handle Traditional Email Password logins or Registration triggers
 function handlePrimaryAuth() {
     const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-password').value;
     const username = document.getElementById('auth-username').value.trim(), avatar = document.getElementById('auth-avatar').value.trim(), bio = document.getElementById('auth-bio').value.trim();
@@ -102,10 +105,31 @@ function handlePrimaryAuth() {
     }
 }
 
-auth.getRedirectResult().then(result => {
-    if (result && result.user) console.log("Google Redirect Logged In:", result.user.displayName);
-}).catch(err => console.warn("Redirect Auth Info:", err.message));
+// Global Core Google authentication pipeline execution scripts
+function loginWithGoogle() { 
+    const provider = new firebase.auth.GoogleAuthProvider(); 
+    auth.signInWithPopup(provider)
+        .then(result => {
+            const user = result.user;
+            // Check if user entry exists in Realtime DB, if not seed metadata structure
+            db.ref(`users/${user.uid}`).once('value', snap => {
+                if(!snap.exists()) {
+                    db.ref(`users/${user.uid}`).set({
+                        name: user.displayName || "Gamer",
+                        profilePic: user.photoURL || 'https://via.placeholder.com/40',
+                        bio: "Hey there! I am using CraftMeet.",
+                        gameSpecialty: "Multi-Game Athlete",
+                        xp: 0,
+                        currentDecoration: "none",
+                        decorationClaimedAt: 0
+                    });
+                }
+            });
+        })
+        .catch(err => alert("Google Sign-In Failed: " + err.message)); 
+}
 
+// Reactive Global Authentication State Observer Layer Engine
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
@@ -193,7 +217,6 @@ function claimAvatarDecoration() {
 }
 
 function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
-function loginWithGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider).catch(err => console.error(err)); }
 
 function saveUserProfile() {
     if (!currentUser) return;
@@ -331,10 +354,12 @@ function switchRoom(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     currentRoom = roomName; isInitialLoad = true;
     document.querySelectorAll('.room-item').forEach(i => i.classList.remove('active'));
+    
     setTimeout(() => {
         const activeTarget = document.getElementById(`room-${roomName}`);
         if (activeTarget) activeTarget.classList.add('active');
-    }, 2000);
+    }, 100);
+    
     const isDM = roomName.startsWith('dm_');
     const visualTitle = isDM ? "private-direct-chat" : roomName.replace('-', ' ') + "-chat";
     document.getElementById('current-room-title').innerText = visualTitle;
@@ -408,3 +433,30 @@ function loadMessages(roomName) {
 }
 
 function initVoiceConference(roomName) {
+    if (!currentUser) return;
+    const secureRoomString = `${firebaseConfig.projectId}_voice_${roomName}_grid_session`;
+    const voiceServerUrl = `https://meet.jit.si/${secureRoomString}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}&config.videoQA.disabled=true&config.startAudioMuted=999`;
+    document.getElementById('jitsi-voice-frame').src = voiceServerUrl;
+}            
+
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('message-input');
+    const pickerButton = document.querySelector('.send-btn');
+
+    if(typeof EmojiButton !== 'undefined') {
+        const picker = new EmojiButton({
+            theme: 'dark',
+            autoHide: true,
+            position: 'top-start'
+        });
+
+        picker.on('emoji', selection => {
+            input.value += selection.emoji;
+            input.focus(); 
+        });
+
+        window.openEmojiPicker = function() {
+            picker.togglePicker(pickerButton);
+        };
+    }
+});
