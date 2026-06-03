@@ -313,7 +313,7 @@ function setupOnlineCounter() {
     });
     onValue(ref(db, 'online_users'), snap => { 
         const onlineCount = document.getElementById('online-count');
-        // FIXED: Added parentheses to numChildren()
+        // FIXED: Added parentheses () here
         if (onlineCount) onlineCount.innerText = snap.numChildren() || 1; 
     });
 }
@@ -399,7 +399,7 @@ function loadMessages(roomName) {
     
     onValue(chatRef, snapshot => {
         chatDisplay.innerHTML = "";
-        // FIXED: Added parentheses to numChildren()
+        // FIXED: Added parentheses () here
         let totalChildren = snapshot.numChildren(), counter = 0;
         
         if (totalChildren === 0) { isInitialLoad = false; }
