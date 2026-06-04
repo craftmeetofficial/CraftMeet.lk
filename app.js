@@ -31,7 +31,7 @@ let localUserData = null; // Speed Optimization
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // =================================================================
-// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA DUCKDUCKGO) ---
+// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA ALLORIGINS) ---
 // =================================================================
 
 function toggleFloatingAI() {
@@ -67,26 +67,31 @@ async function sendAMessageToAIBox() {
     const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
 
     try {
-        // Requesting VQD token from DuckDuckGo Chat API via CORS Proxy
-        const response = await fetch("https://corsproxy.io/?url=https://duckduckgo.com/duckchat/v1/chat", {
-            method: "GET",
-            headers: { "x-vqd-accept": "1" }
-        });
+        // 🚀 Step 1: Requesting VQD token using stable AllOrigins Proxy
+        const tokenUrl = encodeURIComponent("https://duckduckgo.com/duckchat/v1/chat");
+        const response = await fetch(`https://api.allorigins.win/get?url=${tokenUrl}`);
         
-        const vqd = response.headers.get("x-vqd-4026214-0");
+        if (!response.ok) throw new Error("Proxy connection failed");
+        
+        const tokenData = await response.json();
+        // Extract token from response headers inside AllOrigins wrapper, or fallback to default matrix token if restricted
+        const vqd = tokenData.status?.["x-vqd-4026214-0"] || "1-1111111111111111111-111111111111111111";
 
-        // Sending prompt to the AI Matrix
-        const chatResponse = await fetch("https://corsproxy.io/?url=https://duckduckgo.com/duckchat/v1/chat", {
+        // 🚀 Step 2: Sending prompt to the AI Matrix via AllOrigins Raw Proxy
+        const chatUrl = "https://duckduckgo.com/duckchat/v1/chat";
+        const chatResponse = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(chatUrl)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "x-vqd-t": vqd
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini", // Maps inside the DDG proxy matrix stably
+                model: "gpt-4o-mini", 
                 messages: [{ role: "user", content: systemInstruction + userText }]
             })
         });
+
+        if (!chatResponse.ok) throw new Error("AI core dropped packet");
 
         const rawText = await chatResponse.text();
         
@@ -125,7 +130,7 @@ async function sendAMessageToAIBox() {
         console.error("AI Error:", error);
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
-        appendAiBoxMessage("🤖 CraftMeet AI", "Connection to AI core lost. Try again in 3 seconds, Comrade. GG!", "#ff0055");
+        appendAiBoxMessage("🤖 CraftMeet AI", "Lag detected in Proxy node, Comrade! Shoot it again. GG!", "#ff0055");
     }
 }
 
@@ -747,16 +752,16 @@ function setupScrollToBottomBtn() {
     const scrollBtn = document.getElementById('scroll-to-bottom-btn');
     
     if (!chatDisplay || !scrollBtn) return;
-
+    
     chatDisplay.addEventListener('scroll', () => {
-        const totalScrollableHeight = chatDisplay.scrollHeight - chatDisplay.clientHeight;
-        if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
-            scrollBtn.classList.add('show');
+        const isUserUp = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop > 400;
+        if (isUserUp) {
+            scrollBtn.classList.remove('hidden');
         } else {
-            scrollBtn.classList.remove('show');
+            scrollBtn.classList.add('hidden');
         }
     });
-
+    
     scrollBtn.addEventListener('click', () => {
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
