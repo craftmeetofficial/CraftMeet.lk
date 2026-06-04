@@ -301,17 +301,16 @@ function listenToTyping(roomName) {
         snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
         
         if (typers.length > 0) {
-            // මෙතනදී කලින් තිබ්බ text එක වෙනුවට ලස්සන Neon dots ඇනිමේෂන් එක HTML එකටම ඉන්ජෙක්ට් කරනවා
             typingBox.innerHTML = `
                 <span>${typers.join(', ')} ${typers.length > 1 ? 'are' : 'is'} typing</span>
                 <div class="typing-dots">
                     <span></span><span></span><span></span>
                 </div>
             `;
-            typingBox.style.opacity = "1"; // පේන්න සලස්වනවා
+            typingBox.style.opacity = "1";
         } else {
             typingBox.innerHTML = '';
-            typingBox.style.opacity = "0"; // හංගනවා
+            typingBox.style.opacity = "0";
         }
     });
 }
@@ -364,10 +363,8 @@ function loadMessages(roomName) {
 
             const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
 
-            // Delete Button if user owns the message
             const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
-            // ⚡ 'isOwn' සත්‍ය නම් 'own-msg' Class එක එකතු කරනවා (දකුණු පැත්තට කරන්න)
             chatDisplay.innerHTML += `
                 <div class="message-item ${isOwn ? 'own-msg' : ''}">
                     <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
@@ -384,7 +381,6 @@ function loadMessages(roomName) {
             if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
         });
 
-        // ස්ක්‍රෝල් ලොජික්: යූසර් දැනටමත් යටම නම් ඉන්නේ, අලුත් මැසේජ් එකක් එද්දී ඔටෝ යටටම ස්ක්‍රෝල් කරනවා
         const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 200;
         if (isInitialLoad || isUserAtBottom) {
             chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -393,7 +389,6 @@ function loadMessages(roomName) {
     });
 }
 
-// Injected Delete Transmission Logic
 window.deleteMessage = function(roomName, msgId) {
     if (confirm("Are you sure you want to delete this transmission from orbit?")) {
         db.ref(`rooms/${roomName}/${msgId}`).remove()
@@ -417,7 +412,6 @@ window.switchRoom = function(roomName) {
     loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
-// Voice Comms & YouTube Controls
 window.toggleVoiceMute = function() {
     isMuted = !isMuted;
     const muteBtn = document.getElementById('comms-mute-btn');
@@ -448,7 +442,26 @@ function initVoiceConference(roomName) {
     if (voiceFrame) voiceFrame.src = `https://meet.jit.si/${firebaseConfig.projectId}_voice_${roomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}`;
 }
 
-window.searchYT = function(channel) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channel)}`, '_blank'); }
+// 👑 UPDATED: YOUTUBE SEARCH FUNCTION WITH POP-UP CHECK & ROBUST URI ENCODING
+window.searchYT = function(channel) {
+    if (!channel || channel.trim() === "") {
+        console.error("Streamer හෝ Channel නම ලැබී නැත!");
+        return;
+    }
+    
+    // නමේ දෙපැත්තේ හිස්තැන් අයින් කරලා, ආරක්ෂිතව URL එක සකසනවා
+    const query = encodeURIComponent(channel.trim());
+    const ytUrl = `https://www.youtube.com/results?search_query=${query}`;
+    
+    // නව ටැබ් එකකින් සර්ච් එක ඕපන් කරනවා
+    const newWindow = window.open(ytUrl, '_blank');
+    
+    // බ්‍රවුසර් එකෙන් Pop-up එක Block කරලා නම් ඇලර්ට් එකක් දෙනවා
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        alert("⚠️ Click Blocked! Please allow pop-ups for this website in your browser settings to open YouTube.");
+    }
+}
+
 window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
 
 // 👑 NEW: SCROLL TO BOTTOM BUTTON INTERACTION FUNCTION
@@ -458,7 +471,6 @@ function setupScrollToBottomBtn() {
     
     if (!chatDisplay || !scrollBtn) return;
 
-    // ස්ක්‍රෝල් කරනකොට බටන් එක පෙන්වන්න/හංගන්න
     chatDisplay.addEventListener('scroll', () => {
         const totalScrollableHeight = chatDisplay.scrollHeight - chatDisplay.clientHeight;
         if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
@@ -468,7 +480,6 @@ function setupScrollToBottomBtn() {
         }
     });
 
-    // ක්ලික් කරපු ගමන් Smooth විදිහට යටටම යවන්න
     scrollBtn.onclick = function() {
         chatDisplay.scrollTo({
             top: chatDisplay.scrollHeight,
@@ -482,7 +493,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputContainer = document.querySelector('.input-container');
     const inputField = document.getElementById('message-input');
     
-    // Typing Event Listener එක .input-container එක ඇතුලේ තියෙන input එකට ලින්ක් කරනවා
     if (inputField) {
         inputField.addEventListener('input', handleTyping);
     }
