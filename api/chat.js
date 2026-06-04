@@ -1,15 +1,12 @@
 // api/chat.js
 export default async function handler(req, res) {
-    // CORS Headers සෙට් කරනවා වෙනත් ඩොමේන් එකකින් ආවත් රික්වෙස්ට් බ්ලොක් නොවෙන්න
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // CORS Headers සකස් කිරීම
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Browser එකෙන් එවන Preflight (OPTIONS) රික්වෙස්ට් එකක් ආවොත් කෙලින්ම සක්සස් කරනවා
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
     if (req.method !== 'POST') {
@@ -19,56 +16,41 @@ export default async function handler(req, res) {
     try {
         const { message } = req.body;
         if (!message) {
-            return res.status(400).json({ error: 'Message content is missing' });
+            return res.status(400).json({ error: 'Message is required' });
         }
 
-        // 🚀 පියවර 1: DuckDuckGo එකෙන් Token එකක් (VQD) ගන්නවා (Vercel සර්වර් එක ඇතුලෙන්ම)
-        const statusRes = await fetch("https://duckduckgo.com/duckchat/v1/status", {
-            headers: { "x-requested-with": "XMLHttpRequest" }
-        });
-        
-        const vqdToken = statusRes.headers.get("x-vqd-4") || "1-111111111111111111-111111111111111111";
-
-        // 🚀 පියවර 2: ඒ ගත්ත Token එකත් එක්ක DuckDuckGo Chat Core එකට කෙලින්ම කෝල් එක දානවා
+        // CraftMeet AI Character Rules
         const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
-        
-        const chatRes = await fetch("https://duckduckgo.com/duckchat/v1/chat", {
+        const fullPrompt = systemInstruction + message;
+
+        // ⚡ කිසිම බ්ලොක් වීමක් නැති නොමිලේ වැඩ කරන විශ්වාසවන්ත AI API එකක් භාවිතා කිරීම
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "x-vqd-4": vqdToken,
-                "Accept": "text/event-stream"
+                "Authorization": "Bearer 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", // පොදු නිදහස් කී එකක්
+                "HTTP-Referer": "https://craftmeet.vercel.app", 
+                "X-Title": "CraftMeet AI",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [{ role: "user", content: systemInstruction + message }]
+                model: "meta-llama/llama-3.2-3b-instruct:free", // නියම Gaming Slang දන්නා වේගවත් නොමිලේ දෙන මොඩලයක්
+                messages: [{ role: "user", content: fullPrompt }]
             })
         });
 
-        if (!chatRes.ok) throw new Error("DuckDuckGo core API dropped packet");
-
-        const rawText = await chatRes.text();
-        
-        // එන Response stream එකෙන් Text එක විතරක් වෙන් කරගන්නවා
-        const lines = rawText.split('\n');
-        let aiReplyText = "";
-
-        for (let line of lines) {
-            if (line.startsWith('data: ')) {
-                const dataStr = line.substring(6).trim();
-                if (dataStr === '[DONE]') break;
-                try {
-                    const parsed = JSON.parse(dataStr);
-                    if (parsed.message) aiReplyText += parsed.message;
-                } catch (e) {}
-            }
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error("AI API Error Details:", errText);
+            throw new Error("AI core dropped packet");
         }
 
-        // අවසාන පිළිතුර Client (Front-end) එකට යවනවා
-        return res.status(200).json({ reply: aiReplyText.trim() });
+        const data = await response.json();
+        const aiReply = data.choices?.[0]?.message?.content || "";
+
+        return res.status(200).json({ reply: aiReply.trim() });
 
     } catch (error) {
-        console.error("Vercel Edge Error:", error);
-        return res.status(500).json({ error: "AI Uplink Failed" });
+        console.error("Server Error:", error);
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 }
