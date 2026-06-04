@@ -130,13 +130,19 @@ window.logout = function() {
     auth.signOut().then(() => location.reload());
 }
 
+// 👑 CRITICAL FLASH-FREE AUTHENTICATION PROTOCOL (METHOD 02 INJECTED)
 auth.onAuthStateChanged(user => {
     const authScreen = document.getElementById('auth-screen');
     const jitsiFrame = document.getElementById('jitsi-voice-frame');
+    const mainAppInterface = document.getElementById('main-app-interface');
     
     if (user) {
         currentUser = user;
+        
+        // Login වෙලා ඉන්න නිසා Login Screen එක වහාම හංගලා Chat එක පෙන්වනවා
         if (authScreen) authScreen.classList.add('hidden');
+        if (mainAppInterface) mainAppInterface.classList.remove('hidden');
+        
         document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
         
         syncUserProfileData(user);
@@ -160,7 +166,9 @@ auth.onAuthStateChanged(user => {
         if(statusDesc) statusDesc.innerText = "Microphone transmission locked.";
     } else {
         currentUser = null;
+        // User ලොග් වෙලා නැත්නම් විතරක් Login Screen එක පෙන්වනවා
         if (authScreen) authScreen.classList.remove('hidden');
+        if (mainAppInterface) mainAppInterface.classList.add('hidden');
         if (jitsiFrame) jitsiFrame.src = "";
     }
 });
@@ -404,7 +412,6 @@ window.sendMessage = function() {
     input.value = "";
 }
 
-// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER WITH SKELETON LOADER
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     if (!chatDisplay) return;
@@ -413,7 +420,6 @@ function loadMessages(roomName) {
     chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
-    // Injected Skeleton HTML Loader while fetching data from Firebase
     let loaderHTML = `
         <div class="msg-skeleton-container" id="chat-loader">
             <div class="skeleton-item">
@@ -448,7 +454,6 @@ function loadMessages(roomName) {
         const data = snapshot.val(); 
         if (!data) return;
 
-        // Remove the Skeleton loader instantly as soon as first real node arrives
         const loader = document.getElementById("chat-loader");
         if (loader) loader.remove();
 
@@ -486,7 +491,6 @@ function loadMessages(roomName) {
 
     db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
         isInitialLoad = false;
-        // Safe check for empty rooms to strip out loader
         const loader = document.getElementById("chat-loader");
         if (loader) loader.remove();
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -596,7 +600,6 @@ function setupScrollToBottomBtn() {
     };
 }
 
-// 👑 APP SETTINGS ENGINE
 window.toggleSettingsModal = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
@@ -643,10 +646,8 @@ window.saveAppSettings = function() {
     const newName = document.getElementById('settings-username').value.trim();
     const inputField = document.getElementById('settings-username');
 
-    // App එකේ global සද්දේ සේව් කරනවා
     appVolume = newVolume;
 
-    // නම වෙනස් කරලා තියෙනවා නම් සහ Input එක lock වෙලා නැත්නම් විතරක් Firebase එකට යවනවා
     if (!inputField.disabled && newName && newName !== currentUser.displayName) {
         currentUser.updateProfile({ displayName: newName }).then(() => {
             const updatesObj = {};
@@ -660,12 +661,10 @@ window.saveAppSettings = function() {
             });
         }).catch(err => alert("Error updating gamertag: " + err.message));
     } else {
-        // නම වෙනස් කරලා නැත්නම්, Volume එක විතරක් සේව් කරලා modal එක වහනවා
         toggleSettingsModal();
     }
 }
 
-// Dynamic Typing Event Listener & Emoji Picker Injection
 document.addEventListener('DOMContentLoaded', () => {
     const inputContainer = document.querySelector('.input-container');
     const inputField = document.getElementById('message-input');
@@ -687,9 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ==========================================
-// 👑 DEVELOPER DISCORD COPIER PROTOCOL
-// ==========================================
 window.copyDevDiscord = function() {
     const discordName = "Mr_kaveeya_bro";
     navigator.clipboard.writeText(discordName).then(() => {
@@ -701,9 +697,7 @@ window.copyDevDiscord = function() {
     }).catch(err => console.log("Copy error:", err));
 }
 
-// ==========================================
-// 🏆 👑 REALTIME XP LEADERBOARD SYSTEM (TOP 5)
-// ==========================================
+// 🏆 REALTIME XP LEADERBOARD SYSTEM (COMPLETED FROM SNIPPET)
 function listenToXPLeaderboard() {
     db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
         const leaderboardList = document.getElementById('xp-leaderboard-list');
@@ -735,13 +729,13 @@ function listenToXPLeaderboard() {
             const isMeClass = (currentUser && gamer.uid === currentUser.uid) ? 'leaderboard-item-me' : '';
 
             const rowHtml = `
-                <li class="leaderboard-item ${isMeClass}" onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                <li class="leaderboard-item ${isMeClass}">
+                    <div class="leaderboard-rank-zone">
                         ${rankBadge}
-                        <img src="${gamer.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #3f4248;" alt="">
-                        <span style="font-weight: 600; color: #f2f3f5;">${gamer.name}</span>
+                        <img src="${gamer.avatar}" class="leaderboard-avatar" alt="${gamer.name}">
+                        <span class="leaderboard-name">${gamer.name}</span>
                     </div>
-                    <span style="color: #00ffcc; font-size: 0.85rem; font-weight: bold;">${gamer.xp} XP</span>
+                    <span class="leaderboard-xp-tag">${gamer.xp} XP</span>
                 </li>
             `;
             leaderboardList.insertAdjacentHTML('beforeend', rowHtml);
