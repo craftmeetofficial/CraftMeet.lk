@@ -575,3 +575,31 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => picker.togglePicker(btn));
     }
 });
+
+// ==========================================
+// 👑 NEW: DEVELOPER MODAL CONSOLE LOGICS
+// ==========================================
+window.openDevDetails = function() {
+    const devModal = document.getElementById('dev-modal');
+    if (devModal) devModal.classList.remove('hidden');
+}
+
+window.closeDevModal = function() {
+    const devModal = document.getElementById('dev-modal');
+    if (devModal) devModal.classList.add('hidden');
+}
+
+window.copyDevDiscord = function() {
+    const discordName = "Mr_kaveeya_bro";
+    navigator.clipboard.writeText(discordName).then(() => {
+        const discordSpan = document.getElementById('dev-discord-name');
+        
+        discordSpan.innerText = "COPIED! ✅";
+        discordSpan.style.color = "#00ffcc";
+        
+        setTimeout(() => {
+            discordSpan.innerText = discordName;
+            discordSpan.style.color = "#5865F2";
+        }, 2000);
+    }).catch(err => console.log("Copy error:", err));
+}
