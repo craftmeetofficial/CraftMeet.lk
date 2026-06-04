@@ -334,7 +334,7 @@ window.sendMessage = function() {
     });
 }
 
-// 👑 UPDATED: LOAD MESSAGES WITH NEON USERNAME & SINGLE-SIDE LAYOUT
+// 👑 UPDATED: LOAD MESSAGES WITH TWO-SIDE ALIGNMENT & NEON USERNAME
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     db.ref(`rooms/${roomName}`).off(); 
@@ -353,14 +353,13 @@ function loadMessages(roomName) {
             count++;
 
             const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
-            const senderSpecialty = data.senderSpecialty || "Gamer";
 
             // Delete Button if user owns the message
-            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin-left:8px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
+            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
-            // 🔥 CSS එකට ගැලපෙන්න කෝඩ් එක වෙනස් කරා (හැම මැසේජ් එකක්ම left align වෙනවා, නම Neon වෙනවා)
+            // ⚡ 'isOwn' සත්‍ය නම් 'own-msg' Class එක එකතු කරනවා (දකුණු පැත්තට කරන්න)
             chatDisplay.innerHTML += `
-                <div class="message-item">
+                <div class="message-item ${isOwn ? 'own-msg' : ''}">
                     <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
                     <div class="msg-content">
                         <div class="msg-header">
