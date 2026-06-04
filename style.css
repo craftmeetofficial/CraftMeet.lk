@@ -17,7 +17,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Rajdhani', sans-serif;
+    /* පරණ Rajdhani වෙනුවට වඩාත් පිරිසිදු Inter ෆොන්ට් එක දැම්මා */
+    font-family: 'Inter', sans-serif;
 }
 
 body {
@@ -47,7 +48,8 @@ body {
    2. TEXT GLOWS & CYBERPUNK EFFECTS
    ========================================================================== */
 .cyber-title {
-    font-family: 'Orbitron', sans-serif;
+    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
+    font-family: 'Krona One', sans-serif;
     font-weight: 900;
     letter-spacing: 2px;
     color: #fff;
@@ -55,7 +57,8 @@ body {
 }
 
 .cyber-title-short {
-    font-family: 'Orbitron', sans-serif;
+    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
+    font-family: 'Krona One', sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
     background: linear-gradient(45deg, #fff, var(--accent-cyan));
@@ -182,6 +185,7 @@ body {
     letter-spacing: 1px;
     transition: all 0.25s ease;
     margin-top: 5px;
+    font-family: 'Krona One', sans-serif; /* Button එක වඩාත් කැපී පෙනෙන්න Krona One දැම්මා */
 }
 .cyber-action-btn:hover {
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
@@ -237,6 +241,8 @@ body {
     justify-content: center;
     gap: 10px;
     transition: all 0.2s;
+    font-family: 'Krona One', sans-serif; /* Google ලොගින් බටන් එකටත් Krona One සෙට් කරා */
+    font-size: 0.8rem;
 }
 #login-btn:hover {
     background: rgba(255, 255, 255, 0.06);
@@ -527,7 +533,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 99;
 }
 
 /* ==========================================================================
@@ -592,8 +598,8 @@ body {
 }
 
 .user-card-info h3 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.4rem;
+    font-family: 'Krona One', sans-serif; /* පරණ Orbitron වෙනුවට Krona One දැම්මා */
+    font-size: 1.2rem;
     font-weight: 900;
     color: #fff;
     margin-bottom: 6px;
@@ -635,6 +641,8 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    font-family: 'Krona One', sans-serif; /* DM බටන් එක ගති කරන්න Krona One දැම්මා */
+    font-size: 0.75rem;
 }
 
 .cyber-dm-btn:hover {
@@ -665,7 +673,7 @@ body {
    9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED TWO-SIDE)
    ========================================================================== */
 
-/* පොදු මැසේජ් ලේඅවුට් එක (Default: වම් පැත්තට) */
+/* පොදු මැසේජ් ලේඅවුට් එක */
 .message-item {
     display: flex;
     gap: 14px;
@@ -677,9 +685,9 @@ body {
     width: 100%;
 }
 
-/* 🔥 ඔයා දාන මැසේජ් විතරක් දකුණු පැත්තට (Right Side) කරන කොටස */
+/* ඔයා දාන මැසේජ් විතරක් දකුණු පැත්තට කරන කොටස */
 .message-item.own-msg {
-    flex-direction: row-reverse; /* Avatar එකයි Content එකයි මාරු කරනවා */
+    flex-direction: row-reverse;
     text-align: right;
 }
 
@@ -727,12 +735,13 @@ body {
 
 /* 🔥 SUPER NEON USERNAME - නම Neon ලයිට් එකක් වගේ දිලිසෙන කොටස */
 .msg-username {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
+    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
+    font-family: 'Krona One', sans-serif;
+    font-size: 0.85rem;
     font-weight: 800;
     letter-spacing: 1px;
     
-    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න ਹදා තියෙන්නේ */
+    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
     color: #fff;
     text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
     
@@ -795,7 +804,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Orbitron', sans-serif;
+    /* පරණ Orbitron වෙනුවට Krona One දැම්මා */
+    font-family: 'Krona One', sans-serif;
+    font-size: 0.7rem;
 }
 
 /* දිලිසෙන තිත් 3 ඇනිමේෂන් එක */
