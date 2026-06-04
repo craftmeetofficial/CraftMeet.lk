@@ -146,6 +146,7 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
+        listenToXPLeaderboard(); // 🔥 👑 AI ADDED: ලීඩර්බෝඩ් එක Realtime Listen කිරීම මෙතනින් ආරම්භ වේ.
         setupScrollToBottomBtn();
     } else {
         currentUser = null;
@@ -677,7 +678,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
@@ -685,4 +686,70 @@ window.copyDevDiscord = function() {
             btnText.innerHTML = "Discord Contact";
         }, 2000);
     }).catch(err => console.log("Copy error:", err));
+}
+
+// ==========================================
+// 🏆 👑 REALTIME XP LEADERBOARD SYSTEM (TOP 5) - AI INJECTED
+// ==========================================
+function listenToXPLeaderboard() {
+    // Database එකෙන් 'users' node එකේ XP වැඩිම 5 දෙනාව විතරක් Live ගන්නවා
+    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
+        const leaderboardList = document.getElementById('xp-leaderboard-list');
+        if (!leaderboardList) return;
+
+        let gamers = [];
+        
+        snapshot.forEach(childSnapshot => {
+            const userId = childSnapshot.key;
+            const userData = childSnapshot.val();
+            gamers.push({
+                uid: userId,
+                name: userData.name || 'Gamer',
+                xp: userData.xp || 0,
+                avatar: userData.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${userData.name}`,
+                decoration: userData.currentDecoration || 'none'
+            });
+        });
+
+        // Firebase limitToLast දෙන්නේ Ascending පිළිවෙලට නිසා, 
+        // වැඩිම XP කෙනා #1 විදිහට උඩටම ගන්න Array එක Reverse කරනවා
+        gamers.reverse();
+
+        // කලින් තිබ්බ ලිස්ට් එක Clear කරනවා
+        leaderboardList.innerHTML = "";
+
+        if (gamers.length === 0) {
+            leaderboardList.innerHTML = `<li style="color: #949ba4; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; text-align: center; padding: 10px;">No gamers tracked.</li>`;
+            return;
+        }
+
+        // Gamers ලා 5 දෙනා ලස්සන UI එකකට Render කිරීම
+        gamers.forEach((gamer, index) => {
+            const rank = index + 1;
+            
+            // පළවෙනි 3 දෙනාට විශේෂ Medals/Crowns ලබාදීම
+            let rankBadge = '';
+            if (rank === 1) rankBadge = '<i class="fa-solid fa-crown" style="color: #e5c158; font-size: 0.9rem;"></i> ';
+            else if (rank === 2) rankBadge = '<i class="fa-solid fa-medal" style="color: #b4b4b4;"></i> ';
+            else if (rank === 3) rankBadge = '<i class="fa-solid fa-medal" style="color: #cd7f32;"></i> ';
+            else rankBadge = `<span style="color: #6c727e; font-weight: 700; width: 14px; display: inline-block;">#${rank}</span> `;
+
+            // යූසර්ට Border එකක් ඇත්නම් ඒක ලීඩර්බෝඩ් එකෙත් ලස්සනට පෙන්වන්න
+            const hasBorder = (gamer.xp >= 500 || gamer.decoration === "neon-legendary-border") ? 'border: 1px solid #00ffcc; box-shadow: 0 0 5px #00ffcc;' : 'border: 1px solid rgba(255,255,255,0.1);';
+
+            const gamerRowHtml = `
+                <li onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 6px; border-left: 3px solid ${rank === 1 ? '#e5c158' : '#00ffcc'}; cursor: pointer; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.transform='translateX(4px)';" onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.transform='translateX(0)';">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        ${rankBadge}
+                        <img src="${gamer.avatar}" alt="${gamer.name}" style="width: 26px; height: 26px; border-radius: 50%; ${hasBorder} object-fit: cover;">
+                        <span style="font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #fff; font-size: 0.9rem; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gamer.name}</span>
+                    </div>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #00ffcc; font-weight: 700; background: rgba(0, 255, 204, 0.1); padding: 2px 6px; border-radius: 4px;">
+                        ${gamer.xp} <span style="font-size: 0.6rem; color: #949ba4;">XP</span>
+                    </div>
+                </li>
+            `;
+            leaderboardList.insertAdjacentHTML('beforeend', gamerRowHtml);
+        });
+    });
 }
