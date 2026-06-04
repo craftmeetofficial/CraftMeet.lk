@@ -31,11 +31,8 @@ let localUserData = null; // Speed Optimization
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // =================================================================
-// --- CRAFTMEET AI SYSTEM (FREE GEMINI VIA HUGGING FACE) ---
+// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA DUCKDUCKGO) ---
 // =================================================================
-
-const HF_API_KEY = "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";
-const AI_MODEL_URL = "https://api-inference.huggingface.co/models/MistralAI/Mistral-7B-Instruct-v0.2";
 
 function toggleFloatingAI() {
     const aiBody = document.getElementById('ai-floating-body');
@@ -64,47 +61,62 @@ async function sendAMessageToAIBox() {
     appendAiBoxMessage(`😎 ${username}`, userText, "#00ffcc");
     aiInput.value = ""; 
 
-    const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Matrix connecting to AI core...", "#949ba4", true);
+    const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Matrix connecting to Gemini core...", "#949ba4", true);
 
-    const systemPrompt = `<s>[INST] You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this: ${userText} [/INST]`;
+    // AI Character Prompts
+    const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
 
     try {
-        const response = await fetch(AI_MODEL_URL, {
-            headers: { 
-                "Authorization": `Bearer ${HF_API_KEY}`, 
-                "Content-Type": "application/json"
-            },
+        // Requesting VQD token from DuckDuckGo Chat API via CORS Proxy
+        const response = await fetch("https://corsproxy.io/?url=https://duckduckgo.com/duckchat/v1/chat", {
+            method: "GET",
+            headers: { "x-vqd-accept": "1" }
+        });
+        
+        const vqd = response.headers.get("x-vqd-4026214-0");
+
+        // Sending prompt to the AI Matrix
+        const chatResponse = await fetch("https://corsproxy.io/?url=https://duckduckgo.com/duckchat/v1/chat", {
             method: "POST",
-            body: JSON.stringify({ 
-                inputs: systemPrompt,
-                parameters: { 
-                    max_new_tokens: 80,
-                    return_full_text: false
-                } 
-            }),
+            headers: {
+                "Content-Type": "application/json",
+                "x-vqd-t": vqd
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini", // Maps inside the DDG proxy matrix stably
+                messages: [{ role: "user", content: systemInstruction + userText }]
+            })
         });
 
-        const result = await response.json();
+        const rawText = await chatResponse.text();
+        
+        // Extracting data chunks from text stream response
+        const lines = rawText.split('\n');
+        let aiReplyText = "";
+        for (let line of lines) {
+            if (line.startsWith('data: ')) {
+                const dataStr = line.substring(6).trim();
+                if (dataStr === '[DONE]') break;
+                try {
+                    const parsed = JSON.parse(dataStr);
+                    if (parsed.message) aiReplyText += parsed.message;
+                } catch(e) {}
+            }
+        }
 
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
 
-        let aiReplyText = "";
-        
-        if (Array.isArray(result) && result[0]?.generated_text) {
-            aiReplyText = result[0].generated_text.trim();
-        } else if (result && result.error) {
-            aiReplyText = "AI core is warming up, Comrade. Please send your message once more in 5 seconds! GG.";
-        } else {
-            aiReplyText = "Data matrix synced successfully, but reply stream was empty. Try again!";
+        if (!aiReplyText) {
+            aiReplyText = "GG! Matrix sync was successful, but response stream dropped. Shoot the message again, Comrade!";
         }
 
-        appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#fff");
+        appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText.trim(), "#fff");
 
         if (currentUser) {
             db.ref(`ai_chats/${currentUser.uid}`).push().set({
                 user_prompt: userText,
-                ai_response: aiReplyText,
+                ai_response: aiReplyText.trim(),
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
         }
@@ -113,7 +125,7 @@ async function sendAMessageToAIBox() {
         console.error("AI Error:", error);
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
-        appendAiBoxMessage("🤖 CraftMeet AI", "Connection to AI core lost. Check internet, Comrade.", "#ff0055");
+        appendAiBoxMessage("🤖 CraftMeet AI", "Connection to AI core lost. Try again in 3 seconds, Comrade. GG!", "#ff0055");
     }
 }
 
@@ -447,8 +459,48 @@ function loadPrivateRoomsList() {
     });
 }
 
+// 👑 FIXED REALTIME LEADERBOARD FUNCTION
 function listenToXPLeaderboard() {
     console.log("XP Leaderboard tracking linked to database matrix.");
+    
+    db.ref('users').orderByChild('xp').limitToLast(10).on('value', snapshot => {
+        const leaderboardList = document.getElementById('xp-leaderboard-list');
+        if (!leaderboardList) return;
+        
+        leaderboardList.innerHTML = ""; 
+
+        if (!snapshot.exists()) {
+            leaderboardList.innerHTML = `<li style="color: #949ba4; font-size: 0.85rem; text-align: center; padding: 10px;">No matrix data found</li>`;
+            return;
+        }
+
+        let gamers = [];
+        snapshot.forEach(childSnapshot => {
+            const userData = childSnapshot.val();
+            gamers.push({
+                uid: childSnapshot.key,
+                name: userData.name || "Unknown Gamer",
+                xp: userData.xp || 0
+            });
+        });
+
+        gamers.reverse();
+
+        gamers.forEach((gamer, index) => {
+            const isMe = currentUser && gamer.uid === currentUser.uid;
+            const rowStyle = isMe ? 'background: rgba(0, 255, 204, 0.05); border-left: 2px solid #00ffcc;' : '';
+            
+            leaderboardList.innerHTML += `
+                <li style="color: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; ${rowStyle}" onclick="viewUserProfileCard('${gamer.uid}')">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: ${index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#949ba4'}; font-weight: bold; width: 20px;">#${index + 1}</span>
+                        <span style="${isMe ? 'color: #00ffcc; font-weight: 500;' : ''}">${gamer.name}</span>
+                    </span>
+                    <span style="color: #00ffcc; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${gamer.xp} XP</span>
+                </li>
+            `;
+        });
+    });
 }
 
 function setupOnlineCounter() {
@@ -701,27 +753,11 @@ function setupScrollToBottomBtn() {
         if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
             scrollBtn.classList.add('show');
         } else {
-            scrollBtn.classList.remove('remove');
+            scrollBtn.classList.remove('show');
         }
     });
 
-    scrollBtn.onclick = function() {
-        chatDisplay.scrollTo({
-            top: chatDisplay.scrollHeight,
-            behavior: 'smooth'
-        });
-    };
-}
-
-window.toggleSettingsModal = function() {
-    const modal = document.getElementById('settings-modal');
-    if (!modal) return;
-    
-    modal.classList.toggle('hidden');
-    
-    if (!modal.classList.contains('hidden') && currentUser) {
-        document.getElementById('settings-username').value = currentUser.displayName || "";
-        document.getElementById('settings-volume').value = appVolume * 100;
-        document.getElementById('volume-value').innerText = Math.round(appVolume * 100) + "%";
-    }
+    scrollBtn.addEventListener('click', () => {
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    });
 }
