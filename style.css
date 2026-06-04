@@ -789,15 +789,14 @@ body {
 /* Typing Indicator Container */
 .typing-indicator-box {
     padding: 2px 25px;
-    font-size: 0.85rem;
     color: var(--text-muted);
-    font-weight: 600;
     min-height: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: 'Krona One', sans-serif;
     font-size: 0.7rem;
+    font-weight: 600;
 }
 
 /* දිලිසෙන තිත් 3 ඇනිමේෂන් එක */
@@ -873,7 +872,7 @@ body {
     animation: neonLegendaryPulse 2.5s infinite alternate ease-in-out;
 }
 
-/* Avatar එක උඩින් හරියටම මැදින් රජ කිරුළ (👑) සෙට් වෙන කොටස */
+/* Avatar එක උඩින් හරියටම මැදින් ਰජ කිරුළ (👑) සෙට් වෙන කොටස */
 .neon-legendary-border::after {
     content: '👑';
     position: absolute;
@@ -1000,4 +999,52 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    overflow: hidden; /* නම Box එකෙන් පිට පනින එක නවත්ව
+    overflow: hidden; /* නම Box එකෙන් පිට පනින එක නවත්වනවා */
+    flex: 1;
+}
+
+/* 👑 Gamer ගේ නම දිග වැඩි වුණොත් කපලා තිත් 3ක් (...) දාන කොටස */
+.leaderboard-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f2f3f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+/* Rank Badges සහ අංක */
+.rank-badge, .rank-number {
+    font-size: 1.1rem;
+    min-width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.rank-number {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-family: 'Krona One', sans-serif;
+}
+
+.leaderboard-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(0, 255, 204, 0.3);
+    flex-shrink: 0;
+}
+
+/* දකුණු පැත්තේ XP අගය */
+.leaderboard-right {
+    flex-shrink: 0;
+    text-align: right;
+    margin-left: 10px;
+}
+
+.leaderboard-xp {
+    color: var(--accent-cyan);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+/* --- 🏆 LEADERBOARD FIXES END --- */
