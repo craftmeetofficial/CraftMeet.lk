@@ -692,7 +692,7 @@ body {
     background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* මැසේජ් එක දාපු කෙනාගේ Avatar එක */
+/* මැසේජ් එක දාපු kenege Avatar එක */
 .msg-avatar {
     width: 42px !important;
     height: 42px !important;
@@ -960,6 +960,29 @@ body {
     100% { opacity: 0.4; }
 }
 
+/* --- 🏆 LEADERBOARD FIXES START --- */
+#xp-leaderboard-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    max-height: 340px; /* List එක දික් වෙලා Layout කැඩෙන එක නවත්වනවා */
+    overflow-y: auto;  /* සීමාව ඉක්මවා ගියොත් විතරක් scroll වෙනවා */
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Leaderboard Current User Identity Highlight */
 .leaderboard-item-me {
     border: 1px solid rgba(0, 255, 204, 0.4) !important;
@@ -971,3 +994,10 @@ body {
     background: rgba(255, 255, 255, 0.07) !important;
     transform: translateX(2px);
 }
+
+/* වම් පැත්තේ කොටස (Avatar + Name) එක පේළියක තියනවා */
+.leaderboard-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden; /* නම Box එකෙන් පිට පනින එක නවත්ව
