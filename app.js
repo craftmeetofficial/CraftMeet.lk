@@ -20,7 +20,7 @@ let currentUser = null;
 let currentRoom = "global"; 
 let isInitialLoad = true; 
 let typingTimeout = null;
-let isMuted = false; 
+let isMuted = true;  // 🛡️ 👑 FIXED: සයිට් එකට එනකොටම Default Mute වෙලා තියෙන්න true කරා
 let isRegisterMode = false; 
 let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
@@ -148,6 +148,18 @@ auth.onAuthStateChanged(user => {
         loadPrivateRoomsList();
         listenToXPLeaderboard(); // 🔥 👑 AI ADDED: ලීඩර්බෝඩ් එක Realtime Listen කිරීම මෙතනින් ආරම්භ වේ.
         setupScrollToBottomBtn();
+        
+        // 🛡️ 👑 FIXED: මුලින්ම සයිට් එකට ලොග් වෙද්දි Voice UI එක 'MUTED' ස්ටේට් එකට බලෙන් සෙට් කරනවා
+        const muteBtn = document.getElementById('comms-mute-btn');
+        const btnIcon = document.getElementById('mute-btn-icon');
+        const btnText = document.getElementById('mute-btn-text');
+        const pulseNode = document.getElementById('voice-pulse-node');
+        const statusDesc = document.getElementById('voice-status-desc');
+        if(muteBtn) muteBtn.className = "comms-mute-btn muted";
+        if(btnIcon) btnIcon.className = "fa-solid fa-microphone-lines-slash";
+        if(btnText) btnText.innerText = "UNMUTE MIC";
+        if(pulseNode) pulseNode.className = "voice-pulse-icon muted-pulse";
+        if(statusDesc) statusDesc.innerText = "Microphone transmission locked.";
     } else {
         currentUser = null;
         if (authScreen) authScreen.classList.remove('hidden');
@@ -161,7 +173,7 @@ function syncUserProfileData(user) {
         const data = snapshot.val();
         if (!data) return;
 
-        // ⚡ Fast Send කරන්න ඩේටา ටික Memory එකට ගන්නවා (Anti-Lag)
+        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
         localUserData = data;
 
         // Border Expiration Check (7 Days)
@@ -634,11 +646,12 @@ window.saveAppSettings = function() {
     if (!inputField.disabled && newName && newName !== currentUser.displayName) {
         currentUser.updateProfile({ displayName: newName }).then(() => {
             const updates = {};
-            updates[`users/${currentUser.uid}/name`] = newName;
-            updates[`users/${currentUser.uid}/lastNameChange`] = Date.now();
-            updates[`online_users/${currentUser.uid}/name`] = newName;
+            const updatesObj = {};
+            updatesObj[`users/${currentUser.uid}/name`] = newName;
+            updatesObj[`users/${currentUser.uid}/lastNameChange`] = Date.now();
+            updatesObj[`online_users/${currentUser.uid}/name`] = newName;
 
-            db.ref().update(updates).then(() => {
+            db.ref().update(updatesObj).then(() => {
                 alert("🎯 Terminal protocol updated! Gamertag successfully changed.");
                 location.reload();
             });
@@ -678,12 +691,12 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
         setTimeout(() => {
-            btnText.innerHTML = "Discord Contact";
+            if (btnText) btnText.innerHTML = "Discord Contact";
         }, 2000);
     }).catch(err => console.log("Copy error:", err));
 }
@@ -692,7 +705,6 @@ window.copyDevDiscord = function() {
 // 🏆 👑 REALTIME XP LEADERBOARD SYSTEM (TOP 5) - AI INJECTED
 // ==========================================
 function listenToXPLeaderboard() {
-    // Database එකෙන් 'users' node එකේ XP වැඩිම 5 දෙනාව විතරක් Live ගන්නවා
     db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
         const leaderboardList = document.getElementById('xp-leaderboard-list');
         if (!leaderboardList) return;
@@ -711,11 +723,7 @@ function listenToXPLeaderboard() {
             });
         });
 
-        // Firebase limitToLast දෙන්නේ Ascending පිළිවෙලට නිසා, 
-        // වැඩිම XP කෙනා #1 විදිහට උඩටම ගන්න Array එක Reverse කරනවා
         gamers.reverse();
-
-        // කලින් තිබ්බ ලිස්ට් එක Clear කරනවා
         leaderboardList.innerHTML = "";
 
         if (gamers.length === 0) {
@@ -723,92 +731,24 @@ function listenToXPLeaderboard() {
             return;
         }
 
-        // Gamers ලා 5 දෙනා ලස්සන UI එකකට Render කිරීම
         gamers.forEach((gamer, index) => {
             const rank = index + 1;
-            
-            // පළවෙනි 3 දෙනාට විශේෂ Medals/Crowns ලබාදීම
             let rankBadge = '';
-            if (rank === 1) rankBadge = `<span style="color: #ffcc00; font-size: 1.1rem; margin-right: 5px;">👑</span>`;
-            else if (rank === 2) rankBadge = `<span style="color: #cccccc; font-size: 1rem; margin-right: 5px;">🥈</span>`;
-            else if (rank === 3) rankBadge = `<span style="color: #cd7f32; font-size: 1rem; margin-right: 5px;">🥉</span>`;
-            else rankBadge = `<span style="color: #949ba4; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; margin-right: 10px; width: 15px; display: inline-block; text-align: center;">#${rank}</span>`;
-
-            // Border CSS class හැදීම
-            let borderClass = gamer.decoration !== 'none' ? gamer.decoration : '';
-            if (gamer.xp >= 500) borderClass = 'neon-legendary-border';
+            if (rank === 1) rankBadge = '👑';
+            else if (rank === 2) rankBadge = '🥈';
+            else if (rank === 3) rankBadge = '🥉';
+            else rankBadge = `#${rank}`;
 
             leaderboardList.innerHTML += `
-                <li style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 5px; border-left: 2px solid ${rank === 1 ? '#ffcc00' : 'transparent'};">
-                    <div style="display: flex; align-items: center;">
-                        ${rankBadge}
-                        <img src="${gamer.avatar}" class="${borderClass}" style="width: 28px; height: 28px; border-radius: 50%; margin-right: 8px; background: #2b2d31;" onclick="viewUserProfileCard('${gamer.uid}')">
-                        <span style="color: #f2f3f5; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">${gamer.name}</span>
+                <li style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 700; color: #00ffcc; width: 22px;">${rankBadge}</span>
+                        <img src="${gamer.avatar}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: #fff; font-family: 'Rajdhani'; font-weight: 600; font-size: 0.9rem;">${gamer.name}</span>
                     </div>
-                    <span style="color: #00ffcc; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.85rem;">${gamer.xp} XP</span>
+                    <span style="font-family: 'Orbitron'; font-size: 0.75rem; color: #ff0055; font-weight: 700;">${gamer.xp} XP</span>
                 </li>
             `;
         });
     });
-}
-
-// ==========================================
-// 🤖 👑 CRAFTMEET SMART MATRIX BOT (API-FREE)
-// ==========================================
-window.sendAMessageToAIBox = function() {
-    const aiInput = document.getElementById('ai-box-input');
-    const aiDisplay = document.getElementById('ai-box-messages');
-    if (!aiInput || !aiDisplay) return;
-
-    const userPrompt = aiInput.value.trim();
-    if (userPrompt === "") return;
-
-    // 1. User ගේ මැසේජ් එක චැට් එකේ පෙන්වීම
-    aiDisplay.innerHTML += `<div style="color: #fff; margin-bottom: 6px;"><strong style="color: #00ffcc;">You:</strong> ${userPrompt}</div>`;
-    aiInput.value = "";
-    aiDisplay.scrollTop = aiDisplay.scrollHeight;
-
-    // Bot Response එක process කිරීම
-    setTimeout(() => {
-        let botResponse = "";
-        const lowerPrompt = userPrompt.toLowerCase();
-
-        // 🧠 SMART RESPONSE LOGIC
-        if (lowerPrompt.includes("hello") || lowerPrompt.includes("hi") || lowerPrompt.includes("මචං")) {
-            botResponse = "👋 Addo! Welcome to <b>CraftMeet Gaming Hub</b>. How can I assist your gaming session today? Type <span style='color:#00ffcc;'>!menu</span> to see what I can do!";
-        } 
-        else if (lowerPrompt === "!menu" || lowerPrompt.includes("help") || lowerPrompt.includes("උදව්")) {
-            botResponse = "🎮 <b>Matrix Bot Terminal Menu:</b><br>🔹 <b>!rules</b> - Server Rules<br>🔹 <b>!xp</b> - XP & Level System<br>🔹 <b>!rank</b> - How to check leaderboard<br>🔹 <b>!dev</b> - Contact Creator";
-        } 
-        else if (lowerPrompt === "!rules") {
-            botResponse = "📜 <b>CraftMeet Rules of Engagement:</b><br>1. No spamming or duplicate messages.<br>2. Respect fellow Sri Lankan gamers.<br>3. Character spamming is blocked by anti-lag protocol.";
-        } 
-        else if (lowerPrompt === "!xp") {
-            botResponse = "⚡ <b>XP Matrix Engine:</b><br>• Short texts = +6 XP<br>• Long texts (>25 chars) = +12 XP<br>• Reach <span style='color:#e5c158;'>500 XP</span> to instantly trigger the <b>Neon Legendary Border</b> reward!";
-        } 
-        else if (lowerPrompt === "!rank") {
-            botResponse = "🏆 <b>Realtime Leaderboard:</b> Check the sidebar! The top 5 gamers with the highest XP are ranked live with special Crowns and Medals.";
-        } 
-        else if (lowerPrompt === "!dev") {
-            botResponse = "👑 <b>Developer Node:</b> This platform is coded by <span style='color:#00ffcc;'>Mr_kaveeya_bro</span>. Use the Developer Portal modal to copy the official Discord contact tag.";
-        } 
-        else {
-            // Default Fallback Message
-            botResponse = "🤖 <b>Matrix Bot Status:</b> Command not recognized. I am currently operating on a localized script node. Type <span style='color:#00ffcc;'>!menu</span> to view authorized protocols.";
-        }
-
-        // 2. බොට්ගේ පිළිතුර Screen එකේ පෙන්වීම
-        aiDisplay.innerHTML += `
-            <div style="color: #949ba4; margin-bottom: 8px; line-height: 1.3;">
-                <strong style="color: #ff0055;">🤖 CraftMeet AI:</strong> ${botResponse}
-            </div>
-        `;
-        aiDisplay.scrollTop = aiDisplay.scrollHeight;
-    }, 500);
-}
-
-window.checkAIBoxEnter = function(e) {
-    if (e.key === 'Enter') {
-        sendAMessageToAIBox();
-    }
 }
