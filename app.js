@@ -22,10 +22,11 @@ let isInitialLoad = true;
 let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
+let appVolume = 1.0; // 👑 NEW: Global App Volume Variable (Range: 0.0 - 1.0)
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
-// Incoming sound logic
+// 👑 UPDATED: SOUND ENGINE WITH GLOBAL VOLUME SCALE
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -34,8 +35,12 @@ function playIncomingSound() {
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        
+        // Settings එකෙන් හදපු Volume එක මෙතනට බලපානවා
+        const calculatedVolume = 0.1 * appVolume;
+        
+        gainNode.gain.setValueAtTime(calculatedVolume, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(calculatedVolume > 0 ? 0.01 : 0, audioCtx.currentTime + 0.15);
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
@@ -91,7 +96,8 @@ window.handlePrimaryAuth = function() {
             user.updateProfile({ displayName: username, photoURL: defaultAvatar }).then(() => {
                 db.ref(`users/${user.uid}`).set({
                     name: username, profilePic: defaultAvatar, bio: bio || "Hey there! I am using CraftMeet.",
-                    gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0
+                    gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0,
+                    lastNameChange: 0 // Initialize name cooldown timestamp
                 }).then(() => { location.reload(); });
             });
         }).catch(err => alert("Registration Error: " + err.message));
@@ -128,7 +134,7 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
-        setupScrollToBottomBtn(); // ස්ක්‍රෝල් බටන් එක ඉනිට් කරනවා
+        setupScrollToBottomBtn();
     } else {
         currentUser = null;
         if (authScreen) authScreen.classList.remove('hidden');
@@ -291,7 +297,6 @@ window.handleTyping = function() {
     typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000);
 }
 
-// 👑 UPDATED: LISTEN TO TYPING WITH CYBER DOTS ANIMATION
 function listenToTyping(roomName) {
     db.ref(`typing/${roomName}`).on('value', snapshot => {
         const typingBox = document.getElementById('typing-indicator');
@@ -343,7 +348,6 @@ window.sendMessage = function() {
     });
 }
 
-// 👑 UPDATED: LOAD MESSAGES WITH TWO-SIDE ALIGNMENT & NEON USERNAME
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     db.ref(`rooms/${roomName}`).off(); 
@@ -362,7 +366,6 @@ function loadMessages(roomName) {
             count++;
 
             const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
-
             const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
             chatDisplay.innerHTML += `
@@ -442,30 +445,23 @@ function initVoiceConference(roomName) {
     if (voiceFrame) voiceFrame.src = `https://meet.jit.si/${firebaseConfig.projectId}_voice_${roomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}`;
 }
 
-// 👑 FIXED & BYPASSED POP-UP BLOCKER: VIRTUAL ANCHOR LINK METHOD
 window.searchYT = function(channel) {
     if (!channel || channel.trim() === "") {
         console.error("Streamer හෝ Channel නම ලැබී නැත!");
         return;
     }
-    
-    // නම ආරක්ෂිතව URL එකකට Encode කරනවා
     const query = encodeURIComponent(channel.trim());
     const ytUrl = `https://www.youtube.com/results?search_query=${query}`;
     
-    // බ්‍රවුසර් එකට අහු නොවී අලුත් ටැබ් එකකින් යාමට Virtual <a> Tag එකක් හදනවා
     const createAnchor = document.createElement('a');
     createAnchor.href = ytUrl;
-    createAnchor.target = '_blank'; // අලුත් ටැබ් එකක ඕපන් වීමට
-    createAnchor.rel = 'noopener noreferrer'; // ආරක්ෂණ උපක්‍රමයක්
-    
-    // ජාවාස්ක්‍රිප්ට් මඟින් හොරෙන්ම බටන් එක ක්ලික් කරවනවා
+    createAnchor.target = '_blank';
+    createAnchor.rel = 'noopener noreferrer';
     createAnchor.click();
 }
 
 window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
 
-// 👑 NEW: SCROLL TO BOTTOM BUTTON INTERACTION FUNCTION
 function setupScrollToBottomBtn() {
     const chatDisplay = document.getElementById('chat-messages');
     const scrollBtn = document.getElementById('scroll-to-bottom-btn');
@@ -487,6 +483,75 @@ function setupScrollToBottomBtn() {
             behavior: 'smooth'
         });
     };
+}
+
+// 👑 NEW: APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
+window.toggleSettingsModal = function() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    
+    modal.classList.toggle('hidden');
+    
+    if (!modal.classList.contains('hidden') && currentUser) {
+        document.getElementById('settings-username').value = currentUser.displayName || "";
+        document.getElementById('settings-volume').value = appVolume * 100;
+        document.getElementById('volume-value').innerText = Math.round(appVolume * 100) + "%";
+        
+        document.getElementById('settings-volume').oninput = function() {
+            document.getElementById('volume-value').innerText = this.value + "%";
+        };
+
+        // Check 3 Days Cooldown Condition
+        db.ref(`users/${currentUser.uid}/lastNameChange`).once('value', snapshot => {
+            const lastChange = snapshot.val() || 0;
+            const cooldownMS = 3 * 24 * 60 * 60 * 1000; // 3 Days in milliseconds
+            const timePassed = Date.now() - lastChange;
+
+            const inputField = document.getElementById('settings-username');
+            const cooldownText = document.getElementById('name-cooldown-text');
+
+            if (timePassed < cooldownMS) {
+                const timeLeft = cooldownMS - timePassed;
+                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                inputField.disabled = true;
+                cooldownText.innerHTML = `⏳ SYSTEM LOCKED: You can update gamertag again in <strong style="color:#ff0055;">${daysLeft}d ${hoursLeft}h</strong>.`;
+            } else {
+                inputField.disabled = false;
+                cooldownText.innerText = "✅ SYSTEM READY: Gamertag transition authorized.";
+                cooldownText.style.color = "#00ffcc";
+            }
+        });
+    }
+}
+
+window.saveAppSettings = function() {
+    if (!currentUser) return;
+
+    const newVolume = parseInt(document.getElementById('settings-volume').value) / 100;
+    const newName = document.getElementById('settings-username').value.trim();
+    const inputField = document.getElementById('settings-username');
+
+    // Save Volume
+    appVolume = newVolume;
+
+    // Save Username changes if not disabled/cooldown active
+    if (!inputField.disabled && newName && newName !== currentUser.displayName) {
+        currentUser.updateProfile({ displayName: newName }).then(() => {
+            const updates = {};
+            updates[`users/${currentUser.uid}/name`] = newName;
+            updates[`users/${currentUser.uid}/lastNameChange`] = Date.now();
+            updates[`online_users/${currentUser.uid}/name`] = newName;
+
+            db.ref().update(updates).then(() => {
+                alert("🎯 Terminal protocol updated! Gamertag successfully changed.");
+                location.reload();
+            });
+        }).catch(err => alert("Error updating gamertag: " + err.message));
+    } else {
+        toggleSettingsModal(); // Just close modal if volume was adjusted or name unchanged
+    }
 }
 
 // Emoji Injected Generator & Dynamic Typing Event Listener
