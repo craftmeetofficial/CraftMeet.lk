@@ -662,10 +662,10 @@ body {
 }
 
 /* ==========================================================================
-   9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED)
+   9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED TWO-SIDE)
    ========================================================================== */
 
-/* එක මැසේජ් එකක් ඇතුළේ සම්පූර්ණ ලේඅවුට් එක */
+/* පොදු මැසේජ් ලේඅවුට් එක (Default: වම් පැත්තට) */
 .message-item {
     display: flex;
     gap: 14px;
@@ -674,6 +674,13 @@ body {
     border-radius: 8px;
     transition: background-color 0.2s ease;
     margin-bottom: 4px;
+    width: 100%;
+}
+
+/* 🔥 ඔයා දාන මැසේජ් විතරක් දකුණු පැත්තට (Right Side) කරන කොටස */
+.message-item.own-msg {
+    flex-direction: row-reverse; /* Avatar එකයි Content එකයි මාරු කරනවා */
+    text-align: right;
 }
 
 /* මැසේජ් එකක් උඩට මවුස් එක ගෙනිච්චම පොඩි Highlight එකක් */
@@ -689,6 +696,7 @@ body {
     object-fit: cover;
     border: 1.5px solid rgba(0, 255, 204, 0.25);
     box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
+    flex-shrink: 0;
 }
 
 /* Content Area */
@@ -696,6 +704,12 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    max-width: 75%;
+}
+
+/* දකුණු පැත්තේ මැසේජ් වල Content එක ඇතුළේ තියෙන දේවල් දකුණටම Align කරනවා */
+.message-item.own-msg .msg-content {
+    align-items: flex-end;
 }
 
 /* නම සහ වෙලාව තියෙන Header කොටස */
@@ -704,6 +718,11 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 4px;
+}
+
+/* දකුණු පැත්තේ මැසේජ් වල නමයි වෙලාවයි තියෙන Order එක මාරු කරනවා */
+.message-item.own-msg .msg-header {
+    flex-direction: row-reverse;
 }
 
 /* 🔥 SUPER NEON USERNAME - නම Neon ලයිට් එකක් වගේ දිලිසෙන කොටස */
