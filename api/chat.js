@@ -41,11 +41,11 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // 🚀 මෝඩල්ස් 2ක් ලිස්ට් කරනවා. පළමු එක බ්ලොක් හෝ ලැග් වුණොත් දෙවැනි එකෙන් ඔටෝම රිප්ලයි එක දෙනවා!
-                models: [
+                // 🔥 මෙතන 'models' වෙනුවට 'model' වෙන්න ඕනේ. OpenRouter එක fallback ලිස්ට් එකක් බාරගන්නේ මෙහෙමයි:
+                model: [
                     "google/gemini-2.5-flash:free",
                     "meta-llama/llama-3.2-3b-instruct:free"
-                ], 
+                ].join(","), // Models ටික string එකක් විදිහට comma වලින් වෙන් කරලා යවනවා
                 messages: [{ role: "user", content: fullPrompt }]
             })
         });
