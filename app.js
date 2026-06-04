@@ -128,6 +128,7 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
+        setupScrollToBottomBtn(); // ස්ක්‍රෝල් බටන් එක ඉනිට් කරනවා
     } else {
         currentUser = null;
         if (authScreen) authScreen.classList.remove('hidden');
@@ -290,18 +291,27 @@ window.handleTyping = function() {
     typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000);
 }
 
+// 👑 UPDATED: LISTEN TO TYPING WITH CYBER DOTS ANIMATION
 function listenToTyping(roomName) {
     db.ref(`typing/${roomName}`).on('value', snapshot => {
         const typingBox = document.getElementById('typing-indicator');
-        const typingUserSpan = document.getElementById('typing-user');
+        if (!typingBox) return;
+
         let typers = [];
         snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
         
         if (typers.length > 0) {
-            typingUserSpan.innerText = typers.join(', ');
-            typingBox.classList.remove('hidden');
+            // මෙතනදී කලින් තිබ්බ text එක වෙනුවට ලස්සන Neon dots ඇනිමේෂන් එක HTML එකටම ඉන්ජෙක්ට් කරනවා
+            typingBox.innerHTML = `
+                <span>${typers.join(', ')} ${typers.length > 1 ? 'are' : 'is'} typing</span>
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            typingBox.style.opacity = "1"; // පේන්න සලස්වනවා
         } else {
-            typingBox.classList.add('hidden');
+            typingBox.innerHTML = '';
+            typingBox.style.opacity = "0"; // හංගනවා
         }
     });
 }
@@ -373,8 +383,13 @@ function loadMessages(roomName) {
             `;
             if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
         });
+
+        // ස්ක්‍රෝල් ලොජික්: යූසර් දැනටමත් යටම නම් ඉන්නේ, අලුත් මැසේජ් එකක් එද්දී ඔටෝ යටටම ස්ක්‍රෝල් කරනවා
+        const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 200;
+        if (isInitialLoad || isUserAtBottom) {
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
         isInitialLoad = false;
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
 }
 
@@ -436,10 +451,42 @@ function initVoiceConference(roomName) {
 window.searchYT = function(channel) { window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(channel)}`, '_blank'); }
 window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
 
-// Emoji Injected Generator
+// 👑 NEW: SCROLL TO BOTTOM BUTTON INTERACTION FUNCTION
+function setupScrollToBottomBtn() {
+    const chatDisplay = document.getElementById('chat-messages');
+    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+    
+    if (!chatDisplay || !scrollBtn) return;
+
+    // ස්ක්‍රෝල් කරනකොට බටන් එක පෙන්වන්න/හංගන්න
+    chatDisplay.addEventListener('scroll', () => {
+        const totalScrollableHeight = chatDisplay.scrollHeight - chatDisplay.clientHeight;
+        if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
+            scrollBtn.classList.add('show');
+        } else {
+            scrollBtn.classList.remove('show');
+        }
+    });
+
+    // ක්ලික් කරපු ගමන් Smooth විදිහට යටටම යවන්න
+    scrollBtn.onclick = function() {
+        chatDisplay.scrollTo({
+            top: chatDisplay.scrollHeight,
+            behavior: 'smooth'
+        });
+    };
+}
+
+// Emoji Injected Generator & Dynamic Typing Event Listener
 document.addEventListener('DOMContentLoaded', () => {
     const inputContainer = document.querySelector('.input-container');
     const inputField = document.getElementById('message-input');
+    
+    // Typing Event Listener එක .input-container එක ඇතුලේ තියෙන input එකට ලින්ක් කරනවා
+    if (inputField) {
+        inputField.addEventListener('input', handleTyping);
+    }
+
     if (typeof EmojiButton !== 'undefined' && inputContainer && inputField) {
         const btn = document.createElement('button');
         btn.type = "button";
