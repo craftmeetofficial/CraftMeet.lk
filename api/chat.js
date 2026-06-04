@@ -19,21 +19,29 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Message is required' });
         }
 
+        // 🛡️ Vercel Environment Variables වලින් රහස් කී එක ඇදලා ගැනීම (GitHub එකට අහුවෙන්නේ නැහැ)
+        const apiKey = process.env.OPENROUTER_KEY;
+        
+        if (!apiKey) {
+            console.error("Missing OPENROUTER_KEY in Vercel Environment Variables!");
+            return res.status(500).json({ error: true, reply: "🤖 CraftMeet AI: System key missing in Vercel Matrix!" });
+        }
+
         // CraftMeet AI Character Rules
         const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
         const fullPrompt = systemInstruction + message;
 
-        // ⚡ කිසිම බ්ලොක් වීමක් නැති නොමිලේ වැඩ කරන විශ්වාසවන්ත AI API එකක් භාවිතා කිරීම
+        // ⚡ ආරක්ෂිතව API එකට කෝල් එක දීම
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": "Bearer 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", // පොදු නිදහස් කී එකක්
+                "Authorization": `Bearer ${apiKey}`, // මෙතනට Vercel එකේ කී එක ලස්සනට සෙට් වෙනවා
                 "HTTP-Referer": "https://craftmeet.vercel.app", 
                 "X-Title": "CraftMeet AI",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.2-3b-instruct:free", // නියම Gaming Slang දන්නා වේගවත් නොමිලේ දෙන මොඩලයක්
+                model: "meta-llama/llama-3.2-3b-instruct:free", 
                 messages: [{ role: "user", content: fullPrompt }]
             })
         });
@@ -45,12 +53,12 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        const aiReply = data.choices?.[0]?.message?.content || "";
+        const aiReply = data.choices?.[0]?.message?.content || "GG! Stream sync established but no data returned.";
 
         return res.status(200).json({ reply: aiReply.trim() });
 
     } catch (error) {
         console.error("Server Error:", error);
-        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: true, reply: "🤖 CraftMeet AI: Core dropped packet inside server grid!" });
     }
 }
