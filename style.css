@@ -660,3 +660,96 @@ body {
 .close-card-btn:hover {
     background: rgba(255, 0, 85, 0.6);
 }
+
+/* ==========================================================================
+   9. 👑 CHAT MESSAGES & USERNAME STYLING (🆕 NEW UPDATE)
+   ========================================================================== */
+
+/* එක මැසේජ් එකක් ඇතුළේ සම්පූර්ණ ලේඅවුට් එක */
+.message-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 4px;
+}
+
+/* මැසේජ් එකක් උඩට මවුස් එක ගෙනිච්චම පොඩි Discord Highlight එකක් දීම */
+.message-item:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* මැසේජ් එක දාපු කෙනාගේ Avatar එක */
+.msg-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(0, 255, 204, 0.25);
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
+}
+
+/* Content Area */
+.msg-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* නම සහ වෙලාව තියෙන Header කොටස */
+.msg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+/* 🔥 USERNAME STYLING - නම පැහැදිලිව පෙනෙන කොටස */
+.msg-username {
+    font-family: 'Orbitron', sans-serif; /* Gaming Font එක */
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+/* නම උඩට මවුස් එක ගෙනිච්චම සයන් කලර් එකෙන් Glow වෙන්න */
+.msg-username:hover {
+    color: var(--accent-cyan) !important;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+    text-decoration: underline;
+}
+
+/* වෙලාව (Timestamp) */
+.msg-timestamp {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* මැසේජ් එකේ Text එක */
+.msg-text {
+    font-size: 0.96rem;
+    color: #dcddde;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* 👑 Bonus: Roles අනුව නම් පාට කරන්න Classes (Optional) */
+.role-admin {
+    color: #ff4757 !important; /* Admin ලා රතු */
+    text-shadow: 0 0 8px rgba(255, 71, 87, 0.3);
+}
+
+.role-vip {
+    color: #ffa502 !important; /* VIP ලා රන්වන් */
+    text-shadow: 0 0 8px rgba(255, 165, 2, 0.3);
+}
+
+.role-gamer {
+    color: var(--accent-cyan) !important; /* Gamers ලා Cyan */
+}
