@@ -732,7 +732,7 @@ body {
     font-weight: 800;
     letter-spacing: 1px;
     
-    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
+    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න ਹදා තියෙන්නේ */
     color: #fff;
     text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
     
@@ -857,4 +857,40 @@ body {
     color: #000;
     box-shadow: 0 0 20px var(--accent-cyan);
     transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   11. 👑 LEGENDARY REWARD - NEON AVATAR BORDER & CROWN EFFECT
+   ========================================================================== */
+
+/* XP 500 පිරුණාම Avatar එකට වැටෙන දිලිසෙන සුපිරි Neon Border එක */
+.neon-legendary-border {
+    position: relative;
+    border: 3px solid var(--accent-magenta) !important;
+    box-shadow: 0 0 15px var(--accent-magenta), inset 0 0 10px var(--accent-magenta);
+    animation: neonLegendaryPulse 2.5s infinite alternate ease-in-out;
+}
+
+/* Avatar එක උඩින් හරියටම මැදින් රජ කිරුළ (👑) සෙට් වෙන කොටස */
+.neon-legendary-border::after {
+    content: '👑';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    filter: drop-shadow(0 0 5px #ffcc00);
+    z-index: 10;
+}
+
+/* Magenta සහ Cyan අතර මාරුවෙන් මාරුවට දිලිසෙන Legendary Pulse Animation එක */
+@keyframes neonLegendaryPulse {
+    0% {
+        border-color: var(--accent-magenta);
+        box-shadow: 0 0 12px var(--accent-magenta), 0 0 5px var(--accent-cyan);
+    }
+    100% {
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 22px var(--accent-cyan), 0 0 10px var(--accent-magenta);
+    }
 }
