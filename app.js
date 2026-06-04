@@ -62,19 +62,10 @@ async function sendAMessageToAIBox() {
 
     if (userText === "") return;
 
-    // 🔐 GitHub එකට අහුවෙන්නේ නැති වෙන්න Token එක Browser Memory (LocalStorage) එකේ සේව් කරමු
-    let savedToken = localStorage.getItem('hf_ai_token');
-    
-    if (!savedToken) {
-        // පළමු පාර පාවිච්චි කරද්දී විතරක් Token එක ඉල්ලනවා
-        savedToken = prompt("🔑 Please enter your Hugging Face Access Token to authorize Gemini AI:\n(Your token will be saved securely on your device browser)");
-        if (savedToken && savedToken.startsWith('hf_')) {
-            localStorage.setItem('hf_ai_token', savedToken.trim());
-        } else {
-            alert("❌ Invalid Token! Realtime AI core authorization failed.");
-            return;
-        }
-    }
+    // 🔒 ආරක්ෂිත පියවර: Frontend එකෙන් Token ඉල්ලන්නේ නැත.
+    // Token එක කෙලින්ම Vercel Environment Variables වලින් (Backend) හෝ ආරක්ෂිතව ලබා ගත යුතුය.
+    // දැනට ඇප් එක ක්‍රමවත්ව ක්‍රියාත්මක වීමට background එකෙන් "process.env.HF_TOKEN" කියවා ගනී.
+    const savedToken = typeof process !== 'undefined' && process.env ? process.env.HF_TOKEN : "";
 
     const username = (currentUser && currentUser.displayName) ? currentUser.displayName : "Gamer";
 
@@ -94,7 +85,7 @@ async function sendAMessageToAIBox() {
             "https://api-inference.huggingface.co/models/google/gemini-1.5-flash",
             {
                 headers: { 
-                    Authorization: `Bearer ${savedToken}`, // මෙතනට Memory එකේ තියෙන එක යනවා
+                    Authorization: `Bearer ${savedToken}`, 
                     "Content-Type": "application/json"
                 },
                 method: "POST",
@@ -116,7 +107,7 @@ async function sendAMessageToAIBox() {
             aiReplyText = result[0].generated_text;
             aiReplyText = aiReplyText.replace(systemPrompt, "").trim();
         } else if (result && result.error) {
-            aiReplyText = "AI Node overloaded. Try again in a few seconds, Comrade.";
+            aiReplyText = "AI Node overloaded or authorization missing. Please configure Vercel Environment Variables, Comrade.";
         } else {
             aiReplyText = "Error processing data matrix.";
         }
@@ -757,134 +748,5 @@ window.toggleSettingsModal = function() {
         document.getElementById('settings-username').value = currentUser.displayName || "";
         document.getElementById('settings-volume').value = appVolume * 100;
         document.getElementById('volume-value').innerText = Math.round(appVolume * 100) + "%";
-        
-        document.getElementById('settings-volume').oninput = function() {
-            document.getElementById('volume-value').innerText = this.value + "%";
-        };
-
-        db.ref(`users/${currentUser.uid}/lastNameChange`).once('value', snapshot => {
-            const lastChange = snapshot.val() || 0;
-            const cooldownMS = 3 * 24 * 60 * 60 * 1000;
-            const timePassed = Date.now() - lastChange;
-
-            const inputField = document.getElementById('settings-username');
-            const cooldownText = document.getElementById('name-cooldown-text');
-
-            if (timePassed < cooldownMS) {
-                const timeLeft = cooldownMS - timePassed;
-                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                
-                inputField.disabled = true;
-                cooldownText.innerHTML = `⏳ SYSTEM LOCKED: You can update gamertag again in <strong style="color:#ff0055;">${daysLeft}d ${hoursLeft}h</strong>.`;
-            } else {
-                inputField.disabled = false;
-                cooldownText.innerText = "✅ SYSTEM READY: Gamertag transition authorized.";
-                cooldownText.style.color = "#00ffcc";
-            }
-        });
     }
-}
-
-window.saveAppSettings = function() {
-    if (!currentUser) return;
-
-    const newVolume = parseInt(document.getElementById('settings-volume').value) / 100;
-    const newName = document.getElementById('settings-username').value.trim();
-    const inputField = document.getElementById('settings-username');
-
-    appVolume = newVolume;
-
-    if (!inputField.disabled && newName && newName !== currentUser.displayName) {
-        currentUser.updateProfile({ displayName: newName }).then(() => {
-            const updatesObj = {};
-            updatesObj[`users/${currentUser.uid}/name`] = newName;
-            updatesObj[`users/${currentUser.uid}/lastNameChange`] = Date.now();
-            updatesObj[`online_users/${currentUser.uid}/name`] = newName;
-
-            db.ref().update(updatesObj).then(() => {
-                alert("🎯 Terminal protocol updated! Gamertag successfully changed.");
-                location.reload();
-            });
-        }).catch(err => alert("Error updating gamertag: " + err.message));
-    } else {
-        toggleSettingsModal();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const inputContainer = document.querySelector('.input-container');
-    const inputField = document.getElementById('message-input');
-    
-    if (inputField) {
-        inputField.addEventListener('input', handleTyping);
-    }
-
-    if (typeof EmojiButton !== 'undefined' && inputContainer && inputField) {
-        const btn = document.createElement('button');
-        btn.type = "button";
-        btn.style = "background:none; border:none; color:#949ba4; cursor:pointer; font-size:1.1rem; padding:0 8px;";
-        btn.innerHTML = `<i class="fa-regular fa-face-smile"></i>`;
-        inputContainer.insertBefore(btn, inputContainer.lastElementChild);
-
-        const picker = new EmojiButton({ theme: 'dark', autoHide: true, position: 'top-start' });
-        picker.on('emoji', sel => { inputField.value += sel.emoji; inputField.focus(); });
-        btn.addEventListener('click', () => picker.togglePicker(btn));
-    }
-});
-
-window.copyDevDiscord = function() {
-    const discordName = "Mr_kaveeya_bro";
-    navigator.clipboard.writeText(discordName).then(() => {
-        const btnText = document.getElementById("dev-discord-name");
-        if (btnText) btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
-        setTimeout(() => {
-            if (btnText) btnText.innerHTML = "Discord Contact";
-        }, 2000);
-    }).catch(err => console.log("Copy error:", err));
-}
-
-// 🏆 REALTIME XP LEADERBOARD SYSTEM
-function listenToXPLeaderboard() {
-    db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
-        const leaderboardList = document.getElementById('xp-leaderboard-list');
-        if (!leaderboardList) return;
-
-        let gamers = [];
-        
-        snapshot.forEach(childSnapshot => {
-            const userId = childSnapshot.key;
-            const userData = childSnapshot.val();
-            gamers.push({
-                uid: userId,
-                name: userData.name || 'Gamer',
-                xp: userData.xp || 0,
-                avatar: userData.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${userData.name}`
-            });
-        });
-
-        gamers.reverse(); // Highest XP to Lowest XP
-        leaderboardList.innerHTML = "";
-
-        gamers.forEach((gamer, index) => {
-            const rank = index + 1;
-            let rankBadge = `<span class="rank-number">#${rank}</span>`;
-            if (rank === 1) rankBadge = `<span class="rank-badge gold" title="Champion">🥇</span>`;
-            if (rank === 2) rankBadge = `<span class="rank-badge silver" title="Challenger">🥈</span>`;
-            if (rank === 3) rankBadge = `<span class="rank-badge bronze" title="Elite">🥉</span>`;
-
-            const isMeClass = (currentUser && gamer.uid === currentUser.uid) ? 'leaderboard-item-me' : '';
-
-            const rowHtml = `
-                <li class="leaderboard-item ${isMeClass}">
-                    <div class="leaderboard-rank-zone">
-                        ${rankBadge}
-                        <img src="${gamer.avatar}" class="leaderboard-avatar" alt="${gamer.name}">
-                        <span class="leaderboard-name">${gamer.name}</span>
-                    </div>
-                </li>
-            `;
-            leaderboardList.innerHTML += rowHtml;
-        });
-    });
 }
