@@ -31,7 +31,7 @@ let localUserData = null; // Speed Optimization
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // =================================================================
-// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA ALLORIGINS) ---
+// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA CODETABS) ---
 // =================================================================
 
 function toggleFloatingAI() {
@@ -67,23 +67,18 @@ async function sendAMessageToAIBox() {
     const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
 
     try {
-        // 🚀 Step 1: Requesting VQD token using stable AllOrigins Proxy
-        const tokenUrl = encodeURIComponent("https://duckduckgo.com/duckchat/v1/chat");
-        const response = await fetch(`https://api.allorigins.win/get?url=${tokenUrl}`);
-        
-        if (!response.ok) throw new Error("Proxy connection failed");
-        
-        const tokenData = await response.json();
-        // Extract token from response headers inside AllOrigins wrapper, or fallback to default matrix token if restricted
-        const vqd = tokenData.status?.["x-vqd-4026214-0"] || "1-1111111111111111111-111111111111111111";
-
-        // 🚀 Step 2: Sending prompt to the AI Matrix via AllOrigins Raw Proxy
         const chatUrl = "https://duckduckgo.com/duckchat/v1/chat";
-        const chatResponse = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(chatUrl)}`, {
+        
+        // 🔥 FIX: AllOrigins වෙනුවට කෙලින්ම වැඩකරන CodeTabs Proxy එක භාවිතා කර CORS Error එක මගහැරීම
+        const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(chatUrl)}`;
+
+        // 🚀 Sending prompt to the AI Matrix via CodeTabs Proxy
+        const chatResponse = await fetch(proxyUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "x-vqd-t": vqd
+                "Accept": "text/event-stream",
+                "x-vqd-4": "1" // DuckDuckGo API එකට අවශ්‍ය Default Token එකක්
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini", 
@@ -95,7 +90,7 @@ async function sendAMessageToAIBox() {
 
         const rawText = await chatResponse.text();
         
-        // Extracting data chunks from text stream response
+        // Text stream response එකෙන් data chunks වෙන් කර ගැනීම
         const lines = rawText.split('\n');
         let aiReplyText = "";
         for (let line of lines) {
@@ -104,7 +99,12 @@ async function sendAMessageToAIBox() {
                 if (dataStr === '[DONE]') break;
                 try {
                     const parsed = JSON.parse(dataStr);
-                    if (parsed.message) aiReplyText += parsed.message;
+                    // DuckDuckGo API stream එකේ සාමාන්‍යයෙන් එන්නේ 'data' කියන field එකෙන්
+                    if (parsed.data) {
+                        aiReplyText += parsed.data;
+                    } else if (parsed.message) {
+                        aiReplyText += parsed.message;
+                    }
                 } catch(e) {}
             }
         }
@@ -112,12 +112,14 @@ async function sendAMessageToAIBox() {
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
 
+        // Response එකක් ආවේ නැත්නම් fallback එකක් දෙනවා
         if (!aiReplyText) {
             aiReplyText = "GG! Matrix sync was successful, but response stream dropped. Shoot the message again, Comrade!";
         }
 
         appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText.trim(), "#fff");
 
+        // Firebase එකට චැට් එක සේව් කිරීම
         if (currentUser) {
             db.ref(`ai_chats/${currentUser.uid}`).push().set({
                 user_prompt: userText,
@@ -741,28 +743,5 @@ window.searchYT = function(channel) {
     const createAnchor = document.createElement('a');
     createAnchor.href = ytUrl;
     createAnchor.target = '_blank';
-    createAnchor.rel = 'noopener noreferrer';
-    createAnchor.click();
-}
-
-window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
-
-function setupScrollToBottomBtn() {
-    const chatDisplay = document.getElementById('chat-messages');
-    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
-    
-    if (!chatDisplay || !scrollBtn) return;
-    
-    chatDisplay.addEventListener('scroll', () => {
-        const isUserUp = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop > 400;
-        if (isUserUp) {
-            scrollBtn.classList.remove('hidden');
-        } else {
-            scrollBtn.classList.add('hidden');
-        }
-    });
-    
-    scrollBtn.addEventListener('click', () => {
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
-    });
+    createAnchor.click(); // Anchor එක ට්‍රිගර් කර නව ටැබ් එකකින් යූටියුබ් එක ඕපන් කිරීම
 }
