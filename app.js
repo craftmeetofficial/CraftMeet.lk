@@ -442,24 +442,25 @@ function initVoiceConference(roomName) {
     if (voiceFrame) voiceFrame.src = `https://meet.jit.si/${firebaseConfig.projectId}_voice_${roomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}`;
 }
 
-// 👑 UPDATED: YOUTUBE SEARCH FUNCTION WITH POP-UP CHECK & ROBUST URI ENCODING
+// 👑 FIXED & BYPASSED POP-UP BLOCKER: VIRTUAL ANCHOR LINK METHOD
 window.searchYT = function(channel) {
     if (!channel || channel.trim() === "") {
         console.error("Streamer හෝ Channel නම ලැබී නැත!");
         return;
     }
     
-    // නමේ දෙපැත්තේ හිස්තැන් අයින් කරලා, ආරක්ෂිතව URL එක සකසනවා
+    // නම ආරක්ෂිතව URL එකකට Encode කරනවා
     const query = encodeURIComponent(channel.trim());
     const ytUrl = `https://www.youtube.com/results?search_query=${query}`;
     
-    // නව ටැබ් එකකින් සර්ච් එක ඕපන් කරනවා
-    const newWindow = window.open(ytUrl, '_blank');
+    // බ්‍රවුසර් එකට අහු නොවී අලුත් ටැබ් එකකින් යාමට Virtual <a> Tag එකක් හදනවා
+    const createAnchor = document.createElement('a');
+    createAnchor.href = ytUrl;
+    createAnchor.target = '_blank'; // අලුත් ටැබ් එකක ඕපන් වීමට
+    createAnchor.rel = 'noopener noreferrer'; // ආරක්ෂණ උපක්‍රමයක්
     
-    // බ්‍රවුසර් එකෙන් Pop-up එක Block කරලා නම් ඇලර්ට් එකක් දෙනවා
-    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-        alert("⚠️ Click Blocked! Please allow pop-ups for this website in your browser settings to open YouTube.");
-    }
+    // ජාවාස්ක්‍රිප්ට් මඟින් හොරෙන්ම බටන් එක ක්ලික් කරවනවා
+    createAnchor.click();
 }
 
 window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
