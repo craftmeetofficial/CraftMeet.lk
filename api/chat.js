@@ -41,11 +41,8 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // 🔥 මෙතන 'models' වෙනුවට 'model' වෙන්න ඕනේ. OpenRouter එක fallback ලිස්ට් එකක් බාරගන්නේ මෙහෙමයි:
-                model: [
-                    "google/gemini-2.5-flash:free",
-                    "meta-llama/llama-3.2-3b-instruct:free"
-                ].join(","), // Models ටික string එකක් විදිහට comma වලින් වෙන් කරලා යවනවා
+                // 🔥 ලිස්ට් එකක් නැතුව, දැනට OpenRouter එකේ ස්ටේබල්ම සහ වේගවත්ම Free Model එක කෙලින්ම දෙනවා
+                model: "google/gemini-2.5-flash:free", 
                 messages: [{ role: "user", content: fullPrompt }]
             })
         });
