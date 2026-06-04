@@ -1,341 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet | Ultimate Gaming HQ</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftMeet | Ultimate Gaming HQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-overlay">
-        <div class="auth-card neon-border">
-            <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
-            <h2 class="cyber-title" id="auth-title">WELCOME BACK!</h2>
-            <p id="auth-subtitle">We're so excited to see you again!</p>
-            
-            <div class="auth-form-container">
-                <div class="form-group" id="reg-username-group" style="display: none;">
-                    <label>GAMERTAG (USERNAME) <span class="req-star">*</span></label>
-                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight">
-                </div>
-                
-                <div class="form-group">
-                    <label>EMAIL ADDRESS <span class="req-star">*</span></label>
-                    <input type="email" id="auth-email" placeholder="name@domain.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>PASSWORD <span class="req-star">*</span></label>
-                    <input type="password" id="auth-password" placeholder="••••••••">
-                </div>
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card neon-border">
+            <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
+            <h2 class="cyber-title" id="auth-title">WELCOME BACK!</h2>
+            <p id="auth-subtitle">We're so excited to see you again!</p>
+            
+            <div class="auth-form-container">
+                <div class="form-group" id="reg-username-group" style="display: none;">
+                    <label>GAMERTAG (USERNAME) <span class="req-star">*</span></label>
+                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight">
+                </div>
+                
+                <div class="form-group">
+                    <label>EMAIL ADDRESS <span class="req-star">*</span></label>
+                    <input type="email" id="auth-email" placeholder="name@domain.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>PASSWORD <span class="req-star">*</span></label>
+                    <input type="password" id="auth-password" placeholder="••••••••">
+                </div>
 
-                <div id="reg-extras" style="display: none;">
-                    <div class="form-group">
-                        <label>AVATAR IMAGE URL</label>
-                        <input type="text" id="auth-avatar" placeholder="Paste image link here...">
-                    </div>
-                    <div class="form-group">
-                        <label>ABOUT ME</label>
-                        <textarea id="auth-bio" rows="2" placeholder="Tell the squad about yourself..."></textarea>
-                    </div>
-                </div>
+                <div id="reg-extras" style="display: none;">
+                    <div class="form-group">
+                        <label>AVATAR IMAGE URL</label>
+                        <input type="text" id="auth-avatar" placeholder="Paste image link here...">
+                    </div>
+                    <div class="form-group">
+                        <label>ABOUT ME</label>
+                        <textarea id="auth-bio" rows="2" placeholder="Tell the squad about yourself..."></textarea>
+                    </div>
+                </div>
 
-                <button id="main-auth-btn" onclick="handlePrimaryAuth()" class="cyber-action-btn">Log In</button>
-                
-                <div class="auth-switcher">
-                    <span id="switch-text">Need an account?</span> 
-                    <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)">Register</a>
-                </div>
+                <button id="main-auth-btn" onclick="handlePrimaryAuth()" class="cyber-action-btn">Log In</button>
+                
+                <div class="auth-switcher">
+                    <span id="switch-text">Need an account?</span> 
+                    <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)">Register</a>
+                </div>
 
-                <div class="auth-divider"><span>OR</span></div>
+                <div class="auth-divider"><span>OR</span></div>
 
-                <button id="login-btn" onclick="loginWithGoogle()">
-                    <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
-                </button>
-            </div>
-        </div>
-    </div>
+                <button id="login-btn" onclick="loginWithGoogle()">
+                    <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <div id="reward-popup-modal" class="modal-overlay hidden">
-        <div class="modal-card reward-glow-box text-center">
-            <div class="animated-chest"><i class="fa-solid fa-gift fa-bounce"></i></div>
-            <h2 class="reward-title">REWARD UNLOCKED!</h2>
-            <p>You have accumulated 500+ Chat XP! Your legendary activity has granted you a rare profile decoration.</p>
-            <div class="reward-stat-preview">Current XP Resetting by -500 for Reward Node</div>
-            <button class="claim-reward-btn" onclick="claimAvatarDecoration()">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> CLAIM DECORATION NOW
-            </button>
-        </div>
-    </div>
+    <div id="reward-popup-modal" class="modal-overlay hidden">
+        <div class="modal-card reward-glow-box text-center">
+            <div class="animated-chest"><i class="fa-solid fa-gift fa-bounce"></i></div>
+            <h2 class="reward-title">REWARD UNLOCKED!</h2>
+            <p>You have accumulated 500+ Chat XP! Your legendary activity has granted you a rare profile decoration.</p>
+            <div class="reward-stat-preview">Current XP Resetting by -500 for Reward Node</div>
+            <button class="claim-reward-btn" onclick="claimAvatarDecoration()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> CLAIM DECORATION NOW
+            </button>
+        </div>
+    </div>
 
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-card neon-border-magenta">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT MY PROFILE</h3>
-                <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>// AVATAR URL</label>
-                    <input type="text" id="profile-pic-input" placeholder="Image Link...">
-                </div>
-                <div class="form-group">
-                    <label>// ABOUT ME</label>
-                    <textarea id="profile-bio-input" rows="3" placeholder="Bio..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>// MAIN GAME</label>
-                    <select id="profile-game-input">
-                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                        <option value="Minecraft Builder">Minecraft Builder</option>
-                        <option value="Valorant Duelist">Valorant Duelist</option>
-                        <option value="Apex Champion">Apex Champion</option>
-                    </select>
-                </div>
-                <button class="save-profile-btn" onclick="saveUserProfile()">
-                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
-                </button>
-            </div>
-        </div>
-    </div>
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-card neon-border-magenta">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT MY PROFILE</h3>
+                <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>// AVATAR URL</label>
+                    <input type="text" id="profile-pic-input" placeholder="Image Link...">
+                </div>
+                <div class="form-group">
+                    <label>// ABOUT ME</label>
+                    <textarea id="profile-bio-input" rows="3" placeholder="Bio..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>// MAIN GAME</label>
+                    <select id="profile-game-input">
+                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
+                        <option value="Minecraft Builder">Minecraft Builder</option>
+                        <option value="Valorant Duelist">Valorant Duelist</option>
+                        <option value="Apex Champion">Apex Champion</option>
+                    </select>
+                </div>
+                <button class="save-profile-btn" onclick="saveUserProfile()">
+                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <div id="settings-modal" class="modal-overlay hidden">
-        <div class="modal-card neon-border" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-sliders cyber-glow-text"></i> HQ APP SETTINGS</h3>
-                <button class="close-modal-btn" onclick="toggleSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-volume-high"></i> CHAT NOTIFICATION VOLUME</label>
-                    <div style="display:flex; align-items:center; gap:15px; margin-top:8px;">
-                        <input type="range" id="settings-volume" min="0" max="100" value="100" style="flex:1; accent-color:#00ffcc; cursor:pointer;">
-                        <span id="volume-value" style="font-family:'Orbitron'; font-size:0.9rem; color:#00ffcc; min-width:45px; text-align:right;">100%</span>
-                    </div>
-                </div>
-                
-                <div class="form-group" style="margin-top: 20px;">
-                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-id-card"></i> CHANGE GAMERTAG</label>
-                    <input type="text" id="settings-username" placeholder="Enter new gamertag..." style="margin-top:8px;">
-                    <small id="name-cooldown-text" style="display:block; margin-top:6px; font-size:0.8rem; font-family:'Rajdhani'; color:#949ba4;"></small>
-                </div>
-                
-                <button class="save-profile-btn" onclick="saveAppSettings()" style="margin-top: 25px; background:linear-gradient(135deg, #00ffcc, #0055ff); color:#000; font-weight:bold;">
-                    <i class="fa-solid fa-square-check"></i> SAVE CONFIGURATION
-                </button>
-            </div>
-        </div>
-    </div>
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-card neon-border" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders cyber-glow-text"></i> HQ APP SETTINGS</h3>
+                <button class="close-modal-btn" onclick="toggleSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-volume-high"></i> CHAT NOTIFICATION VOLUME</label>
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:8px;">
+                        <input type="range" id="settings-volume" min="0" max="100" value="100" style="flex:1; accent-color:#00ffcc; cursor:pointer;">
+                        <span id="volume-value" style="font-family:'Orbitron'; font-size:0.9rem; color:#00ffcc; min-width:45px; text-align:right;">100%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-id-card"></i> CHANGE GAMERTAG</label>
+                    <input type="text" id="settings-username" placeholder="Enter new gamertag..." style="margin-top:8px;">
+                    <small id="name-cooldown-text" style="display:block; margin-top:6px; font-size:0.8rem; font-family:'Rajdhani'; color:#949ba4;"></small>
+                </div>
+                
+                <button class="save-profile-btn" onclick="saveAppSettings()" style="margin-top: 25px; background:linear-gradient(135deg, #00ffcc, #0055ff); color:#000; font-weight:bold;">
+                    <i class="fa-solid fa-square-check"></i> SAVE CONFIGURATION
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <div id="user-card-modal" class="modal-overlay hidden">
-        <div class="modal-card user-view-card neon-border">
-            <div class="user-card-banner"></div>
-            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="user-card-avatar-wrap">
-                <div class="deco-frame-container" id="view-card-deco-frame">
-                    <img id="view-card-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Gamer Avatar">
-                </div>
-            </div>
-            <div class="user-card-info">
-                <h3 id="view-card-name">GamerTag</h3>
-                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
-                
-                <div class="user-card-section">
-                    <label>XP LEVEL BAR</label>
-                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 0%;"></div></div>
-                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
-                </div>
+    <div id="user-card-modal" class="modal-overlay hidden">
+        <div class="modal-card user-view-card neon-border">
+            <div class="user-card-banner"></div>
+            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="user-card-avatar-wrap">
+                <div class="deco-frame-container" id="view-card-deco-frame">
+                    <img id="view-card-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Gamer Avatar">
+                </div>
+            </div>
+            <div class="user-card-info">
+                <h3 id="view-card-name">GamerTag</h3>
+                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
+                
+                <div class="user-card-section">
+                    <label>XP LEVEL BAR</label>
+                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 0%;"></div></div>
+                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
+                </div>
 
-                <div class="user-card-section">
-                    <label>ABOUT ME</label>
-                    <p id="view-card-bio">No bio available.</p>
-                </div>
+                <div class="user-card-section">
+                    <label>ABOUT ME</label>
+                    <p id="view-card-bio">No bio available.</p>
+                </div>
 
-                <button id="view-card-dm-btn" class="cyber-dm-btn">
-                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
-                </button>
-            </div>
-        </div>
-    </div>
+                <button id="view-card-dm-btn" class="cyber-dm-btn">
+                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <div class="dashboard-container">
-        
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-area">
-                    <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
-                    <span class="cyber-title-short">CraftMeet</span>
-                </div>
-            </div>
-            
-            <div class="online-counter-box">
-                <span class="pulse-dot"></span>
-                <span class="counter-text">ONLINE USERS: <strong id="online-count">1</strong></span>
-            </div>
-            
-            <div class="menu-section">
-                <p class="section-title">// PUBLIC CHANNELS</p>
-                <ul class="room-list">
-                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
-                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
-                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
-                    <li class="room-item" id="room-apex" onclick="switchRoom('apex')"><i class="fa-solid fa-person-rifle"></i> <span>apex-legends</span></li>
-                </ul>
-            </div>
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
+                    <span class="cyber-title-short">CraftMeet</span>
+                </div>
+            </div>
+            
+            <div class="online-counter-box">
+                <span class="pulse-dot"></span>
+                <span class="counter-text">ONLINE USERS: <strong id="online-count">1</strong></span>
+            </div>
+            
+            <div class="menu-section">
+                <p class="section-title">// PUBLIC CHANNELS</p>
+                <ul class="room-list">
+                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
+                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
+                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
+                    <li class="room-item" id="room-apex" onclick="switchRoom('apex')"><i class="fa-solid fa-person-rifle"></i> <span>apex-legends</span></li>
+                </ul>
+            </div>
 
-            <div class="menu-section">
-                <p class="section-title">// DIRECT MESSAGES</p>
-                <ul class="room-list" id="private-rooms-list">
-                    <li class="no-dm-notice">No active DMs</li>
-                </ul>
-            </div>
+            <div class="menu-section">
+                <p class="section-title">// DIRECT MESSAGES</p>
+                <ul class="room-list" id="private-rooms-list">
+                    <li class="no-dm-notice">No active DMs</li>
+                </ul>
+            </div>
 
-            <div class="menu-section" style="padding: 0 15px; margin-top: auto; margin-bottom: 10px;">
-                <p class="section-title" style="margin-bottom: 5px;">// MY PROGRESSION</p>
-                <div class="xp-bar-container" style="height: 6px;"><div id="dashboard-xp-fill" class="xp-bar-fill" style="width: 0%; background: #00ffcc;"></div></div>
-                <span id="dashboard-xp-text" style="font-size: 0.75rem; color:#949ba4; display: block; margin-top: 4px;">0 / 500 XP</span>
-            </div>
+            <div class="menu-section" style="padding: 0 15px; margin-top: auto; margin-bottom: 10px;">
+                <p class="section-title" style="margin-bottom: 5px;">// MY PROGRESSION</p>
+                <div class="xp-bar-container" style="height: 6px;"><div id="dashboard-xp-fill" class="xp-bar-fill" style="width: 0%; background: #00ffcc;"></div></div>
+                <span id="dashboard-xp-text" style="font-size: 0.75rem; color:#949ba4; display: block; margin-top: 4px;">0 / 500 XP</span>
+            </div>
 
-            <div class="user-profile-footer">
-                <div class="user-meta" onclick="toggleProfileModal()">
-                    <div class="deco-frame-container" id="user-footer-deco-frame">
-                        <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User" alt="Avatar">
-                    </div>
-                    <div class="user-details">
-                        <h4 id="user-display-name">Loading...</h4>
-                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
-                    </div>
-                </div>
-                <div class="profile-footer-actions">
-                    <button class="icon-logout-btn" onclick="toggleSettingsModal();" title="App Settings" style="background: #2b2d31; color: #00ffcc; margin-right: 5px;">
-                        <i class="fa-solid fa-gear"></i>
-                    </button>
-                    <button class="icon-logout-btn" onclick="logout();" title="Log Out">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </div>
-            </div>
-        </aside>
+            <div class="user-profile-footer">
+                <div class="user-meta" onclick="toggleProfileModal()">
+                    <div class="deco-frame-container" id="user-footer-deco-frame">
+                        <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User" alt="Avatar">
+                    </div>
+                    <div class="user-details">
+                        <h4 id="user-display-name">Loading...</h4>
+                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
+                    </div>
+                </div>
+                <div class="profile-footer-actions">
+                    <button class="icon-logout-btn" onclick="toggleSettingsModal();" title="App Settings" style="background: #2b2d31; color: #00ffcc; margin-right: 5px;">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                    <button class="icon-logout-btn" onclick="logout();" title="Log Out">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
 
-        <main class="chat-wrapper">
-            <div class="panel-header">
-                <div class="header-title">
-                    <i class="fa-solid fa-satellite-dish cyber-glow-text"></i>
-                    <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
-                </div>
-            </div>
-            
-            <div class="messages-display" id="chat-messages"></div>
-            
-            <div id="typing-indicator" class="typing-box hidden">
-                <span class="typing-glow-text"><i class="fa-solid fa-keyboard fa-fade"></i> <span id="typing-user">Someone</span> is transmitting data...</span>
-            </div>
+        <main class="chat-wrapper">
+            <div class="panel-header">
+                <div class="header-title">
+                    <i class="fa-solid fa-satellite-dish cyber-glow-text"></i>
+                    <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
+                </div>
+            </div>
+            
+            <div class="messages-display" id="chat-messages"></div>
+            
+            <div id="typing-indicator" class="typing-box hidden">
+                <span class="typing-glow-text"><i class="fa-solid fa-keyboard fa-fade"></i> <span id="typing-user">Someone</span> is transmitting data...</span>
+            </div>
 
-            <div class="message-input-box">
-                <div class="input-container neon-border-soft">
-                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
-                    <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </main>
+            <div class="message-input-box">
+                <div class="input-container neon-border-soft">
+                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
+                    <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </main>
 
-        <section class="right-panel">
-            <div class="voice-section-box">
-                <div class="panel-header" style="height:auto; padding:0; margin-bottom:10px; background:transparent; border:none;">
-                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Comms</h2></div>
-                </div>
-                <div class="voice-status-container">
-                    <div class="voice-status-card">
-                        <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
-                            <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
-                        </div>
-                        <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
-                        
-                        <button id="comms-mute-btn" class="comms-mute-btn unmuted" onclick="toggleVoiceMute()">
-                            <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
-                        </button>
+        <section class="right-panel">
+            <div class="voice-section-box">
+                <div class="panel-header" style="height:auto; padding:0; margin-bottom:10px; background:transparent; border:none;">
+                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Comms</h2></div>
+                </div>
+                <div class="voice-status-container">
+                    <div class="voice-status-card">
+                        <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
+                            <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
+                        </div>
+                        <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
+                        
+                        <button id="comms-mute-btn" class="comms-mute-btn unmuted" onclick="toggleVoiceMute()">
+                            <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
+                        </button>
 
-                        <p id="voice-status-desc">Voice link fully operational. Transmission is currently LIVE.</p>
-                    </div>
-                    <iframe id="jitsi-voice-frame" allow="microphone; camera; display-capture; autoplay" class="hidden-voice-frame"></iframe>
-                </div>
-            </div>
+                        <p id="voice-status-desc">Voice link fully operational. Transmission is currently LIVE.</p>
+                    </div>
+                    <iframe id="jitsi-voice-frame" allow="microphone; autoplay" class="hidden-voice-frame"></iframe>
+                </div>
+            </div>
 
-            <div class="streamers-hub-box neon-border" style="margin-bottom: 20px; background: #111214; border: 1px solid rgba(0, 255, 204, 0.2); padding: 15px; border-radius: 8px;">
-                <div class="panel-header" style="height:auto; padding:0; margin-bottom:12px; background:transparent; border:none;">
-                    <div class="header-title">
-                        <i class="fa-solid fa-code-branch fa-spin-pulse" style="color: #00ffcc;"></i>
-                        <h2 class="room-header-text" style="font-family: 'Orbitron'; font-size: 0.85rem; letter-spacing: 1px; color: #00ffcc;">CORE ARCHITECT PROTOCOL</h2>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px; font-family: 'Rajdhani';">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=kaveeya" style="width: 55px; height: 55px; border: 2px solid #00ffcc; border-radius: 50%; padding: 3px; background: #1e1f22; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);" alt="Dev Avatar">
-                    <div style="flex: 1;">
-                        <h4 style="font-family: 'Orbitron'; color: #fff; font-size: 1.1rem; margin: 0; letter-spacing: 0.5px;">Mr_kaveeya_bro</h4>
-                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin: 2px 0 6px 0; line-height: 1.3;">Framework Lead & Core System Admin.</p>
-                        <button onclick="copyDevDiscord()" style="background: rgba(88, 101, 242, 0.1); border: 1px solid #5865F2; color: #5865F2; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#5865F2'; this.style.color='#fff'" onmouseout="this.style.background='rgba(88, 101, 242, 0.1)'; this.style.color='#5865F2'">
-                            <i class="fa-brands fa-discord"></i> <span id="dev-discord-name">Discord Contact</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <div class="streamers-hub-box neon-border" style="margin-bottom: 20px; background: #111214; border: 1px solid rgba(0, 255, 204, 0.2); padding: 15px; border-radius: 8px;">
+                <div class="panel-header" style="height:auto; padding:0; margin-bottom:12px; background:transparent; border:none;">
+                    <div class="header-title">
+                        <i class="fa-solid fa-code-branch fa-spin-pulse" style="color: #00ffcc;"></i>
+                        <h2 class="room-header-text" style="font-family: 'Orbitron'; font-size: 0.85rem; letter-spacing: 1px; color: #00ffcc;">CORE ARCHITECT PROTOCOL</h2>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; font-family: 'Rajdhani';">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=kaveeya" style="width: 55px; height: 55px; border: 2px solid #00ffcc; border-radius: 50%; padding: 3px; background: #1e1f22; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);" alt="Dev Avatar">
+                    <div style="flex: 1;">
+                        <h4 style="font-family: 'Orbitron'; color: #fff; font-size: 1.1rem; margin: 0; letter-spacing: 0.5px;">Mr_kaveeya_bro</h4>
+                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin: 2px 0 6px 0; line-height: 1.3;">Framework Lead & Core System Admin.</p>
+                        <button onclick="copyDevDiscord()" style="background: rgba(88, 101, 242, 0.1); border: 1px solid #5865F2; color: #5865F2; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#5865F2'; this.style.color='#fff'" onmouseout="this.style.background='rgba(88, 101, 242, 0.1)'; this.style.color='#5865F2'">
+                            <i class="fa-brands fa-discord"></i> <span id="dev-discord-name">Discord Contact</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-            <div class="streamers-hub-box">
-                <div class="hub-header">
-                    <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
-                </div>
-                <div class="hub-content">
-                    <div class="game-yt-box">
-                        <h4>// APEX LEGENDS</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('maxruchira')"><i class="fa-brands fa-youtube"></i> maxruchira</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                        </div>
-                    </div>
+            <div class="streamers-hub-box">
+                <div class="hub-header">
+                    <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
+                </div>
+                <div class="hub-content">
+                    <div class="game-yt-box">
+                        <h4>// APEX LEGENDS</h4>
+                        <div class="yt-buttons-grid">
+                            <button onclick="searchYT('maxruchira')"><i class="fa-brands fa-youtube"></i> maxruchira</button>
+                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
+                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
+                        </div>
+                    </div>
 
-                    <div class="game-yt-box">
-                        <h4>// VALORANT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('max ruchira')"><i class="fa-brands fa-youtube"></i> max ruchira</button>
-                        </div>
-                    </div>
+                    <div class="game-yt-box">
+                        <h4>// VALORANT</h4>
+                        <div class="yt-buttons-grid">
+                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
+                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
+                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
+                            <button onclick="searchYT('max ruchira')"><i class="fa-brands fa-youtube"></i> max ruchira</button>
+                        </div>
+                    </div>
 
-                    <div class="game-yt-box">
-                        <h4>// MINECRAFT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('Mr kaveeya bro')"><i class="fa-brands fa-youtube"></i> Mr kaveeya bro</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('slash cat')"><i class="fa-brands fa-youtube"></i> slash cat</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('lazy bird')"><i class="fa-brands fa-youtube"></i> lazy bird</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                        </div>
-                    </div>
+                    <div class="game-yt-box">
+                        <h4>// MINECRAFT</h4>
+                        <div class="yt-buttons-grid">
+                            <button onclick="searchYT('Mr kaveeya bro')"><i class="fa-brands fa-youtube"></i> Mr kaveeya bro</button>
+                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
+                            <button onclick="searchYT('slash cat')"><i class="fa-brands fa-youtube"></i> slash cat</button>
+                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
+                            <button onclick="searchYT('lazy bird')"><i class="fa-brands fa-youtube"></i> lazy bird</button>
+                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
+                        </div>
+                    </div>
 
-                    <div class="membership-promo-box">
-                        <h5><i class="fa-solid fa-gem animated-glow"></i> WANT TO ADD YOUR CHANNEL?</h5>
-                        <p>Unlock promotional spaces & add unlimited custom channels to this dashboard Grid.</p>
-                        <button class="buy-membership-btn" onclick="triggerMembershipAlert()">
-                            <i class="fa-solid fa-cart-shopping"></i> GET MEMBERSHIP — $2 / MO
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    <div class="membership-promo-box">
+                        <h5><i class="fa-solid fa-gem animated-glow"></i> WANT TO ADD YOUR CHANNEL?</h5>
+                        <p>Unlock promotional spaces & add unlimited custom channels to this dashboard Grid.</p>
+                        <button class="buy-membership-btn" onclick="triggerMembershipAlert()">
+                            <i class="fa-solid fa-cart-shopping"></i> GET MEMBERSHIP — $2 / MO
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    </div>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
-    <script src="app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
