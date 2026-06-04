@@ -31,7 +31,7 @@ let localUserData = null; // Speed Optimization
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // =================================================================
-// --- CRAFTMEET AI SYSTEM (STABLE VERCEL SERVERLESS EDGE VIA DDG) ---
+// --- CRAFTMEET AI SYSTEM (STABLE VERCEL SERVERLESS EDGE VIA LLaMA) ---
 // =================================================================
 
 function toggleFloatingAI() {
@@ -61,10 +61,10 @@ async function sendAMessageToAIBox() {
     appendAiBoxMessage(`😎 ${username}`, userText, "#00ffcc");
     aiInput.value = ""; 
 
-    const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Matrix connecting to Gemini core...", "#949ba4", true);
+    const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Matrix connecting to LLaMA Core...", "#949ba4", true);
 
     try {
-        // 🚀 ඔයාගේම Vercel Serverless Function (Backend API Node) එකට කෙලින්ම කෝල් එක යවනවා
+        // 🚀 Vercel Serverless Function (Backend API Node) එකට කෝල් එක යවනවා
         const response = await fetch("/api/chat", {
             method: "POST",
             headers: {
@@ -73,22 +73,22 @@ async function sendAMessageToAIBox() {
             body: JSON.stringify({ message: userText })
         });
 
-        if (!response.ok) throw new Error("Vercel Server Node Error");
-
         const data = await response.json();
-        let aiReplyText = data.reply;
 
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
 
-        // Response එකක් ආවේ නැත්නම් fallback එකක් දෙනවා
-        if (!aiReplyText) {
-            aiReplyText = "GG! Matrix sync was successful, but response stream dropped. Shoot the message again, Comrade!";
+        // සර්වර් එකෙන් ආපු Reply එක ගන්නවා, නැත්නම් Error එකක් පෙන්වනවා
+        let aiReplyText = data.reply;
+        if (!response.ok || data.error) {
+            aiReplyText = data.reply || "🤖 CraftMeet AI: Sync dropped by firewall grid. Try again, Comrade!";
+            appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#ff0055");
+            return;
         }
 
         appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#fff");
 
-        // Firebase එකට චැට් එක සේဝ် කිරීම
+        // Firebase එකට චැට් එක සේව් කිරීම
         if (currentUser) {
             db.ref(`ai_chats/${currentUser.uid}`).push().set({
                 user_prompt: userText,
@@ -101,7 +101,7 @@ async function sendAMessageToAIBox() {
         console.error("AI Error:", error);
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
-        appendAiBoxMessage("🤖 CraftMeet AI", "Lag detected in Vercel Node, Comrade! Shoot it again. GG!", "#ff0055");
+        appendAiBoxMessage("🤖 CraftMeet AI", "🤖 CraftMeet AI: Matrix connection loss. Core offline. GG!", "#ff0055");
     }
 }
 
@@ -435,7 +435,6 @@ function loadPrivateRoomsList() {
     });
 }
 
-// 👑 FIXED REALTIME LEADERBOARD FUNCTION
 function listenToXPLeaderboard() {
     console.log("XP Leaderboard tracking linked to database matrix.");
     
@@ -453,7 +452,7 @@ function listenToXPLeaderboard() {
         let gamers = [];
         snapshot.forEach(childSnapshot => {
             const userData = childSnapshot.val();
-            gamers.push({
+             gamers.push({
                 uid: childSnapshot.key,
                 name: userData.name || "Unknown Gamer",
                 xp: userData.xp || 0
