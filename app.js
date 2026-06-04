@@ -24,6 +24,10 @@ let isMuted = false;
 let isRegisterMode = false; 
 let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
+// 🛡️ ANTI-LAG & SPAM MEMORY VARIABLES
+let lastSentMessage = ""; 
+let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් ඩේටා Local එකේ තියාගන්නවා
+
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
 // 👑 SOUND ENGINE WITH GLOBAL VOLUME SCALE
@@ -147,6 +151,9 @@ function syncUserProfileData(user) {
     db.ref(`users/${user.uid}`).on('value', snapshot => {
         const data = snapshot.val();
         if (!data) return;
+
+        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
+        localUserData = data;
 
         // Border Expiration Check (7 Days)
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
@@ -322,30 +329,48 @@ function listenToTyping(roomName) {
 
 window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
 
+// ⚡ HIGH-SPEED & ANTI-SPAM SEND MESSAGE PROTOCOL
 window.sendMessage = function() {
     const input = document.getElementById('message-input');
     if (!input || !currentUser) return;
     const text = input.value.trim();
     if (text === "") return;
 
-    db.ref(`users/${currentUser.uid}`).once('value', snap => {
-        const userData = snap.val() || {};
-        const myAvatar = userData.profilePic || currentUser.photoURL;
-        const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
-
-        db.ref(`rooms/${currentRoom}`).push({ 
-            uid: currentUser.uid, 
-            sender: currentUser.displayName, 
-            message: text, 
-            timestamp: Date.now(),
-            senderAvatar: myAvatar,
-            senderSpecialty: mySpecialty
-        });
-
-        db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
-        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    // 🛡️ SPAM CONTROL 1: එකම මැසේජ් එක පිට පිට යවනවා නම් බ්ලොක් කිරීම
+    if (text.toLowerCase() === lastSentMessage.toLowerCase()) {
+        alert("⚠️ Duplicate transmission detected! Repeating the same data will not grant XP.");
         input.value = "";
+        return;
+    }
+
+    // 🛡️ SPAM CONTROL 2: එකම අකුර දිගටම ගහලා ද කියල Check කිරීම (උදා: "aaaaaaaaaa...")
+    if (text.length > 3 && /^([a-zA-Z0-9])\1+$/.test(text)) {
+        alert("⚠️ Character spam detected! Quality transmission required for XP.");
+        input.value = "";
+        return;
+    }
+
+    // ⚡ INSTANT WRITE Protocol: Database Read එකක් වෙනුවට Local data පාවිච්චි කර මැසේජ් එක Speed එකෙන් යවයි
+    const userData = localUserData || {};
+    const myAvatar = userData.profilePic || currentUser.photoURL;
+    const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
+
+    db.ref(`rooms/${currentRoom}`).push({ 
+        uid: currentUser.uid, 
+        sender: currentUser.displayName, 
+        message: text, 
+        timestamp: Date.now(),
+        senderAvatar: myAvatar,
+        senderSpecialty: mySpecialty
     });
+
+    // XP ලබාදීම
+    db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    
+    // වර්තමාන මැසේජ් එක "අන්තිම මැසේජ් එක" විදිහට Save කරගැනීම
+    lastSentMessage = text;
+    input.value = "";
 }
 
 function loadMessages(roomName) {
@@ -584,7 +609,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
