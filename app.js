@@ -31,7 +31,7 @@ let localUserData = null; // Speed Optimization
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // =================================================================
-// --- CRAFTMEET AI SYSTEM (STABLE GEMINI FLASH VIA CODETABS) ---
+// --- CRAFTMEET AI SYSTEM (STABLE VERCEL SERVERLESS EDGE VIA DDG) ---
 // =================================================================
 
 function toggleFloatingAI() {
@@ -63,51 +63,20 @@ async function sendAMessageToAIBox() {
 
     const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Matrix connecting to Gemini core...", "#949ba4", true);
 
-    // AI Character Prompts
-    const systemInstruction = "You are CraftMeet AI, a friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet platform built by Mr_kaveeya_bro. Keep your answer under 2 sentences, use gaming slang like GG, Clutch, and reply directly to this user: ";
-
     try {
-        const chatUrl = "https://duckduckgo.com/duckchat/v1/chat";
-        
-        // 🔥 FIX: AllOrigins වෙනුවට කෙලින්ම වැඩකරන CodeTabs Proxy එක භාවිතා කර CORS Error එක මගහැරීම
-        const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(chatUrl)}`;
-
-        // 🚀 Sending prompt to the AI Matrix via CodeTabs Proxy
-        const chatResponse = await fetch(proxyUrl, {
+        // 🚀 ඔයාගේම Vercel Serverless Function (Backend API Node) එකට කෙලින්ම කෝල් එක යවනවා
+        const response = await fetch("/api/chat", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "text/event-stream",
-                "x-vqd-4": "1" // DuckDuckGo API එකට අවශ්‍ය Default Token එකක්
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                model: "gpt-4o-mini", 
-                messages: [{ role: "user", content: systemInstruction + userText }]
-            })
+            body: JSON.stringify({ message: userText })
         });
 
-        if (!chatResponse.ok) throw new Error("AI core dropped packet");
+        if (!response.ok) throw new Error("Vercel Server Node Error");
 
-        const rawText = await chatResponse.text();
-        
-        // Text stream response එකෙන් data chunks වෙන් කර ගැනීම
-        const lines = rawText.split('\n');
-        let aiReplyText = "";
-        for (let line of lines) {
-            if (line.startsWith('data: ')) {
-                const dataStr = line.substring(6).trim();
-                if (dataStr === '[DONE]') break;
-                try {
-                    const parsed = JSON.parse(dataStr);
-                    // DuckDuckGo API stream එකේ සාමාන්‍යයෙන් එන්නේ 'data' කියන field එකෙන්
-                    if (parsed.data) {
-                        aiReplyText += parsed.data;
-                    } else if (parsed.message) {
-                        aiReplyText += parsed.message;
-                    }
-                } catch(e) {}
-            }
-        }
+        const data = await response.json();
+        let aiReplyText = data.reply;
 
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
@@ -117,13 +86,13 @@ async function sendAMessageToAIBox() {
             aiReplyText = "GG! Matrix sync was successful, but response stream dropped. Shoot the message again, Comrade!";
         }
 
-        appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText.trim(), "#fff");
+        appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#fff");
 
-        // Firebase එකට චැට් එක සේව් කිරීම
+        // Firebase එකට චැට් එක සේဝ် කිරීම
         if (currentUser) {
             db.ref(`ai_chats/${currentUser.uid}`).push().set({
                 user_prompt: userText,
-                ai_response: aiReplyText.trim(),
+                ai_response: aiReplyText,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
         }
@@ -132,7 +101,7 @@ async function sendAMessageToAIBox() {
         console.error("AI Error:", error);
         const tempTyping = document.getElementById(typingId);
         if (tempTyping) tempTyping.remove();
-        appendAiBoxMessage("🤖 CraftMeet AI", "Lag detected in Proxy node, Comrade! Shoot it again. GG!", "#ff0055");
+        appendAiBoxMessage("🤖 CraftMeet AI", "Lag detected in Vercel Node, Comrade! Shoot it again. GG!", "#ff0055");
     }
 }
 
@@ -743,5 +712,5 @@ window.searchYT = function(channel) {
     const createAnchor = document.createElement('a');
     createAnchor.href = ytUrl;
     createAnchor.target = '_blank';
-    createAnchor.click(); // Anchor එක ට්‍රිගර් කර නව ටැබ් එකකින් යූටියුබ් එක ඕපන් කිරීම
+    createAnchor.click();
 }
