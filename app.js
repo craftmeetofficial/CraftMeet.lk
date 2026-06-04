@@ -214,19 +214,16 @@ window.viewUserProfileCard = function(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        // ඩේටා ටික මැදින් මතුවෙන Discord Style කාඩ් එකේ අදාළ තැන්වලට ඉන්ජෙක්ට් කරනවා
         document.getElementById('view-card-avatar').src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
         document.getElementById('view-card-name').innerText = data.name || 'Gamer';
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
-        // XP Bar Progress ගණනය කිරීම්
         const userXp = data.xp || 0;
         const barPercent = Math.min(100, (userXp / 500) * 100);
         document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
         document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
 
-        // කාඩ් එක ඇතුළේ තියෙන Avatar එක වටේට Frame Border එක ලස්සනට සෙට් කරනවා
         const cardFrame = document.getElementById('view-card-deco-frame');
         if (cardFrame) {
             cardFrame.className = "deco-frame-container";
@@ -235,7 +232,6 @@ window.viewUserProfileCard = function(targetUid) {
             }
         }
 
-        // තමන්ගේම නම ක්ලික් කරොත් DM Button එක Hide කරනවා, වෙන කෙනෙක්ගේ නම් පෙන්වනවා
         const dmBtn = document.getElementById('view-card-dm-btn');
         if (targetUid === currentUser.uid) {
             dmBtn.style.display = "none";
@@ -250,7 +246,6 @@ window.viewUserProfileCard = function(targetUid) {
             };
         }
         
-        // Modal එක Screen එක මැදින් ලස්සනට පෙන්වීමට 'hidden' ක්ලාස් එක අයින් කරනවා
         const cardModal = document.getElementById('user-card-modal');
         if (cardModal) cardModal.classList.remove('hidden');
     });
@@ -319,13 +314,11 @@ window.sendMessage = function() {
     const text = input.value.trim();
     if (text === "") return;
 
-    // වත්මන් User ගේ Profile Pic එක සහ Specialty එක Firebase එකෙන් කලින්ම Fetch කරගන්නවා
     db.ref(`users/${currentUser.uid}`).once('value', snap => {
         const userData = snap.val() || {};
         const myAvatar = userData.profilePic || currentUser.photoURL;
         const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
 
-        // මැසේජ් එකත් එක්කම Avatar එක සහ Specialty එක Database එකට පුෂ් කරනවා
         db.ref(`rooms/${currentRoom}`).push({ 
             uid: currentUser.uid, 
             sender: currentUser.displayName, 
@@ -341,6 +334,7 @@ window.sendMessage = function() {
     });
 }
 
+// 👑 UPDATED: LOAD MESSAGES WITH NEON USERNAME & SINGLE-SIDE LAYOUT
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     db.ref(`rooms/${roomName}`).off(); 
@@ -358,32 +352,24 @@ function loadMessages(roomName) {
             const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             count++;
 
-            // Fallback default avatar values
             const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
             const senderSpecialty = data.senderSpecialty || "Gamer";
 
-            // Injecting Delete Trash button conditionally if the user owns the message
-            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message"><i class="fa-solid fa-trash-can"></i></button>` : '';
+            // Delete Button if user owns the message
+            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin-left:8px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
+            // 🔥 CSS එකට ගැලපෙන්න කෝඩ් එක වෙනස් කරා (හැම මැසේජ් එකක්ම left align වෙනවා, නම Neon වෙනවා)
             chatDisplay.innerHTML += `
-                <div class="msg-container ${isOwn ? 'own-msg' : ''}">
-                    
-                    <div class="msg-avatar-wrapper">
-                        <img src="${senderAvatar}" class="msg-avatar-img" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
-                    </div>
-
-                    <div class="msg-body-wrapper">
-                        <div class="msg-info">
-                            <span class="msg-sender" onclick="viewUserProfileCard('${data.uid}')" style="cursor: pointer;">${isOwn ? 'You' : data.sender}</span>
-                            <span class="msg-specialty-tag">${senderSpecialty}</span>
-                            <span class="msg-time">${timeStr}</span>
-                        </div>
-                        <div class="msg-bubble-wrapper">
-                            <div class="msg-bubble">${data.message}</div>
+                <div class="message-item">
+                    <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-username" onclick="viewUserProfileCard('${data.uid}')">${isOwn ? 'You' : data.sender}</span>
+                            <span class="msg-timestamp">${timeStr}</span>
                             ${deleteBtnHtml}
                         </div>
+                        <div class="msg-text">${data.message}</div>
                     </div>
-
                 </div>
             `;
             if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
