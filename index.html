@@ -102,6 +102,34 @@
         </div>
     </div>
 
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-card neon-border" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders cyber-glow-text"></i> HQ APP SETTINGS</h3>
+                <button class="close-modal-btn" onclick="toggleSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-volume-high"></i> CHAT NOTIFICATION VOLUME</label>
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:8px;">
+                        <input type="range" id="settings-volume" min="0" max="100" value="100" style="flex:1; accent-color:#00ffcc; cursor:pointer;">
+                        <span id="volume-value" style="font-family:'Orbitron'; font-size:0.9rem; color:#00ffcc; min-width:45px; text-align:right;">100%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-id-card"></i> CHANGE GAMERTAG</label>
+                    <input type="text" id="settings-username" placeholder="Enter new gamertag..." style="margin-top:8px;">
+                    <small id="name-cooldown-text" style="display:block; margin-top:6px; font-size:0.8rem; font-family:'Rajdhani'; color:#949ba4;"></small>
+                </div>
+                
+                <button class="save-profile-btn" onclick="saveAppSettings()" style="margin-top: 25px; background:linear-gradient(135deg, #00ffcc, #0055ff); color:#000; font-weight:bold;">
+                    <i class="fa-solid fa-square-check"></i> SAVE CONFIGURATION
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="user-card-modal" class="modal-overlay hidden">
         <div class="modal-card user-view-card neon-border">
             <div class="user-card-banner"></div>
@@ -182,10 +210,10 @@
                     </div>
                 </div>
                 <div class="profile-footer-actions">
-                    <button class="footer-reg-btn" onclick="toggleProfileModal()">
-                        <i class="fa-solid fa-user-plus"></i> EDIT
+                    <button class="icon-logout-btn" onclick="toggleSettingsModal();" title="App Settings" style="background: #2b2d31; color: #00ffcc; margin-right: 5px;">
+                        <i class="fa-solid fa-gear"></i>
                     </button>
-                    <button class="icon-logout-btn" onclick="logout();">
+                    <button class="icon-logout-btn" onclick="logout();" title="Log Out">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>
@@ -270,13 +298,6 @@
                             <button onclick="searchYT('lazy bird')"><i class="fa-brands fa-youtube"></i> lazy bird</button>
                             <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
                         </div>
-                    </div>
-
-                    <div class="dev-yt-box">
-                        <h4><i class="fa-solid fa-code"></i> FOUNDER / DEVELOPER</h4>
-                        <a href="http://www.youtube.com/@kaveeshasehara4708" target="_blank" class="dev-link-btn">
-                            <i class="fa-brands fa-youtube"></i> VISIT KAVEESHA SEHARA
-                        </a>
                     </div>
 
                     <div class="membership-promo-box">
