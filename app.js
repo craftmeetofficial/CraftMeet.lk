@@ -20,13 +20,13 @@ let currentUser = null;
 let currentRoom = "global"; 
 let isInitialLoad = true; 
 let typingTimeout = null;
-let isMuted = true;  // 🛡️ 👑 FIXED: සයිට් එකට එනකොටම Default Mute වෙලා තියෙන්න true කරා
+let isMuted = true;  // 🛡️ Default Mute on Join
 let isRegisterMode = false; 
-let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
+let appVolume = 1.0; // Global App Volume (Range: 0.0 - 1.0)
 
 // 🛡️ ANTI-LAG & SPAM MEMORY VARIABLES
 let lastSentMessage = ""; 
-let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් ඩේටා Local එකේ තියාගන්නවා
+let localUserData = null; // Speed Optimization
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
@@ -48,7 +48,6 @@ function playIncomingSound() {
         oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         
-        // Settings එකෙන් හදපු Volume එක මෙතනට බලපානවා
         const calculatedVolume = 0.1 * appVolume;
         
         gainNode.gain.setValueAtTime(calculatedVolume, audioCtx.currentTime);
@@ -109,7 +108,7 @@ window.handlePrimaryAuth = function() {
                 db.ref(`users/${user.uid}`).set({
                     name: username, profilePic: defaultAvatar, bio: bio || "Hey there! I am using CraftMeet.",
                     gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0,
-                    lastNameChange: 0 // Initialize name cooldown timestamp
+                    lastNameChange: 0
                 }).then(() => { location.reload(); });
             });
         }).catch(err => alert("Registration Error: " + err.message));
@@ -146,10 +145,9 @@ auth.onAuthStateChanged(user => {
         listenToTyping(currentRoom);
         initVoiceConference(currentRoom);
         loadPrivateRoomsList();
-        listenToXPLeaderboard(); // 🔥 👑 AI ADDED: ලීඩර්බෝඩ් එක Realtime Listen කිරීම මෙතනින් ආරම්භ වේ.
+        listenToXPLeaderboard(); 
         setupScrollToBottomBtn();
         
-        // 🛡️ 👑 FIXED: මුලින්ම සයිට් එකට ලොග් වෙද්දි Voice UI එක 'MUTED' ස්ටේට් එකට බලෙන් සෙට් කරනවා
         const muteBtn = document.getElementById('comms-mute-btn');
         const btnIcon = document.getElementById('mute-btn-icon');
         const btnText = document.getElementById('mute-btn-text');
@@ -167,16 +165,13 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Profile & XP Engine (🔥 AI UPDATED)
 function syncUserProfileData(user) {
     db.ref(`users/${user.uid}`).on('value', snapshot => {
         const data = snapshot.val();
         if (!data) return;
 
-        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
         localUserData = data;
 
-        // Border Expiration Check (7 Days)
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
             if (Date.now() - data.decorationClaimedAt > 7 * 24 * 60 * 60 * 1000) {
                 db.ref(`users/${user.uid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
@@ -188,7 +183,6 @@ function syncUserProfileData(user) {
         document.getElementById('user-avatar').src = data.profilePic || user.photoURL;
         document.getElementById('user-specialty').innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
         
-        // Footer Frame
         const footerFrame = document.getElementById('user-footer-deco-frame');
         if (footerFrame) {
             footerFrame.className = "deco-frame-container";
@@ -197,18 +191,15 @@ function syncUserProfileData(user) {
             }
         }
 
-        // Sidebar XP Progress
         const userXp = data.xp || 0;
         const barPercent = Math.min(100, (userXp / 500) * 100);
         
-        // HTML එකේ ID එක නිවැරදිව Handle කිරීම
         const xpFillEl = document.getElementById('dashboard-xp-fill') || document.getElementById('view-card-xp-fill');
         const xpTextEl = document.getElementById('dashboard-xp-text') || document.getElementById('view-card-xp-text');
         
         if (xpFillEl) xpFillEl.style.width = `${barPercent}%`;
         if (xpTextEl) xpTextEl.innerText = `${userXp} / 500 XP`;
 
-        // 👑 AI FIXED: XP 500ට සමාන හෝ වැඩි නම් Claim නොකරත් Border එක Auto පෙන්වන කොටස
         const userAvatarEl = document.getElementById('user-avatar');
         if (userAvatarEl) {
             if (userXp >= 500 || (data.currentDecoration && data.currentDecoration === "neon-legendary-border")) {
@@ -218,7 +209,6 @@ function syncUserProfileData(user) {
             }
         }
 
-        // Reward Alert Trigger (XP 500 සම්පූර්ණ වුණාම විතරක් පෙන්වන්න)
         const rewardModal = document.getElementById('reward-popup-modal');
         if (rewardModal) {
             if (userXp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
@@ -241,16 +231,12 @@ window.saveUserProfile = function() {
     }).then(() => toggleProfileModal());
 }
 
-// 👑 UPDATED REWARD CLAIM LOGIC FOR XP 500 PROFILE DECORATION
 window.claimAvatarDecoration = function() {
     if (!currentUser) return;
-    
-    // XP 500 සපුරා ඇති නිසා Profile Decoration එකක් විදිහට 'neon-legendary-border' එක ලබාදීම
     const legendaryDeco = "neon-legendary-border";
     
     db.ref(`users/${currentUser.uid}`).transaction(currentData => {
         if (currentData) {
-            // XP 500ක් අඩු කරලා, Decoration එක Claim කළා කියලා Update කරනවා
             currentData.xp = Math.max(0, (currentData.xp || 0) - 500);
             currentData.currentDecoration = legendaryDeco;
             currentData.decorationClaimedAt = Date.now();
@@ -265,7 +251,6 @@ window.claimAvatarDecoration = function() {
     });
 }
 
-// Profile Cards & DM Channels Logic
 window.toggleUserCardModal = function() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
 
 window.viewUserProfileCard = function(targetUid) {
@@ -276,7 +261,6 @@ window.viewUserProfileCard = function(targetUid) {
         const viewCardAvatar = document.getElementById('view-card-avatar');
         viewCardAvatar.src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
         
-        // 👑 AI FIXED: අනිත් අය ඔයාගේ Profile එක බලද්දිත් ඔයාට XP 500+ නම් Border එක ලස්සනට පේන්න හැදුවා
         const targetXp = data.xp || 0;
         if (targetXp >= 500 || (data.currentDecoration && data.currentDecoration === "neon-legendary-border")) {
             viewCardAvatar.classList.add('neon-legendary-border');
@@ -338,7 +322,6 @@ function loadPrivateRoomsList() {
     });
 }
 
-// Chat Engine Core
 function setupOnlineCounter() {
     db.ref(`.info/connected`).on('value', snap => {
         if (snap.val() === false) return;
@@ -383,28 +366,24 @@ function listenToTyping(roomName) {
 
 window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
 
-// ⚡ HIGH-SPEED & ANTI-SPAM SEND MESSAGE PROTOCOL
 window.sendMessage = function() {
     const input = document.getElementById('message-input');
     if (!input || !currentUser) return;
     const text = input.value.trim();
     if (text === "") return;
 
-    // 🛡️ SPAM CONTROL 1: එකම මැසේජ් එක පිට පිට යවනවා නම් බ්ලොක් කිරීම
     if (text.toLowerCase() === lastSentMessage.toLowerCase()) {
         alert("⚠️ Duplicate transmission detected! Repeating the same data will not grant XP.");
         input.value = "";
         return;
     }
 
-    // 🛡️ SPAM CONTROL 2: එකම අකුර දිගටම ගහලා ද කියල Check කිරීම (උදා: "aaaaaaaaaa...")
     if (text.length > 3 && /^([a-zA-Z0-9])\1+$/.test(text)) {
         alert("⚠️ Character spam detected! Quality transmission required for XP.");
         input.value = "";
         return;
     }
 
-    // ⚡ INSTANT WRITE Protocol: Database Read එකක් වෙනුවට Local data පාවිච්චි කර මැසේජ් එක Speed එකෙන් යවයි
     const userData = localUserData || {};
     const myAvatar = userData.profilePic || currentUser.photoURL;
     const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
@@ -418,30 +397,60 @@ window.sendMessage = function() {
         senderSpecialty: mySpecialty
     });
 
-    // XP ලබාදීම
     db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
     db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     
-    // වර්තමාන මැසේජ් එක "අන්තිම මැසේජ් එක" විදිහට Save කරගැනීම
     lastSentMessage = text;
     input.value = "";
 }
 
-// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER (FIXED)
+// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER WITH SKELETON LOADER
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
+    if (!chatDisplay) return;
     
-    // කලින් රූම් එකේ තිබ්බ Listeners ඔක්කොම අයින් කරලා Screen එක clear කරනවා
     db.ref(`rooms/${roomName}`).off(); 
     chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
-    // ⚡ Optimization 1: අන්තිම මැසේජ් 50 විතරක් සීමා කරනවා (limitToLast)
-    // ⚡ Optimization 2: 'child_added' මඟින් මුළු HTML එකම Reset කරන්නේ නැතිව අලුත් Node එක විතරක් DOM එකට Append කරයි
+    // Injected Skeleton HTML Loader while fetching data from Firebase
+    let loaderHTML = `
+        <div class="msg-skeleton-container" id="chat-loader">
+            <div class="skeleton-item">
+                <div class="skeleton-avatar skeleton-blink"></div>
+                <div class="skeleton-content">
+                    <div class="skeleton-name skeleton-blink"></div>
+                    <div class="skeleton-line skeleton-blink"></div>
+                    <div class="skeleton-line short skeleton-blink"></div>
+                </div>
+            </div>
+            <div class="skeleton-item">
+                <div class="skeleton-avatar skeleton-blink"></div>
+                <div class="skeleton-content">
+                    <div class="skeleton-name skeleton-blink"></div>
+                    <div class="skeleton-line skeleton-blink"></div>
+                </div>
+            </div>
+            <div class="skeleton-item">
+                <div class="skeleton-avatar skeleton-blink"></div>
+                <div class="skeleton-content">
+                    <div class="skeleton-name skeleton-blink"></div>
+                    <div class="skeleton-line skeleton-blink"></div>
+                    <div class="skeleton-line short skeleton-blink"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    chatDisplay.innerHTML = loaderHTML;
+
     db.ref(`rooms/${roomName}`).limitToLast(50).on('child_added', snapshot => {
         const msgId = snapshot.key; 
         const data = snapshot.val(); 
         if (!data) return;
+
+        // Remove the Skeleton loader instantly as soon as first real node arrives
+        const loader = document.getElementById("chat-loader");
+        if (loader) loader.remove();
 
         const isOwn = data.uid === currentUser.uid;
         const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -465,25 +474,24 @@ function loadMessages(roomName) {
         
         chatDisplay.insertAdjacentHTML('beforeend', msgHtml);
 
-        // මුල්ම පාරට රූම් එක ලෝඩ් වෙද්දී Notification සවුන්ඩ් ප්ලේ වෙන එක නවත්වනවා
         if (!isInitialLoad && !isOwn) {
             playIncomingSound();
         }
 
-        // Auto Scroll to Bottom Logic
         const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 300;
         if (isInitialLoad || isUserAtBottom) {
             chatDisplay.scrollTop = chatDisplay.scrollHeight;
         }
     });
 
-    // මුල්ම මැසේජ් 50 එකපාර ලෝඩ් වෙලා ඉවර වුන ගමන් initial load එක false කරනවා
     db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
         isInitialLoad = false;
+        // Safe check for empty rooms to strip out loader
+        const loader = document.getElementById("chat-loader");
+        if (loader) loader.remove();
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
 
-    // ⚡ REALTIME DELETE LISTENER: වෙන කෙනෙක් මැසේජ් එකක් ඩිලීට් කලොත් Screen එකෙන් ක්ෂණිකව අයින් වෙන්න
     db.ref(`rooms/${roomName}`).on('child_removed', snapshot => {
         const deletedMsgId = snapshot.key;
         const msgElement = document.getElementById(`msg-${deletedMsgId}`);
@@ -491,7 +499,6 @@ function loadMessages(roomName) {
     });
 }
 
-// 👑 OPTIMIZED DELETE FUNCTION (REALTIME DOM REMOVAL)
 window.deleteMessage = function(roomName, msgId) {
     if (confirm("Are you sure you want to delete this transmission from orbit?")) {
         db.ref(`rooms/${roomName}/${msgId}`).remove().then(() => {
@@ -503,8 +510,6 @@ window.deleteMessage = function(roomName, msgId) {
 
 window.switchRoom = function(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-    
-    // පරණ රූම් එකේ child_removed listeners අයින් කරනවා ඩියුප්ලිකේට් නොවෙන්න
     db.ref(`rooms/${currentRoom}`).off();
     
     currentRoom = roomName;
@@ -591,7 +596,7 @@ function setupScrollToBottomBtn() {
     };
 }
 
-// 👑 APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
+// 👑 APP SETTINGS ENGINE
 window.toggleSettingsModal = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
@@ -607,10 +612,9 @@ window.toggleSettingsModal = function() {
             document.getElementById('volume-value').innerText = this.value + "%";
         };
 
-        // Check 3 Days Cooldown Condition
         db.ref(`users/${currentUser.uid}/lastNameChange`).once('value', snapshot => {
             const lastChange = snapshot.val() || 0;
-            const cooldownMS = 3 * 24 * 60 * 60 * 1000; // 3 Days in milliseconds
+            const cooldownMS = 3 * 24 * 60 * 60 * 1000;
             const timePassed = Date.now() - lastChange;
 
             const inputField = document.getElementById('settings-username');
@@ -639,13 +643,10 @@ window.saveAppSettings = function() {
     const newName = document.getElementById('settings-username').value.trim();
     const inputField = document.getElementById('settings-username');
 
-    // Save Volume
     appVolume = newVolume;
 
-    // Save Username changes if not disabled/cooldown active
     if (!inputField.disabled && newName && newName !== currentUser.displayName) {
         currentUser.updateProfile({ displayName: newName }).then(() => {
-            const updates = {};
             const updatesObj = {};
             updatesObj[`users/${currentUser.uid}/name`] = newName;
             updatesObj[`users/${currentUser.uid}/lastNameChange`] = Date.now();
@@ -657,11 +658,11 @@ window.saveAppSettings = function() {
             });
         }).catch(err => alert("Error updating gamertag: " + err.message));
     } else {
-        toggleSettingsModal(); // Just close modal if volume was adjusted or name unchanged
+        toggleSettingsModal();
     }
 }
 
-// Emoji Injected Generator & Dynamic Typing Event Listener
+// Dynamic Typing Event Listener & Emoji Picker Injection
 document.addEventListener('DOMContentLoaded', () => {
     const inputContainer = document.querySelector('.input-container');
     const inputField = document.getElementById('message-input');
@@ -690,11 +691,7 @@ window.copyDevDiscord = function() {
     const discordName = "Mr_kaveeya_bro";
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
-        
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
-        
-        // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
         setTimeout(() => {
             if (btnText) btnText.innerHTML = "Discord Contact";
         }, 2000);
@@ -702,7 +699,7 @@ window.copyDevDiscord = function() {
 }
 
 // ==========================================
-// 🏆 👑 REALTIME XP LEADERBOARD SYSTEM (TOP 5) - AI INJECTED
+// 🏆 👑 REALTIME XP LEADERBOARD SYSTEM (TOP 5)
 // ==========================================
 function listenToXPLeaderboard() {
     db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
@@ -718,37 +715,39 @@ function listenToXPLeaderboard() {
                 uid: userId,
                 name: userData.name || 'Gamer',
                 xp: userData.xp || 0,
-                avatar: userData.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${userData.name}`,
-                decoration: userData.currentDecoration || 'none'
+                avatar: userData.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${userData.name}`
             });
         });
 
-        gamers.reverse();
+        gamers.reverse(); // Highest XP to Lowest XP
         leaderboardList.innerHTML = "";
-
-        if (gamers.length === 0) {
-            leaderboardList.innerHTML = `<li style="color: #949ba4; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; text-align: center; padding: 10px;">No gamers tracked.</li>`;
-            return;
-        }
 
         gamers.forEach((gamer, index) => {
             const rank = index + 1;
-            let rankBadge = '';
-            if (rank === 1) rankBadge = '👑';
-            else if (rank === 2) rankBadge = '🥈';
-            else if (rank === 3) rankBadge = '🥉';
-            else rankBadge = `#${rank}`;
+            let rankBadge = `<span class="rank-number">#${rank}</span>`;
+            if (rank === 1) rankBadge = `<span class="rank-badge gold" title="Champion">🥇</span>`;
+            if (rank === 2) rankBadge = `<span class="rank-badge silver" title="Challenger">🥈</span>`;
+            if (rank === 3) rankBadge = `<span class="rank-badge bronze" title="Elite">🥉</span>`;
 
-            leaderboardList.innerHTML += `
-                <li style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 700; color: #00ffcc; width: 22px;">${rankBadge}</span>
-                        <img src="${gamer.avatar}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: #fff; font-family: 'Rajdhani'; font-weight: 600; font-size: 0.9rem;">${gamer.name}</span>
+            const isMeClass = (currentUser && gamer.uid === currentUser.uid) ? 'leaderboard-item-me' : '';
+
+            const rowHtml = `
+                <li class="leaderboard-item ${isMeClass}" onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.03); transition: background 0.2s;">
+                    <div class="leaderboard-left" style="display: flex; align-items: center; gap: 10px;">
+                        ${rankBadge}
+                        <img src="${gamer.avatar}" class="leaderboard-avatar" alt="${gamer.name}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(0, 255, 204, 0.3);">
+                        <span class="leaderboard-name" style="font-weight: 500; color: #f2f3f5;">${gamer.name}</span>
                     </div>
-                    <span style="font-family: 'Orbitron'; font-size: 0.75rem; color: #ff0055; font-weight: 700;">${gamer.xp} XP</span>
+                    <div class="leaderboard-right">
+                        <span class="leaderboard-xp" style="color: #00ffcc; font-weight: bold; font-size: 0.9rem;">${gamer.xp} <small style="color: #949ba4; font-size: 0.7rem;">XP</small></span>
+                    </div>
                 </li>
             `;
+            leaderboardList.insertAdjacentHTML('beforeend', rowHtml);
         });
+
+        if (gamers.length === 0) {
+            leaderboardList.innerHTML = '<li class="no-leaderboard-notice" style="color: #949ba4; text-align: center; padding: 10px;">No ranks tracked yet.</li>';
+        }
     });
 }
