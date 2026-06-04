@@ -36,7 +36,7 @@ function playIncomingSound() {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
+         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         
@@ -375,7 +375,11 @@ window.sendMessage = function() {
 
 // ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER (HIGH-SPEED GPU RENDER)
 function loadMessages(roomName) {
+    // 🛡️ SECURITY FIX: යූසර් තාම Login වෙලා නැත්නම් මැසේජ් ලෝඩ් කරන එක නවත්වනවා (Crash Fix)
+    if (!currentUser) return;
+
     const chatDisplay = document.getElementById('chat-messages');
+    if (!chatDisplay) return;
     
     // කලින් රූම් එකේ තිබ්බ Listeners ඔක්කොම අයින් කරලා Screen එක clear කරනවා
     db.ref(`rooms/${roomName}`).off(); 
@@ -592,59 +596,4 @@ window.saveAppSettings = function() {
     appVolume = newVolume;
 
     // Save Username changes if not disabled/cooldown active
-    if (!inputField.disabled && newName && newName !== currentUser.displayName) {
-        currentUser.updateProfile({ displayName: newName }).then(() => {
-            const updates = {};
-            updates[`users/${currentUser.uid}/name`] = newName;
-            updates[`users/${currentUser.uid}/lastNameChange`] = Date.now();
-            updates[`online_users/${currentUser.uid}/name`] = newName;
-
-            db.ref().update(updates).then(() => {
-                alert("🎯 Terminal protocol updated! Gamertag successfully changed.");
-                location.reload();
-            });
-        }).catch(err => alert("Error updating gamertag: " + err.message));
-    } else {
-        toggleSettingsModal(); // Just close modal if volume was adjusted or name unchanged
-    }
-}
-
-// Emoji Injected Generator & Dynamic Typing Event Listener
-document.addEventListener('DOMContentLoaded', () => {
-    const inputContainer = document.querySelector('.input-container');
-    const inputField = document.getElementById('message-input');
-    
-    if (inputField) {
-        inputField.addEventListener('input', handleTyping);
-    }
-
-    if (typeof EmojiButton !== 'undefined' && inputContainer && inputField) {
-        const btn = document.createElement('button');
-        btn.type = "button";
-        btn.style = "background:none; border:none; color:#949ba4; cursor:pointer; font-size:1.1rem; padding:0 8px;";
-        btn.innerHTML = `<i class="fa-regular fa-face-smile"></i>`;
-        inputContainer.insertBefore(btn, inputContainer.lastElementChild);
-
-        const picker = new EmojiButton({ theme: 'dark', autoHide: true, position: 'top-start' });
-        picker.on('emoji', sel => { inputField.value += sel.emoji; inputField.focus(); });
-        btn.addEventListener('click', () => picker.togglePicker(btn));
-    }
-});
-
-// ==========================================
-// 👑 DEVELOPER DISCORD COPIER PROTOCOL
-// ==========================================
-window.copyDevDiscord = function() {
-    const discordName = "Mr_kaveeya_bro";
-    navigator.clipboard.writeText(discordName).then(() => {
-        const btnText = document.getElementById("dev-discord-name");
-        
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
-        btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
-        
-        // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
-        setTimeout(() => {
-            btnText.innerHTML = "Discord Contact";
-        }, 2000);
-    }).catch(err => console.log("Copy error:", err));
-}
+    if (!input
