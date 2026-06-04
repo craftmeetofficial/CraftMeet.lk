@@ -373,59 +373,86 @@ window.sendMessage = function() {
     input.value = "";
 }
 
+// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER (FIXED)
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
+    
+    // කලින් රූම් එකේ තිබ්බ Listeners ඔක්කොම අයින් කරලා Screen එක clear කරනවා
     db.ref(`rooms/${roomName}`).off(); 
+    chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
-    db.ref(`rooms/${roomName}`).on('value', snapshot => {
-        chatDisplay.innerHTML = "";
-        let total = snapshot.numChildren(), count = 0;
-        if (total === 0) isInitialLoad = false;
+    // ⚡ Optimization 1: අන්තිම මැසේජ් 50 විතරක් සීමා කරනවා (limitToLast)
+    // ⚡ Optimization 2: 'child_added' මඟින් මුළු HTML එකම Reset කරන්නේ නැතිව අලුත් Node එක විතරක් DOM එකට Append කරයි
+    db.ref(`rooms/${roomName}`).limitToLast(50).on('child_added', snapshot => {
+        const msgId = snapshot.key; 
+        const data = snapshot.val(); 
+        if (!data) return;
 
-        snapshot.forEach(child => {
-            const msgId = child.key; 
-            const data = child.val(); 
-            const isOwn = data.uid === currentUser.uid;
-            const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            count++;
+        const isOwn = data.uid === currentUser.uid;
+        const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
-            const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
+        const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
+        const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
 
-            chatDisplay.innerHTML += `
-                <div class="message-item ${isOwn ? 'own-msg' : ''}">
-                    <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
-                    <div class="msg-content">
-                        <div class="msg-header">
-                            <span class="msg-username" onclick="viewUserProfileCard('${data.uid}')">${isOwn ? 'You' : data.sender}</span>
-                            <span class="msg-timestamp">${timeStr}</span>
-                            ${deleteBtnHtml}
-                        </div>
-                        <div class="msg-text">${data.message}</div>
+        const msgHtml = `
+            <div class="message-item ${isOwn ? 'own-msg' : ''}" id="msg-${msgId}">
+                <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username" onclick="viewUserProfileCard('${data.uid}')">${isOwn ? 'You' : data.sender}</span>
+                        <span class="msg-timestamp">${timeStr}</span>
+                        ${deleteBtnHtml}
                     </div>
+                    <div class="msg-text">${data.message}</div>
                 </div>
-            `;
-            if (!isInitialLoad && count === total && !isOwn) playIncomingSound();
-        });
+            </div>
+        `;
+        
+        chatDisplay.insertAdjacentHTML('beforeend', msgHtml);
 
-        const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 200;
+        // මුල්ම පාරට රූම් එක ලෝඩ් වෙද්දී Notification සවුන්ඩ් ප්ලේ වෙන එක නවත්වනවා
+        if (!isInitialLoad && !isOwn) {
+            playIncomingSound();
+        }
+
+        // Auto Scroll to Bottom Logic
+        const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 300;
         if (isInitialLoad || isUserAtBottom) {
             chatDisplay.scrollTop = chatDisplay.scrollHeight;
         }
+    });
+
+    // මුල්ම මැසේජ් 50 එකපාර ලෝඩ් වෙලා ඉවර වුන ගමන් initial load එක false කරනවා
+    db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
         isInitialLoad = false;
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    });
+
+    // ⚡ REALTIME DELETE LISTENER: වෙන කෙනෙක් මැසේජ් එකක් ඩිලීට් කලොත් Screen එකෙන් ක්ෂණිකව අයින් වෙන්න
+    db.ref(`rooms/${roomName}`).on('child_removed', snapshot => {
+        const deletedMsgId = snapshot.key;
+        const msgElement = document.getElementById(`msg-${deletedMsgId}`);
+        if (msgElement) msgElement.remove();
     });
 }
 
+// 👑 OPTIMIZED DELETE FUNCTION (REALTIME DOM REMOVAL)
 window.deleteMessage = function(roomName, msgId) {
     if (confirm("Are you sure you want to delete this transmission from orbit?")) {
-        db.ref(`rooms/${roomName}/${msgId}`).remove()
-            .catch(err => alert("Error deleting transmission: " + err.message));
+        db.ref(`rooms/${roomName}/${msgId}`).remove().then(() => {
+            const msgElement = document.getElementById(`msg-${msgId}`);
+            if (msgElement) msgElement.remove();
+        }).catch(err => alert("Error deleting transmission: " + err.message));
     }
 }
 
 window.switchRoom = function(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    
+    // පරණ රූම් එකේ child_removed listeners අයින් කරනවා ඩියුප්ලිකේට් නොවෙන්න
+    db.ref(`rooms/${currentRoom}`).off();
+    
     currentRoom = roomName;
     isInitialLoad = true;
 
@@ -609,7 +636,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
