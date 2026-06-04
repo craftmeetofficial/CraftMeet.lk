@@ -30,6 +30,156 @@ let localUserData = null; // Speed Optimization
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
+// =================================================================
+// --- CRAFTMEET AI SYSTEM (FREE GEMINI VIA HUGGING FACE) ---
+// =================================================================
+
+/**
+ * AI Floating Box එක Open/Close (Toggle) කරන Function එක
+ */
+function toggleFloatingAI() {
+    const aiBody = document.getElementById('ai-floating-body');
+    const aiIcon = document.getElementById('ai-toggle-icon');
+    
+    if (aiBody && aiBody.classList.contains('hidden')) {
+        aiBody.classList.remove('hidden');
+        if (aiIcon) aiIcon.className = "fa-solid fa-chevron-down"; 
+    } else if (aiBody) {
+        aiBody.classList.add('hidden');
+        if (aiIcon) aiIcon.className = "fa-solid fa-chevron-up"; 
+    }
+}
+
+/**
+ * මැසේජ් එක AI Box එකට යවන සහ Gemini API එකට කතා කරන Main Function එක
+ */
+async function sendAMessageToAIBox() {
+    const aiInput = document.getElementById('ai-box-input');
+    const aiMessagesDiv = document.getElementById('ai-box-messages');
+    
+    if (!aiInput || !aiMessagesDiv) return;
+    const userText = aiInput.value.trim();
+
+    if (userText === "") return;
+
+    // 🔐 GitHub එකට අහුවෙන්නේ නැති වෙන්න Token එක Browser Memory (LocalStorage) එකේ සේව් කරමු
+    let savedToken = localStorage.getItem('hf_ai_token');
+    
+    if (!savedToken) {
+        // පළමු පාර පාවිච්චි කරද්දී විතරක් Token එක ඉල්ලනවා
+        savedToken = prompt("🔑 Please enter your Hugging Face Access Token to authorize Gemini AI:\n(Your token will be saved securely on your device browser)");
+        if (savedToken && savedToken.startsWith('hf_')) {
+            localStorage.setItem('hf_ai_token', savedToken.trim());
+        } else {
+            alert("❌ Invalid Token! Realtime AI core authorization failed.");
+            return;
+        }
+    }
+
+    const username = (currentUser && currentUser.displayName) ? currentUser.displayName : "Gamer";
+
+    // 1. UI එකට User ගේ මැසේජ් එක එකතු කිරීම
+    appendAiBoxMessage(`😎 ${username}`, userText, "#00ffcc");
+    aiInput.value = ""; 
+
+    // 2. Loading / Typing Indicator එකක් පෙන්වීම
+    const typingId = appendAiBoxMessage("🤖 CraftMeet AI", "Tapping into Gemini core...", "#949ba4", true);
+
+    // AI එකේ පෞරුෂය (System Instruction) prompt එකට ඇතුළත් කිරීම
+    const systemPrompt = `You are CraftMeet AI, a toxic-free, friendly pro Sri Lankan gamer and tech assistant integrated into the CraftMeet gaming platform built by Mr_kaveeya_bro. Keep your answers brief, energetic, gaming-focused, and use gamer slang like GG, Clutch, Noob, WP when appropriate. Reply to this: ${userText}`;
+
+    try {
+        // 3. Hugging Face Serverless API එක හරහා Gemini 1.5 Flash එකට Call එකක් දීම
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/google/gemini-1.5-flash",
+            {
+                headers: { 
+                    Authorization: `Bearer ${savedToken}`, // මෙතනට Memory එකේ තියෙන එක යනවා
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify({ 
+                    inputs: systemPrompt,
+                    parameters: { max_new_tokens: 150 } 
+                }),
+            }
+        );
+
+        const result = await response.json();
+
+        // Loading Indicator එක UI එකෙන් අයින් කිරීම
+        const tempTyping = document.getElementById(typingId);
+        if (tempTyping) tempTyping.remove();
+
+        let aiReplyText = "";
+        if (result && result[0] && result[0].generated_text) {
+            aiReplyText = result[0].generated_text;
+            aiReplyText = aiReplyText.replace(systemPrompt, "").trim();
+        } else if (result && result.error) {
+            aiReplyText = "AI Node overloaded. Try again in a few seconds, Comrade.";
+        } else {
+            aiReplyText = "Error processing data matrix.";
+        }
+
+        // 4. Gemini ගේ සැබෑ පිළිතුර UI එකට එකතු කිරීම
+        appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#fff");
+
+        // 5. Chat එක Firebase Realtime Database එකට සේව් කිරීම
+        if (currentUser) {
+            db.ref(`ai_chats/${currentUser.uid}`).push().set({
+                user_prompt: userText,
+                ai_response: aiReplyText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        const tempTyping = document.getElementById(typingId);
+        if (tempTyping) tempTyping.remove();
+        appendAiBoxMessage("🤖 CraftMeet AI", "Connection to AI core lost. Check internet, Comrade.", "#ff0055");
+    }
+}
+
+/**
+ * UI එක ඇතුළට මැසේජ් ටැග් එකතු කරන Helper Function එක
+ */
+function appendAiBoxMessage(sender, text, color, isTyping = false) {
+    const aiMessagesDiv = document.getElementById('ai-box-messages');
+    if (!aiMessagesDiv) return;
+
+    const msgElement = document.createElement('div');
+    const uniqueId = "msg-" + Date.now() + Math.floor(Math.random() * 1000);
+    
+    msgElement.id = uniqueId;
+    msgElement.style.color = color;
+    msgElement.style.lineHeight = "1.4";
+    msgElement.style.marginBottom = "8px";
+    if (isTyping) msgElement.style.fontStyle = "italic";
+    
+    msgElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    aiMessagesDiv.appendChild(msgElement);
+    
+    aiMessagesDiv.scrollTop = aiMessagesDiv.scrollHeight;
+    return uniqueId;
+}
+
+/**
+ * Input Box එකේදී Enter එබූ විට මැසේජ් එක යවන Function එක
+ */
+window.checkAIBoxEnter = function(event) {
+    if (event.key === "Enter") {
+        sendAMessageToAIBox();
+    }
+}
+
+window.toggleFloatingAI = toggleFloatingAI;
+window.sendAMessageToAIBox = sendAMessageToAIBox;
+
+// ==========================================
+// CORE FUNCTIONS
+// ==========================================
+
 // 👑 DEVELOPER PORTAL MODAL TOGGLE
 window.toggleCraftMeetModal = function() {
     const craftMeetModal = document.getElementById('craftmeet-modal');
@@ -130,7 +280,7 @@ window.logout = function() {
     auth.signOut().then(() => location.reload());
 }
 
-// 👑 CRITICAL FLASH-FREE AUTHENTICATION PROTOCOL (METHOD 02 INJECTED)
+// 👑 CRITICAL FLASH-FREE AUTHENTICATION PROTOCOL
 auth.onAuthStateChanged(user => {
     const authScreen = document.getElementById('auth-screen');
     const jitsiFrame = document.getElementById('jitsi-voice-frame');
@@ -138,8 +288,6 @@ auth.onAuthStateChanged(user => {
     
     if (user) {
         currentUser = user;
-        
-        // Login වෙලා ඉන්න නිසා Login Screen එක වහාම හංගලා Chat එක පෙන්වනවා
         if (authScreen) authScreen.classList.add('hidden');
         if (mainAppInterface) mainAppInterface.classList.remove('hidden');
         
@@ -166,7 +314,6 @@ auth.onAuthStateChanged(user => {
         if(statusDesc) statusDesc.innerText = "Microphone transmission locked.";
     } else {
         currentUser = null;
-        // User ලොග් වෙලා නැත්නම් විතරක් Login Screen එක පෙන්වනවා
         if (authScreen) authScreen.classList.remove('hidden');
         if (mainAppInterface) mainAppInterface.classList.add('hidden');
         if (jitsiFrame) jitsiFrame.src = "";
@@ -416,7 +563,7 @@ function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     if (!chatDisplay) return;
     
-    db.ref(`rooms/${roomName}`).off(); 
+    db.ref(`rooms/${currentRoom}`).off(); 
     chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
@@ -690,14 +837,14 @@ window.copyDevDiscord = function() {
     const discordName = "Mr_kaveeya_bro";
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
-        btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
+        if (btnText) btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         setTimeout(() => {
             if (btnText) btnText.innerHTML = "Discord Contact";
         }, 2000);
     }).catch(err => console.log("Copy error:", err));
 }
 
-// 🏆 REALTIME XP LEADERBOARD SYSTEM (COMPLETED FROM SNIPPET)
+// 🏆 REALTIME XP LEADERBOARD SYSTEM
 function listenToXPLeaderboard() {
     db.ref('users').orderByChild('xp').limitToLast(5).on('value', snapshot => {
         const leaderboardList = document.getElementById('xp-leaderboard-list');
@@ -735,10 +882,9 @@ function listenToXPLeaderboard() {
                         <img src="${gamer.avatar}" class="leaderboard-avatar" alt="${gamer.name}">
                         <span class="leaderboard-name">${gamer.name}</span>
                     </div>
-                    <span class="leaderboard-xp-tag">${gamer.xp} XP</span>
                 </li>
             `;
-            leaderboardList.insertAdjacentHTML('beforeend', rowHtml);
+            leaderboardList.innerHTML += rowHtml;
         });
     });
 }
