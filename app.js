@@ -24,11 +24,6 @@ let isMuted = true;  // 🛡️ Default Mute on Join
 let isRegisterMode = false; 
 let appVolume = 1.0; // Global App Volume (Range: 0.0 - 1.0)
 
-// 🎙️ PEERJS VOICE CHAT CONFIGURATION VARIABLES
-let myPeer = null;
-let localStream = null;
-let activeCalls = {}; // දැනට කනෙක්ට් වෙලා ඉන්න අයගේ Calls සේව් කරගන්න
-
 // 🛡️ ANTI-LAG & SPAM MEMORY VARIABLES
 let lastSentMessage = ""; 
 let localUserData = null; // Speed Optimization
@@ -131,13 +126,13 @@ window.logout = function() {
     if (currentUser) {
         db.ref(`online_users/${currentUser.uid}`).remove();
         db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-        leaveVoiceChannel(); // Voice එකෙන් අයින් වීම
     }
     auth.signOut().then(() => location.reload());
 }
 
 auth.onAuthStateChanged(user => {
     const authScreen = document.getElementById('auth-screen');
+    const jitsiFrame = document.getElementById('jitsi-voice-frame');
     
     if (user) {
         currentUser = user;
@@ -148,13 +143,11 @@ auth.onAuthStateChanged(user => {
         setupOnlineCounter();
         loadMessages(currentRoom);
         listenToTyping(currentRoom);
+        initVoiceConference(currentRoom);
         loadPrivateRoomsList();
         listenToXPLeaderboard(); 
         setupScrollToBottomBtn();
         
-        // 🎙️ PeerJS Voice Client එක Start කිරීම (User UID එක Base කරගෙන)
-        initPeerJSVoiceEngine(user.uid);
-
         const muteBtn = document.getElementById('comms-mute-btn');
         const btnIcon = document.getElementById('mute-btn-icon');
         const btnText = document.getElementById('mute-btn-text');
@@ -168,7 +161,7 @@ auth.onAuthStateChanged(user => {
     } else {
         currentUser = null;
         if (authScreen) authScreen.classList.remove('hidden');
-        leaveVoiceChannel();
+        if (jitsiFrame) jitsiFrame.src = "";
     }
 });
 
@@ -420,6 +413,7 @@ function loadMessages(roomName) {
     chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
+    // Injected Skeleton HTML Loader while fetching data from Firebase
     let loaderHTML = `
         <div class="msg-skeleton-container" id="chat-loader">
             <div class="skeleton-item">
@@ -437,6 +431,14 @@ function loadMessages(roomName) {
                     <div class="skeleton-line skeleton-blink"></div>
                 </div>
             </div>
+            <div class="skeleton-item">
+                <div class="skeleton-avatar skeleton-blink"></div>
+                <div class="skeleton-content">
+                    <div class="skeleton-name skeleton-blink"></div>
+                    <div class="skeleton-line skeleton-blink"></div>
+                    <div class="skeleton-line short skeleton-blink"></div>
+                </div>
+            </div>
         </div>
     `;
     chatDisplay.innerHTML = loaderHTML;
@@ -446,6 +448,7 @@ function loadMessages(roomName) {
         const data = snapshot.val(); 
         if (!data) return;
 
+        // Remove the Skeleton loader instantly as soon as first real node arrives
         const loader = document.getElementById("chat-loader");
         if (loader) loader.remove();
 
@@ -483,6 +486,7 @@ function loadMessages(roomName) {
 
     db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
         isInitialLoad = false;
+        // Safe check for empty rooms to strip out loader
         const loader = document.getElementById("chat-loader");
         if (loader) loader.remove();
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -519,11 +523,7 @@ window.switchRoom = function(roomName) {
     document.getElementById('current-room-title').innerText = visualTitle;
     document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle.toUpperCase()}`;
 
-    loadMessages(roomName); 
-    listenToTyping(roomName); 
-    
-    // 🎙️ කාමරය මාරු කරද්දී Voice එකත් අලුත් කාමරයට මාරු කිරීම
-    joinVoiceChannel(roomName);
+    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
 }
 
 window.toggleVoiceMute = function() {
@@ -547,147 +547,15 @@ window.toggleVoiceMute = function() {
         if(pulseNode) pulseNode.className = "voice-pulse-icon active-pulse";
         if(statusDesc) statusDesc.innerText = "Voice link fully operational. LIVE.";
     }
-
-    // 🎙️ මයික් එක ඇත්තටම Mute / Unmute කිරීම
-    if (localStream) {
-        localStream.getAudioTracks().forEach(track => {
-            track.enabled = !isMuted;
-        });
-    }
+    initVoiceConference(currentRoom);
 }
 
-// ====================================================
-// 🎙️ 👑 DISCORD-STYLE PEERJS VOICE CHAT CORE ENGINE
-// ====================================================
-
-function initPeerJSVoiceEngine(uid) {
-    // PeerJS Server එකට Connect වීම (Firebase UID එක පාවිච්චි කරලා)
-    myPeer = new Peer(uid, {
-        host: '0.peerjs.com',
-        port: 443,
-        secure: true,
-        debug: 1
-    });
-
-    myPeer.on('open', (id) => {
-        console.log("🎙️ Voice Protocol Connected on PeerJS ID:", id);
-        joinVoiceChannel(currentRoom); // මුලින්ම Global Voice එකට සෙට් වෙනවා
-    });
-
-    // වෙන කෙනෙක් අපිට කෝල් එකක් ගත්තම Answer කරන එක
-    myPeer.on('call', (incomingCall) => {
-        if (localStream) {
-            incomingCall.answer(localStream);
-            handleIncomingStream(incomingCall);
-        }
-    });
+function initVoiceConference(roomName) {
+    if (!currentUser) return;
+    const voiceFrame = document.getElementById('jitsi-voice-frame');
+    if (voiceFrame) voiceFrame.src = `https://meet.jit.si/${firebaseConfig.projectId}_voice_${roomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}`;
 }
 
-async function joinVoiceChannel(roomName) {
-    // 1. කලින් හිටපු voice room එකෙන් අයින් වෙනවා
-    leaveVoiceChannel();
-
-    try {
-        // 2. පරිශීලකයාගේ මයික් එක ඔන් කරගැනීම (Discord Noise / Echo Cancellation Settings)
-        localStream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true
-            },
-            video: false
-        });
-
-        // මූලිකවම මයික් එක muted නම් ට්‍රැක් එක disable කරලා තියනවා
-        localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-
-        // 3. Firebase එකට මම මේ කාමරයේ Voice ඉන්නවා කියලා අප්ඩේට් කරනවා
-        const voiceRoomRef = db.ref(`voice_rooms/${roomName}/${currentUser.uid}`);
-        voiceRoomRef.set({
-            name: currentUser.displayName,
-            joinedAt: Date.now()
-        });
-        voiceRoomRef.onDisconnect().remove();
-
-        // 4. දැනට මේ Voice Room එකේ ඉන්න අනිත් හැමෝටම කෝල් එකක් ගන්නවා
-        db.ref(`voice_rooms/${roomName}`).once('value', snapshot => {
-            snapshot.forEach(child => {
-                const targetUid = child.key;
-                if (targetUid !== currentUser.uid) {
-                    console.log(`Calling Gamer: ${child.val().name}`);
-                    const call = myPeer.call(targetUid, localStream);
-                    handleIncomingStream(call);
-                }
-            });
-        });
-
-        // 5. අලුතින් කවුරුහරි මේ රූම් එකට ජොයින් වුණොත් ඒක බලාගන්න Listen කරනවා
-        db.ref(`voice_rooms/${roomName}`).on('child_added', snapshot => {
-            const newGamerUid = snapshot.key;
-            if (newGamerUid !== currentUser.uid && !activeCalls[newGamerUid]) {
-                console.log(`New gamer entered voice room. Peer handshake initialized.`);
-            }
-        });
-
-    } catch (err) {
-        console.error("Microphone access initialization failed:", err);
-        alert("🎤 Voice Chat එක වැඩ කරන්න මයික් පර්මිෂන් Allow කරන්න මචං!");
-    }
-}
-
-function handleIncomingStream(call) {
-    activeCalls[call.peer] = call;
-
-    call.on('stream', (remoteStream) => {
-        // අනිත් එකාගේ Voice සද්දේ Browser එකෙන් Play කරවන කොටස
-        let audioEl = document.getElementById(`audio-${call.peer}`);
-        if (!audioEl) {
-            audioEl = document.createElement('audio');
-            audioEl.id = `audio-${call.peer}`;
-            document.body.appendChild(audioEl);
-        }
-        audioEl.srcObject = remoteStream;
-        audioEl.autoplay = true;
-        audioEl.controls = false;
-        
-        // Global Volume එකට අනුව සද්දේ සෙට් කිරීම
-        audioEl.volume = appVolume; 
-    });
-
-    call.on('close', () => {
-        removeAudioElement(call.peer);
-    });
-}
-
-function leaveVoiceChannel() {
-    // Firebase එකෙන් අයින් වීම
-    if (currentUser && currentRoom) {
-        db.ref(`voice_rooms/${currentRoom}/${currentUser.uid}`).remove();
-        db.ref(`voice_rooms/${currentRoom}`).off('child_added');
-    }
-
-    // දැනට තියෙන ඔක්කොම Active Calls කට් කිරීම
-    Object.keys(activeCalls).forEach(peerId => {
-        if (activeCalls[peerId]) activeCalls[peerId].close();
-        removeAudioElement(peerId);
-    });
-    activeCalls = {};
-
-    // මයික් එක ඕෆ් කිරීම
-    if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-        localStream = null;
-    }
-}
-
-function removeAudioElement(peerId) {
-    const audioEl = document.getElementById(`audio-${peerId}`);
-    if (audioEl) audioEl.remove();
-}
-
-// ==========================================
-// YT SEARCH AND OTHERS
-// ==========================================
 window.searchYT = function(channel) {
     if (!channel || channel.trim() === "") {
         console.error("Streamer හෝ Channel නම ලැබී නැත!");
@@ -716,7 +584,7 @@ function setupScrollToBottomBtn() {
         if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
             scrollBtn.classList.add('show');
         } else {
-            scrollBtn.classList.remove('show');
+            scrollBtn.classList.remove('remove');
         }
     });
 
@@ -775,14 +643,10 @@ window.saveAppSettings = function() {
     const newName = document.getElementById('settings-username').value.trim();
     const inputField = document.getElementById('settings-username');
 
+    // App එකේ global සද්දේ සේව් කරනවා
     appVolume = newVolume;
 
-    // අනිත් අයගේ ඇහෙන Voice volume එකත් Settings වලට අනුව මෙතනින් වෙනස් වෙනවා
-    Object.keys(activeCalls).forEach(peerId => {
-        const audioEl = document.getElementById(`audio-${peerId}`);
-        if (audioEl) audioEl.volume = appVolume;
-    });
-
+    // නම වෙනස් කරලා තියෙනවා නම් සහ Input එක lock වෙලා නැත්නම් විතරක් Firebase එකට යවනවා
     if (!inputField.disabled && newName && newName !== currentUser.displayName) {
         currentUser.updateProfile({ displayName: newName }).then(() => {
             const updatesObj = {};
@@ -796,6 +660,7 @@ window.saveAppSettings = function() {
             });
         }).catch(err => alert("Error updating gamertag: " + err.message));
     } else {
+        // නම වෙනස් කරලා නැත්නම්, Volume එක විතරක් සේව් කරලා modal එක වහනවා
         toggleSettingsModal();
     }
 }
@@ -873,10 +738,10 @@ function listenToXPLeaderboard() {
                 <li class="leaderboard-item ${isMeClass}" onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         ${rankBadge}
-                        <img src="${gamer.avatar}" style="width: 30px; height: 30px; border-radius: 50%;">
-                        <span style="font-weight: 500;">${gamer.name}</span>
+                        <img src="${gamer.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #3f4248;" alt="">
+                        <span style="font-weight: 600; color: #f2f3f5;">${gamer.name}</span>
                     </div>
-                    <span style="color: #00ffcc; font-size: 0.9rem; font-weight: bold;">${gamer.xp} XP</span>
+                    <span style="color: #00ffcc; font-size: 0.85rem; font-weight: bold;">${gamer.xp} XP</span>
                 </li>
             `;
             leaderboardList.insertAdjacentHTML('beforeend', rowHtml);
