@@ -1,341 +1,647 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftMeet | Ultimate Gaming HQ</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+// ==========================================
+// FIREBASE CONFIGURATION & INITIALIZATION
+// ==========================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAHpQdXnJkW7SVBFpsQV7dRny-NByKne4M",
+    authDomain: "craftmeet-bea37.firebaseapp.com",
+    databaseURL: "https://craftmeet-bea37-default-rtdb.firebaseio.com",
+    projectId: "craftmeet-bea37",
+    storageBucket: "craftmeet-bea37.firebasestorage.app",
+    messagingSenderId: "861031856963",
+    appId: "1:861031856963:web:b795f7bfa69877ef920df6",
+    measurementId: "G-JPF9GEPXSJ"
+};
 
-    <div id="auth-screen" class="auth-overlay">
-        <div class="auth-card neon-border">
-            <div class="brand-logo gaming-glow"><i class="fa-solid fa-radiation"></i></div>
-            <h2 class="cyber-title" id="auth-title">WELCOME BACK!</h2>
-            <p id="auth-subtitle">We're so excited to see you again!</p>
-            
-            <div class="auth-form-container">
-                <div class="form-group" id="reg-username-group" style="display: none;">
-                    <label>GAMERTAG (USERNAME) <span class="req-star">*</span></label>
-                    <input type="text" id="auth-username" placeholder="e.g., CyberKnight">
-                </div>
-                
-                <div class="form-group">
-                    <label>EMAIL ADDRESS <span class="req-star">*</span></label>
-                    <input type="email" id="auth-email" placeholder="name@domain.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>PASSWORD <span class="req-star">*</span></label>
-                    <input type="password" id="auth-password" placeholder="••••••••">
-                </div>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-                <div id="reg-extras" style="display: none;">
-                    <div class="form-group">
-                        <label>AVATAR IMAGE URL</label>
-                        <input type="text" id="auth-avatar" placeholder="Paste image link here...">
-                    </div>
-                    <div class="form-group">
-                        <label>ABOUT ME</label>
-                        <textarea id="auth-bio" rows="2" placeholder="Tell the squad about yourself..."></textarea>
-                    </div>
-                </div>
+let currentUser = null;
+let currentRoom = "global"; 
+let isInitialLoad = true; 
+let typingTimeout = null;
+let isMuted = false; 
+let isRegisterMode = false; 
+let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
-                <button id="main-auth-btn" onclick="handlePrimaryAuth()" class="cyber-action-btn">Log In</button>
-                
-                <div class="auth-switcher">
-                    <span id="switch-text">Need an account?</span> 
-                    <a href="#" id="switch-auth-link" onclick="toggleAuthMode(event)">Register</a>
-                </div>
+// 🛡️ ANTI-LAG & SPAM MEMORY VARIABLES
+let lastSentMessage = ""; 
+let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් ඩේටා Local එකේ තියාගන්නවා
 
-                <div class="auth-divider"><span>OR</span></div>
+const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
-                <button id="login-btn" onclick="loginWithGoogle()">
-                    <i class="fa-brands fa-google"></i> CONTINUE WITH GOOGLE
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reward-popup-modal" class="modal-overlay hidden">
-        <div class="modal-card reward-glow-box text-center">
-            <div class="animated-chest"><i class="fa-solid fa-gift fa-bounce"></i></div>
-            <h2 class="reward-title">REWARD UNLOCKED!</h2>
-            <p>You have accumulated 500+ Chat XP! Your legendary activity has granted you a rare profile decoration.</p>
-            <div class="reward-stat-preview">Current XP Resetting by -500 for Reward Node</div>
-            <button class="claim-reward-btn" onclick="claimAvatarDecoration()">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> CLAIM DECORATION NOW
-            </button>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-card neon-border-magenta">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-user-gear cyber-magenta-text"></i> EDIT MY PROFILE</h3>
-                <button class="close-modal-btn" onclick="toggleProfileModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>// AVATAR URL</label>
-                    <input type="text" id="profile-pic-input" placeholder="Image Link...">
-                </div>
-                <div class="form-group">
-                    <label>// ABOUT ME</label>
-                    <textarea id="profile-bio-input" rows="3" placeholder="Bio..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>// MAIN GAME</label>
-                    <select id="profile-game-input">
-                        <option value="Multi-Game Athlete">Multi-Game Athlete</option>
-                        <option value="Minecraft Builder">Minecraft Builder</option>
-                        <option value="Valorant Duelist">Valorant Duelist</option>
-                        <option value="Apex Champion">Apex Champion</option>
-                    </select>
-                </div>
-                <button class="save-profile-btn" onclick="saveUserProfile()">
-                    <i class="fa-solid fa-floppy-disk"></i> UPDATE PROFILE
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="settings-modal" class="modal-overlay hidden">
-        <div class="modal-card neon-border" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-sliders cyber-glow-text"></i> HQ APP SETTINGS</h3>
-                <button class="close-modal-btn" onclick="toggleSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-volume-high"></i> CHAT NOTIFICATION VOLUME</label>
-                    <div style="display:flex; align-items:center; gap:15px; margin-top:8px;">
-                        <input type="range" id="settings-volume" min="0" max="100" value="100" style="flex:1; accent-color:#00ffcc; cursor:pointer;">
-                        <span id="volume-value" style="font-family:'Orbitron'; font-size:0.9rem; color:#00ffcc; min-width:45px; text-align:right;">100%</span>
-                    </div>
-                </div>
-                
-                <div class="form-group" style="margin-top: 20px;">
-                    <label style="letter-spacing: 1px;"><i class="fa-solid fa-id-card"></i> CHANGE GAMERTAG</label>
-                    <input type="text" id="settings-username" placeholder="Enter new gamertag..." style="margin-top:8px;">
-                    <small id="name-cooldown-text" style="display:block; margin-top:6px; font-size:0.8rem; font-family:'Rajdhani'; color:#949ba4;"></small>
-                </div>
-                
-                <button class="save-profile-btn" onclick="saveAppSettings()" style="margin-top: 25px; background:linear-gradient(135deg, #00ffcc, #0055ff); color:#000; font-weight:bold;">
-                    <i class="fa-solid fa-square-check"></i> SAVE CONFIGURATION
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="user-card-modal" class="modal-overlay hidden">
-        <div class="modal-card user-view-card neon-border">
-            <div class="user-card-banner"></div>
-            <button class="close-card-btn" onclick="toggleUserCardModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="user-card-avatar-wrap">
-                <div class="deco-frame-container" id="view-card-deco-frame">
-                    <img id="view-card-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Gamer" alt="Gamer Avatar">
-                </div>
-            </div>
-            <div class="user-card-info">
-                <h3 id="view-card-name">GamerTag</h3>
-                <div class="user-card-badge" id="view-card-game">Multi-Game Athlete</div>
-                
-                <div class="user-card-section">
-                    <label>XP LEVEL BAR</label>
-                    <div class="xp-bar-container"><div id="view-card-xp-fill" class="xp-bar-fill" style="width: 0%;"></div></div>
-                    <span id="view-card-xp-text" style="font-size: 0.8rem; color:#949ba4;">0 / 500 XP</span>
-                </div>
-
-                <div class="user-card-section">
-                    <label>ABOUT ME</label>
-                    <p id="view-card-bio">No bio available.</p>
-                </div>
-
-                <button id="view-card-dm-btn" class="cyber-dm-btn">
-                    <i class="fa-solid fa-comments"></i> SEND PRIVATE MESSAGE
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="dashboard-container">
+// 👑 SOUND ENGINE WITH GLOBAL VOLUME SCALE
+function playIncomingSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-area">
-                    <i class="fa-solid fa-circle-nodes cyber-glow-text"></i>
-                    <span class="cyber-title-short">CraftMeet</span>
-                </div>
-            </div>
+        // Settings එකෙන් හදපු Volume එක මෙතනට බලපානවා
+        const calculatedVolume = 0.1 * appVolume;
+        
+        gainNode.gain.setValueAtTime(calculatedVolume, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(calculatedVolume > 0 ? 0.01 : 0, audioCtx.currentTime + 0.15);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15);
+    } catch (e) { console.log("Sound context notice:", e); }
+}
+
+// Auth Controls
+window.toggleAuthMode = function(e) {
+    if(e) e.preventDefault();
+    isRegisterMode = !isRegisterMode;
+    const title = document.getElementById('auth-title');
+    const subtitle = document.getElementById('auth-subtitle');
+    const mainBtn = document.getElementById('main-auth-btn');
+    const switchLink = document.getElementById('switch-auth-link');
+    const switchText = document.getElementById('switch-text');
+    const usernameGroup = document.getElementById('reg-username-group');
+    const regExtras = document.getElementById('reg-extras');
+
+    if (isRegisterMode) {
+        title.innerText = "CREATE AN ACCOUNT"; 
+        subtitle.innerText = "Join the ultimate Sri Lankan gaming hub today!";
+        mainBtn.innerText = "Register & Connect"; 
+        switchText.innerText = "Already have an account?"; 
+        switchLink.innerText = "Log In";
+        if(usernameGroup) usernameGroup.style.display = "block"; 
+        if(regExtras) regExtras.style.display = "block";
+    } else {
+        title.innerText = "WELCOME BACK!"; 
+        subtitle.innerText = "We're so excited to see you again!";
+        mainBtn.innerText = "Log In"; 
+        switchText.innerText = "Need an account?"; 
+        switchLink.innerText = "Register";
+        if(usernameGroup) usernameGroup.style.display = "none"; 
+        if(regExtras) regExtras.style.display = "none";
+    }
+}
+
+window.handlePrimaryAuth = function() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value.trim();
+    const avatar = document.getElementById('auth-avatar').value.trim();
+    const bio = document.getElementById('auth-bio').value.trim();
+
+    if (!email || !password) { alert("Please complete required fields."); return; }
+
+    if (isRegisterMode) {
+        if (!username) { alert("Please pick a unique Gamertag."); return; }
+        auth.createUserWithEmailAndPassword(email, password).then(credential => {
+            const user = credential.user;
+            const defaultAvatar = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
             
-            <div class="online-counter-box">
-                <span class="pulse-dot"></span>
-                <span class="counter-text">ONLINE USERS: <strong id="online-count">1</strong></span>
-            </div>
-            
-            <div class="menu-section">
-                <p class="section-title">// PUBLIC CHANNELS</p>
-                <ul class="room-list">
-                    <li class="room-item active" id="room-global" onclick="switchRoom('global')"><i class="fa-solid fa-headset"></i> <span>lobby-chat</span></li>
-                    <li class="room-item" id="room-minecraft" onclick="switchRoom('minecraft')"><i class="fa-solid fa-cube"></i> <span>minecraft-zone</span></li>
-                    <li class="room-item" id="room-valorant" onclick="switchRoom('valorant')"><i class="fa-solid fa-crosshairs"></i> <span>valorant-squad</span></li>
-                    <li class="room-item" id="room-apex" onclick="switchRoom('apex')"><i class="fa-solid fa-person-rifle"></i> <span>apex-legends</span></li>
-                </ul>
-            </div>
+            user.updateProfile({ displayName: username, photoURL: defaultAvatar }).then(() => {
+                db.ref(`users/${user.uid}`).set({
+                    name: username, profilePic: defaultAvatar, bio: bio || "Hey there! I am using CraftMeet.",
+                    gameSpecialty: "Multi-Game Athlete", xp: 0, currentDecoration: "none", decorationClaimedAt: 0,
+                    lastNameChange: 0 // Initialize name cooldown timestamp
+                }).then(() => { location.reload(); });
+            });
+        }).catch(err => alert("Registration Error: " + err.message));
+    } else {
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Auth Error: " + err.message));
+    }
+}
 
-            <div class="menu-section">
-                <p class="section-title">// DIRECT MESSAGES</p>
-                <ul class="room-list" id="private-rooms-list">
-                    <li class="no-dm-notice">No active DMs</li>
-                </ul>
-            </div>
+window.loginWithGoogle = function() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(err => alert("Google Auth Error: " + err.message));
+}
 
-            <div class="menu-section" style="padding: 0 15px; margin-top: auto; margin-bottom: 10px;">
-                <p class="section-title" style="margin-bottom: 5px;">// MY PROGRESSION</p>
-                <div class="xp-bar-container" style="height: 6px;"><div id="dashboard-xp-fill" class="xp-bar-fill" style="width: 0%; background: #00ffcc;"></div></div>
-                <span id="dashboard-xp-text" style="font-size: 0.75rem; color:#949ba4; display: block; margin-top: 4px;">0 / 500 XP</span>
-            </div>
+window.logout = function() {
+    if (currentUser) {
+        db.ref(`online_users/${currentUser.uid}`).remove();
+        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    }
+    auth.signOut().then(() => location.reload());
+}
 
-            <div class="user-profile-footer">
-                <div class="user-meta" onclick="toggleProfileModal()">
-                    <div class="deco-frame-container" id="user-footer-deco-frame">
-                        <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User" alt="Avatar">
+auth.onAuthStateChanged(user => {
+    const authScreen = document.getElementById('auth-screen');
+    const jitsiFrame = document.getElementById('jitsi-voice-frame');
+    
+    if (user) {
+        currentUser = user;
+        if (authScreen) authScreen.classList.add('hidden');
+        document.getElementById('user-display-name').innerText = user.displayName || "Gamer";
+        
+        syncUserProfileData(user);
+        setupOnlineCounter();
+        loadMessages(currentRoom);
+        listenToTyping(currentRoom);
+        initVoiceConference(currentRoom);
+        loadPrivateRoomsList();
+        setupScrollToBottomBtn();
+    } else {
+        currentUser = null;
+        if (authScreen) authScreen.classList.remove('hidden');
+        if (jitsiFrame) jitsiFrame.src = "";
+    }
+});
+
+// Profile & XP Engine
+function syncUserProfileData(user) {
+    db.ref(`users/${user.uid}`).on('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
+        localUserData = data;
+
+        // Border Expiration Check (7 Days)
+        if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
+            if (Date.now() - data.decorationClaimedAt > 7 * 24 * 60 * 60 * 1000) {
+                db.ref(`users/${user.uid}`).update({ currentDecoration: "none", decorationClaimedAt: 0 });
+                alert("⏰ Your avatar border decoration node has expired!");
+                return;
+            }
+        }
+
+        document.getElementById('user-avatar').src = data.profilePic || user.photoURL;
+        document.getElementById('user-specialty').innerHTML = `<span class="dot-neon"></span> ${data.gameSpecialty || 'Multi-Game Athlete'}`;
+        
+        // Footer Frame
+        const footerFrame = document.getElementById('user-footer-deco-frame');
+        if (footerFrame) {
+            footerFrame.className = "deco-frame-container";
+            if (data.currentDecoration && data.currentDecoration !== "none") {
+                footerFrame.classList.add(data.currentDecoration);
+            }
+        }
+
+        // Sidebar XP Progress
+        const userXp = data.xp || 0;
+        const barPercent = Math.min(100, (userXp / 500) * 100);
+        document.getElementById('dashboard-xp-fill').style.width = `${barPercent}%`;
+        document.getElementById('dashboard-xp-text').innerText = `${userXp} / 500 XP`;
+
+        // Reward Alert Trigger
+        const rewardModal = document.getElementById('reward-popup-modal');
+        if (rewardModal) {
+            if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
+                rewardModal.classList.remove('hidden');
+            } else {
+                rewardModal.classList.add('hidden');
+            }
+        }
+    });
+}
+
+window.toggleProfileModal = function() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+
+window.saveUserProfile = function() {
+    if (!currentUser) return;
+    db.ref(`users/${currentUser.uid}`).update({
+        profilePic: document.getElementById('profile-pic-input').value.trim() || currentUser.photoURL,
+        bio: document.getElementById('profile-bio-input').value.trim(),
+        gameSpecialty: document.getElementById('profile-game-input').value
+    }).then(() => toggleProfileModal());
+}
+
+window.claimAvatarDecoration = function() {
+    if (!currentUser) return;
+    const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
+    db.ref(`users/${currentUser.uid}`).transaction(currentData => {
+        if (currentData) {
+            currentData.xp = Math.max(0, (currentData.xp || 0) - 500);
+            currentData.currentDecoration = randomDeco;
+            currentData.decorationClaimedAt = Date.now();
+        }
+        return currentData;
+    }).then(() => {
+        document.getElementById('reward-popup-modal').classList.add('hidden');
+    });
+}
+
+// Profile Cards & DM Channels Logic
+window.toggleUserCardModal = function() { document.getElementById('user-card-modal').classList.toggle('hidden'); }
+
+window.viewUserProfileCard = function(targetUid) {
+    db.ref(`users/${targetUid}`).once('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        document.getElementById('view-card-avatar').src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
+        document.getElementById('view-card-name').innerText = data.name || 'Gamer';
+        document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
+        document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
+        
+        const userXp = data.xp || 0;
+        const barPercent = Math.min(100, (userXp / 500) * 100);
+        document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
+        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
+
+        const cardFrame = document.getElementById('view-card-deco-frame');
+        if (cardFrame) {
+            cardFrame.className = "deco-frame-container";
+            if (data.currentDecoration && data.currentDecoration !== "none") {
+                cardFrame.classList.add(data.currentDecoration);
+            }
+        }
+
+        const dmBtn = document.getElementById('view-card-dm-btn');
+        if (targetUid === currentUser.uid) {
+            dmBtn.style.display = "none";
+        } else {
+            dmBtn.style.display = "block";
+            dmBtn.onclick = function() {
+                toggleUserCardModal();
+                const dmRoomId = currentUser.uid < targetUid ? `dm_${currentUser.uid}_${targetUid}` : `dm_${targetUid}_${currentUser.uid}`;
+                db.ref(`users/${currentUser.uid}/active_dms/${dmRoomId}`).set({ roomName: data.name, targetId: targetUid });
+                db.ref(`users/${targetUid}/active_dms/${dmRoomId}`).set({ roomName: currentUser.displayName, targetId: currentUser.uid });
+                switchRoom(dmRoomId);
+            };
+        }
+        
+        const cardModal = document.getElementById('user-card-modal');
+        if (cardModal) cardModal.classList.remove('hidden');
+    });
+}
+
+function loadPrivateRoomsList() {
+    db.ref(`users/${currentUser.uid}/active_dms`).on('value', snapshot => {
+        const dmList = document.getElementById('private-rooms-list');
+        if (!dmList) return;
+        dmList.innerHTML = "";
+        
+        if (!snapshot.exists()) {
+            dmList.innerHTML = '<li class="no-dm-notice">No active DMs</li>';
+            return;
+        }
+        
+        snapshot.forEach(child => {
+            const roomId = child.key; const dmData = child.val();
+            const isActive = currentRoom === roomId ? 'active' : '';
+            dmList.innerHTML += `<li class="room-item ${isActive}" id="room-${roomId}" onclick="switchRoom('${roomId}')"><i class="fa-solid fa-comments"></i> <span>${dmData.roomName.toLowerCase()}</span></li>`;
+        });
+    });
+}
+
+// Chat Engine Core
+function setupOnlineCounter() {
+    db.ref(`.info/connected`).on('value', snap => {
+        if (snap.val() === false) return;
+        const myOnlineRef = db.ref(`online_users/${currentUser.uid}`);
+        myOnlineRef.set({ name: currentUser.displayName, active: true });
+        myOnlineRef.onDisconnect().remove();
+    });
+    db.ref(`online_users`).on('value', snap => {
+        document.getElementById('online-count').innerText = snap.numChildren() || 1;
+    });
+}
+
+window.handleTyping = function() {
+    if (!currentUser) return;
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).set({ name: currentUser.displayName, typing: true });
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => { db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove(); }, 2000);
+}
+
+function listenToTyping(roomName) {
+    db.ref(`typing/${roomName}`).on('value', snapshot => {
+        const typingBox = document.getElementById('typing-indicator');
+        if (!typingBox) return;
+
+        let typers = [];
+        snapshot.forEach(child => { if (child.key !== currentUser.uid) typers.push(child.val().name); });
+        
+        if (typers.length > 0) {
+            typingBox.innerHTML = `
+                <span>${typers.join(', ')} ${typers.length > 1 ? 'are' : 'is'} typing</span>
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            typingBox.style.opacity = "1";
+        } else {
+            typingBox.innerHTML = '';
+            typingBox.style.opacity = "0";
+        }
+    });
+}
+
+window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
+
+// ⚡ HIGH-SPEED & ANTI-SPAM SEND MESSAGE PROTOCOL
+window.sendMessage = function() {
+    const input = document.getElementById('message-input');
+    if (!input || !currentUser) return;
+    const text = input.value.trim();
+    if (text === "") return;
+
+    // 🛡️ SPAM CONTROL 1: එකම මැසේජ් එක පිට පිට යවනවා නම් බ්ලොක් කිරීම
+    if (text.toLowerCase() === lastSentMessage.toLowerCase()) {
+        alert("⚠️ Duplicate transmission detected! Repeating the same data will not grant XP.");
+        input.value = "";
+        return;
+    }
+
+    // 🛡️ SPAM CONTROL 2: එකම අකුර දිගටම ගහලා ද කියල Check කිරීම (උදා: "aaaaaaaaaa...")
+    if (text.length > 3 && /^([a-zA-Z0-9])\1+$/.test(text)) {
+        alert("⚠️ Character spam detected! Quality transmission required for XP.");
+        input.value = "";
+        return;
+    }
+
+    // ⚡ INSTANT WRITE Protocol: Database Read එකක් වෙනුවට Local data පාවිච්චි කර මැසේජ් එක Speed එකෙන් යවයි
+    const userData = localUserData || {};
+    const myAvatar = userData.profilePic || currentUser.photoURL;
+    const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
+
+    db.ref(`rooms/${currentRoom}`).push({ 
+        uid: currentUser.uid, 
+        sender: currentUser.displayName, 
+        message: text, 
+        timestamp: Date.now(),
+        senderAvatar: myAvatar,
+        senderSpecialty: mySpecialty
+    });
+
+    // XP ලබාදීම
+    db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    
+    // වර්තමාන මැසේජ් එක "අන්තිම මැසේජ් එක" විදිහට Save කරගැනීම
+    lastSentMessage = text;
+    input.value = "";
+}
+
+// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER (FIXED)
+function loadMessages(roomName) {
+    const chatDisplay = document.getElementById('chat-messages');
+    
+    // කලින් රූම් එකේ තිබ්බ Listeners ඔක්කොම අයින් කරලා Screen එක clear කරනවා
+    db.ref(`rooms/${roomName}`).off(); 
+    chatDisplay.innerHTML = "";
+    isInitialLoad = true;
+
+    // ⚡ Optimization 1: අන්තිම මැසේජ් 50 විතරක් සීමා කරනවා (limitToLast)
+    // ⚡ Optimization 2: 'child_added' මඟින් මුළු HTML එකම Reset කරන්නේ නැතිව අලුත් Node එක විතරක් DOM එකට Append කරයි
+    db.ref(`rooms/${roomName}`).limitToLast(50).on('child_added', snapshot => {
+        const msgId = snapshot.key; 
+        const data = snapshot.val(); 
+        if (!data) return;
+
+        const isOwn = data.uid === currentUser.uid;
+        const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const senderAvatar = data.senderAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.sender}`;
+        const deleteBtnHtml = isOwn ? `<button class="delete-msg-btn" onclick="deleteMessage('${roomName}', '${msgId}')" title="Delete Message" style="background:none; border:none; color:#ff0055; cursor:pointer; margin: 0 6px;"><i class="fa-solid fa-trash-can"></i></button>` : '';
+
+        const msgHtml = `
+            <div class="message-item ${isOwn ? 'own-msg' : ''}" id="msg-${msgId}">
+                <img src="${senderAvatar}" class="msg-avatar" onclick="viewUserProfileCard('${data.uid}')" alt="${data.sender}">
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-username" onclick="viewUserProfileCard('${data.uid}')">${isOwn ? 'You' : data.sender}</span>
+                        <span class="msg-timestamp">${timeStr}</span>
+                        ${deleteBtnHtml}
                     </div>
-                    <div class="user-details">
-                        <h4 id="user-display-name">Loading...</h4>
-                        <span id="user-specialty" class="status-tag"><span class="dot-neon"></span> Syncing...</span>
-                    </div>
-                </div>
-                <div class="profile-footer-actions">
-                    <button class="icon-logout-btn" onclick="toggleSettingsModal();" title="App Settings" style="background: #2b2d31; color: #00ffcc; margin-right: 5px;">
-                        <i class="fa-solid fa-gear"></i>
-                    </button>
-                    <button class="icon-logout-btn" onclick="logout();" title="Log Out">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
+                    <div class="msg-text">${data.message}</div>
                 </div>
             </div>
-        </aside>
+        `;
+        
+        chatDisplay.insertAdjacentHTML('beforeend', msgHtml);
 
-        <main class="chat-wrapper">
-            <div class="panel-header">
-                <div class="header-title">
-                    <i class="fa-solid fa-satellite-dish cyber-glow-text"></i>
-                    <h2 id="current-room-title" class="room-header-text">lobby-chat</h2>
-                </div>
-            </div>
-            
-            <div class="messages-display" id="chat-messages"></div>
-            
-            <div id="typing-indicator" class="typing-box hidden">
-                <span class="typing-glow-text"><i class="fa-solid fa-keyboard fa-fade"></i> <span id="typing-user">Someone</span> is transmitting data...</span>
-            </div>
+        // මුල්ම පාරට රූම් එක ලෝඩ් වෙද්දී Notification සවුන්ඩ් ප්ලේ වෙන එක නවත්වනවා
+        if (!isInitialLoad && !isOwn) {
+            playIncomingSound();
+        }
 
-            <div class="message-input-box">
-                <div class="input-container neon-border-soft">
-                    <input type="text" id="message-input" placeholder="Transmit data to channel..." onkeypress="checkEnter(event)" oninput="handleTyping()">
-                    <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </main>
+        // Auto Scroll to Bottom Logic
+        const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 300;
+        if (isInitialLoad || isUserAtBottom) {
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
+    });
 
-        <section class="right-panel">
-            <div class="voice-section-box">
-                <div class="panel-header" style="height:auto; padding:0; margin-bottom:10px; background:transparent; border:none;">
-                    <div class="header-title"><i class="fa-solid fa-microphone-lines cyber-glow-text"></i><h2 class="room-header-text">Tactical Comms</h2></div>
-                </div>
-                <div class="voice-status-container">
-                    <div class="voice-status-card">
-                        <div id="voice-pulse-node" class="voice-pulse-icon active-pulse">
-                            <i id="voice-status-icon" class="fa-solid fa-microphone"></i>
-                        </div>
-                        <h3 id="active-voice-channel">CONNECTED: lobby-chat</h3>
-                        
-                        <button id="comms-mute-btn" class="comms-mute-btn unmuted" onclick="toggleVoiceMute()">
-                            <i id="mute-btn-icon" class="fa-solid fa-microphone-lines"></i> <span id="mute-btn-text">MUTE MIC</span>
-                        </button>
+    // මුල්ම මැසේජ් 50 එකපාර ලෝඩ් වෙලා ඉවර වුන ගමන් initial load එක false කරනවා
+    db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
+        isInitialLoad = false;
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    });
 
-                        <p id="voice-status-desc">Voice link fully operational. Transmission is currently LIVE.</p>
-                    </div>
-                    <iframe id="jitsi-voice-frame" allow="microphone; camera; display-capture; autoplay" class="hidden-voice-frame"></iframe>
-                </div>
-            </div>
+    // ⚡ REALTIME DELETE LISTENER: වෙන කෙනෙක් මැසේජ් එකක් ඩිලීට් කලොත් Screen එකෙන් ක්ෂණිකව අයින් වෙන්න
+    db.ref(`rooms/${roomName}`).on('child_removed', snapshot => {
+        const deletedMsgId = snapshot.key;
+        const msgElement = document.getElementById(`msg-${deletedMsgId}`);
+        if (msgElement) msgElement.remove();
+    });
+}
 
-            <div class="streamers-hub-box neon-border" style="margin-bottom: 20px; background: #111214; border: 1px solid rgba(0, 255, 204, 0.2); padding: 15px; border-radius: 8px;">
-                <div class="panel-header" style="height:auto; padding:0; margin-bottom:12px; background:transparent; border:none;">
-                    <div class="header-title">
-                        <i class="fa-solid fa-code-branch fa-spin-pulse" style="color: #00ffcc;"></i>
-                        <h2 class="room-header-text" style="font-family: 'Orbitron'; font-size: 0.85rem; letter-spacing: 1px; color: #00ffcc;">CORE ARCHITECT PROTOCOL</h2>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px; font-family: 'Rajdhani';">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=kaveeya" style="width: 55px; height: 55px; border: 2px solid #00ffcc; border-radius: 50%; padding: 3px; background: #1e1f22; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);" alt="Dev Avatar">
-                    <div style="flex: 1;">
-                        <h4 style="font-family: 'Orbitron'; color: #fff; font-size: 1.1rem; margin: 0; letter-spacing: 0.5px;">Mr_kaveeya_bro</h4>
-                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; margin: 2px 0 6px 0; line-height: 1.3;">Framework Lead & Core System Admin.</p>
-                        <button onclick="copyDevDiscord()" style="background: rgba(88, 101, 242, 0.1); border: 1px solid #5865F2; color: #5865F2; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='#5865F2'; this.style.color='#fff'" onmouseout="this.style.background='rgba(88, 101, 242, 0.1)'; this.style.color='#5865F2'">
-                            <i class="fa-brands fa-discord"></i> <span id="dev-discord-name">Discord Contact</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+// 👑 OPTIMIZED DELETE FUNCTION (REALTIME DOM REMOVAL)
+window.deleteMessage = function(roomName, msgId) {
+    if (confirm("Are you sure you want to delete this transmission from orbit?")) {
+        db.ref(`rooms/${roomName}/${msgId}`).remove().then(() => {
+            const msgElement = document.getElementById(`msg-${msgId}`);
+            if (msgElement) msgElement.remove();
+        }).catch(err => alert("Error deleting transmission: " + err.message));
+    }
+}
 
-            <div class="streamers-hub-box">
-                <div class="hub-header">
-                    <h3><i class="fa-solid fa-play cyber-magenta-text"></i> SL STREAMERS HUB</h3>
-                </div>
-                <div class="hub-content">
-                    <div class="game-yt-box">
-                        <h4>// APEX LEGENDS</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('maxruchira')"><i class="fa-brands fa-youtube"></i> maxruchira</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                        </div>
-                    </div>
+window.switchRoom = function(roomName) {
+    if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    
+    // පරණ රූම් එකේ child_removed listeners අයින් කරනවා ඩියුප්ලිකේට් නොවෙන්න
+    db.ref(`rooms/${currentRoom}`).off();
+    
+    currentRoom = roomName;
+    isInitialLoad = true;
 
-                    <div class="game-yt-box">
-                        <h4>// VALORANT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('max ruchira')"><i class="fa-brands fa-youtube"></i> max ruchira</button>
-                        </div>
-                    </div>
+    document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+    const targetedLi = document.getElementById(`room-${roomName}`);
+    if (targetedLi) targetedLi.classList.add('active');
 
-                    <div class="game-yt-box">
-                        <h4>// MINECRAFT</h4>
-                        <div class="yt-buttons-grid">
-                            <button onclick="searchYT('Mr kaveeya bro')"><i class="fa-brands fa-youtube"></i> Mr kaveeya bro</button>
-                            <button onclick="searchYT('kadiya gaming')"><i class="fa-brands fa-youtube"></i> kadiya gaming</button>
-                            <button onclick="searchYT('slash cat')"><i class="fa-brands fa-youtube"></i> slash cat</button>
-                            <button onclick="searchYT('nira')"><i class="fa-brands fa-youtube"></i> nira</button>
-                            <button onclick="searchYT('lazy bird')"><i class="fa-brands fa-youtube"></i> lazy bird</button>
-                            <button onclick="searchYT('ken lk')"><i class="fa-brands fa-youtube"></i> ken lk</button>
-                        </div>
-                    </div>
+    const visualTitle = roomName.startsWith('dm_') ? "secure-private-comms" : roomName + "-zone";
+    document.getElementById('current-room-title').innerText = visualTitle;
+    document.getElementById('active-voice-channel').innerText = `CONNECTED: ${visualTitle.toUpperCase()}`;
 
-                    <div class="membership-promo-box">
-                        <h5><i class="fa-solid fa-gem animated-glow"></i> WANT TO ADD YOUR CHANNEL?</h5>
-                        <p>Unlock promotional spaces & add unlimited custom channels to this dashboard Grid.</p>
-                        <button class="buy-membership-btn" onclick="triggerMembershipAlert()">
-                            <i class="fa-solid fa-cart-shopping"></i> GET MEMBERSHIP — $2 / MO
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+    loadMessages(roomName); listenToTyping(roomName); initVoiceConference(roomName);
+}
 
-    </div>
+window.toggleVoiceMute = function() {
+    isMuted = !isMuted;
+    const muteBtn = document.getElementById('comms-mute-btn');
+    const btnIcon = document.getElementById('mute-btn-icon');
+    const btnText = document.getElementById('mute-btn-text');
+    const pulseNode = document.getElementById('voice-pulse-node');
+    const statusDesc = document.getElementById('voice-status-desc');
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+    if (isMuted) {
+        if(muteBtn) muteBtn.className = "comms-mute-btn muted";
+        if(btnIcon) btnIcon.className = "fa-solid fa-microphone-lines-slash";
+        if(btnText) btnText.innerText = "UNMUTE MIC";
+        if(pulseNode) pulseNode.className = "voice-pulse-icon muted-pulse";
+        if(statusDesc) statusDesc.innerText = "Microphone transmission locked.";
+    } else {
+        if(muteBtn) muteBtn.className = "comms-mute-btn unmuted";
+        if(btnIcon) btnIcon.className = "fa-solid fa-microphone-lines";
+        if(btnText) btnText.innerText = "MUTE MIC";
+        if(pulseNode) pulseNode.className = "voice-pulse-icon active-pulse";
+        if(statusDesc) statusDesc.innerText = "Voice link fully operational. LIVE.";
+    }
+    initVoiceConference(currentRoom);
+}
+
+function initVoiceConference(roomName) {
+    if (!currentUser) return;
+    const voiceFrame = document.getElementById('jitsi-voice-frame');
+    if (voiceFrame) voiceFrame.src = `https://meet.jit.si/${firebaseConfig.projectId}_voice_${roomName}#userInfo.displayName="${currentUser.displayName}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${isMuted}`;
+}
+
+window.searchYT = function(channel) {
+    if (!channel || channel.trim() === "") {
+        console.error("Streamer හෝ Channel නම ලැබී නැත!");
+        return;
+    }
+    const query = encodeURIComponent(channel.trim());
+    const ytUrl = `https://www.youtube.com/results?search_query=${query}`;
+    
+    const createAnchor = document.createElement('a');
+    createAnchor.href = ytUrl;
+    createAnchor.target = '_blank';
+    createAnchor.rel = 'noopener noreferrer';
+    createAnchor.click();
+}
+
+window.triggerMembershipAlert = function() { alert("⚡ Upgrade to Membership Grid to add custom channels — $2/Mo"); }
+
+function setupScrollToBottomBtn() {
+    const chatDisplay = document.getElementById('chat-messages');
+    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+    
+    if (!chatDisplay || !scrollBtn) return;
+
+    chatDisplay.addEventListener('scroll', () => {
+        const totalScrollableHeight = chatDisplay.scrollHeight - chatDisplay.clientHeight;
+        if (totalScrollableHeight - chatDisplay.scrollTop > 200) {
+            scrollBtn.classList.add('show');
+        } else {
+            scrollBtn.classList.remove('show');
+        }
+    });
+
+    scrollBtn.onclick = function() {
+        chatDisplay.scrollTo({
+            top: chatDisplay.scrollHeight,
+            behavior: 'smooth'
+        });
+    };
+}
+
+// 👑 APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
+window.toggleSettingsModal = function() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    
+    modal.classList.toggle('hidden');
+    
+    if (!modal.classList.contains('hidden') && currentUser) {
+        document.getElementById('settings-username').value = currentUser.displayName || "";
+        document.getElementById('settings-volume').value = appVolume * 100;
+        document.getElementById('volume-value').innerText = Math.round(appVolume * 100) + "%";
+        
+        document.getElementById('settings-volume').oninput = function() {
+            document.getElementById('volume-value').innerText = this.value + "%";
+        };
+
+        // Check 3 Days Cooldown Condition
+        db.ref(`users/${currentUser.uid}/lastNameChange`).once('value', snapshot => {
+            const lastChange = snapshot.val() || 0;
+            const cooldownMS = 3 * 24 * 60 * 60 * 1000; // 3 Days in milliseconds
+            const timePassed = Date.now() - lastChange;
+
+            const inputField = document.getElementById('settings-username');
+            const cooldownText = document.getElementById('name-cooldown-text');
+
+            if (timePassed < cooldownMS) {
+                const timeLeft = cooldownMS - timePassed;
+                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                inputField.disabled = true;
+                cooldownText.innerHTML = `⏳ SYSTEM LOCKED: You can update gamertag again in <strong style="color:#ff0055;">${daysLeft}d ${hoursLeft}h</strong>.`;
+            } else {
+                inputField.disabled = false;
+                cooldownText.innerText = "✅ SYSTEM READY: Gamertag transition authorized.";
+                cooldownText.style.color = "#00ffcc";
+            }
+        });
+    }
+}
+
+window.saveAppSettings = function() {
+    if (!currentUser) return;
+
+    const newVolume = parseInt(document.getElementById('settings-volume').value) / 100;
+    const newName = document.getElementById('settings-username').value.trim();
+    const inputField = document.getElementById('settings-username');
+
+    // Save Volume
+    appVolume = newVolume;
+
+    // Save Username changes if not disabled/cooldown active
+    if (!inputField.disabled && newName && newName !== currentUser.displayName) {
+        currentUser.updateProfile({ displayName: newName }).then(() => {
+            const updates = {};
+            updates[`users/${currentUser.uid}/name`] = newName;
+            updates[`users/${currentUser.uid}/lastNameChange`] = Date.now();
+            updates[`online_users/${currentUser.uid}/name`] = newName;
+
+            db.ref().update(updates).then(() => {
+                alert("🎯 Terminal protocol updated! Gamertag successfully changed.");
+                location.reload();
+            });
+        }).catch(err => alert("Error updating gamertag: " + err.message));
+    } else {
+        toggleSettingsModal(); // Just close modal if volume was adjusted or name unchanged
+    }
+}
+
+// Emoji Injected Generator & Dynamic Typing Event Listener
+document.addEventListener('DOMContentLoaded', () => {
+    const inputContainer = document.querySelector('.input-container');
+    const inputField = document.getElementById('message-input');
+    
+    if (inputField) {
+        inputField.addEventListener('input', handleTyping);
+    }
+
+    if (typeof EmojiButton !== 'undefined' && inputContainer && inputField) {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.style = "background:none; border:none; color:#949ba4; cursor:pointer; font-size:1.1rem; padding:0 8px;";
+        btn.innerHTML = `<i class="fa-regular fa-face-smile"></i>`;
+        inputContainer.insertBefore(btn, inputContainer.lastElementChild);
+
+        const picker = new EmojiButton({ theme: 'dark', autoHide: true, position: 'top-start' });
+        picker.on('emoji', sel => { inputField.value += sel.emoji; inputField.focus(); });
+        btn.addEventListener('click', () => picker.togglePicker(btn));
+    }
+});
+
+// ==========================================
+// 👑 DEVELOPER DISCORD COPIER PROTOCOL
+// ==========================================
+window.copyDevDiscord = function() {
+    const discordName = "Mr_kaveeya_bro";
+    navigator.clipboard.writeText(discordName).then(() => {
+        const btnText = document.getElementById("dev-discord-name");
+        
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
+        
+        // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
+        setTimeout(() => {
+            btnText.innerHTML = "Discord Contact";
+        }, 2000);
+    }).catch(err => console.log("Copy error:", err));
+}
