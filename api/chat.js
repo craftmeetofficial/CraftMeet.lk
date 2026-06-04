@@ -19,12 +19,12 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        // 🛡️ Vercel Environment Variables වලින් රහස් කී එක ඇදලා ගැනීම (GitHub එකට අහුවෙන්නේ නැහැ)
+        // 🛡️ Vercel Environment Variables වලින් රහස් කී එක ඇදලා ගැනීම
         const apiKey = process.env.OPENROUTER_KEY;
         
         if (!apiKey) {
             console.error("Missing OPENROUTER_KEY in Vercel Environment Variables!");
-            return res.status(500).json({ error: true, reply: "🤖 CraftMeet AI: System key missing in Vercel Matrix!" });
+            return res.status(500).json({ error: true, reply: "🤖 CraftMeet AI: OPENROUTER_KEY missing in Vercel Matrix!" });
         }
 
         // CraftMeet AI Character Rules
@@ -35,13 +35,17 @@ export default async function handler(req, res) {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`, // මෙතනට Vercel එකේ කී එක ලස්සනට සෙට් වෙනවා
+                "Authorization": `Bearer ${apiKey}`,
                 "HTTP-Referer": "https://craftmeet.vercel.app", 
                 "X-Title": "CraftMeet AI",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.2-3b-instruct:free", 
+                // 🚀 මෝඩල්ස් 2ක් ලිස්ට් කරනවා. පළමු එක බ්ලොක් හෝ ලැග් වුණොත් දෙවැනි එකෙන් ඔටෝම රිප්ලයි එක දෙනවා!
+                models: [
+                    "google/gemini-2.5-flash:free",
+                    "meta-llama/llama-3.2-3b-instruct:free"
+                ], 
                 messages: [{ role: "user", content: fullPrompt }]
             })
         });
@@ -49,7 +53,7 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const errText = await response.text();
             console.error("AI API Error Details:", errText);
-            throw new Error("AI core dropped packet");
+            throw new Error(`AI core dropped packet with status ${response.status}`);
         }
 
         const data = await response.json();
@@ -59,6 +63,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Server Error:", error);
-        return res.status(500).json({ error: true, reply: "🤖 CraftMeet AI: Core dropped packet inside server grid!" });
+        return res.status(500).json({ error: true, reply: `🤖 CraftMeet AI: Core dropped packet inside server grid! (${error.message})` });
     }
 }
