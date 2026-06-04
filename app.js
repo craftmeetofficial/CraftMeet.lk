@@ -678,7 +678,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
@@ -723,40 +723,37 @@ function listenToXPLeaderboard() {
             return;
         }
 
-        // Gamers ලා 5 දෙනා ලස්សන UI එකකට Render කිරීම
+        // Gamers ලා 5 දෙනා ලස්සන UI එකකට Render කිරීම
         gamers.forEach((gamer, index) => {
             const rank = index + 1;
             
             // පළවෙනි 3 දෙනාට විශේෂ Medals/Crowns ලබාදීම
             let rankBadge = '';
-            if (rank === 1) rankBadge = `<i class="fa-solid fa-crown" style="color: #e5c158; font-size:0.85rem;"></i>`;
-            else if (rank === 2) rankBadge = `<i class="fa-solid fa-medal" style="color: #a1a1a1; font-size:0.85rem;"></i>`;
-            else if (rank === 3) rankBadge = `<i class="fa-solid fa-medal" style="color: #b97a56; font-size:0.85rem;"></i>`;
-            else rankBadge = `<span style="color: #949ba4; font-weight: bold; font-size:0.85rem;">#${rank}</span>`;
+            if (rank === 1) rankBadge = `<span style="color: #ffcc00; font-size: 1.1rem; margin-right: 5px;">👑</span>`;
+            else if (rank === 2) rankBadge = `<span style="color: #cccccc; font-size: 1rem; margin-right: 5px;">🥈</span>`;
+            else if (rank === 3) rankBadge = `<span style="color: #cd7f32; font-size: 1rem; margin-right: 5px;">🥉</span>`;
+            else rankBadge = `<span style="color: #949ba4; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; margin-right: 10px; width: 15px; display: inline-block; text-align: center;">#${rank}</span>`;
 
-            // Decoration Check
-            let decoClass = gamer.decoration !== 'none' ? gamer.decoration : '';
-            if (gamer.xp >= 500) decoClass = 'neon-legendary-border';
+            // Border CSS class හැදීම
+            let borderClass = gamer.decoration !== 'none' ? gamer.decoration : '';
+            if (gamer.xp >= 500) borderClass = 'neon-legendary-border';
 
-            const itemHtml = `
-                <li style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); font-family: 'Rajdhani', sans-serif;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 22px; text-align: center; display: flex; align-items: center; justify-content: center;">${rankBadge}</div>
-                        <div class="deco-frame-container ${decoClass}" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                            <img src="${gamer.avatar}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">
-                        </div>
-                        <span style="color: #fff; font-weight: 600; font-size: 0.9rem; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">${gamer.name}</span>
+            leaderboardList.innerHTML += `
+                <li style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 5px; border-left: 2px solid ${rank === 1 ? '#ffcc00' : 'transparent'};">
+                    <div style="display: flex; align-items: center;">
+                        ${rankBadge}
+                        <img src="${gamer.avatar}" class="${borderClass}" style="width: 28px; height: 28px; border-radius: 50%; margin-right: 8px; background: #2b2d31;" onclick="viewUserProfileCard('${gamer.uid}')">
+                        <span style="color: #f2f3f5; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">${gamer.name}</span>
                     </div>
-                    <span style="color: #00ffcc; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700;">${gamer.xp} XP</span>
+                    <span style="color: #00ffcc; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.85rem;">${gamer.xp} XP</span>
                 </li>
             `;
-            leaderboardList.insertAdjacentHTML('beforeend', itemHtml);
         });
     });
 }
 
 // ==========================================
-// 🤖 👑 CRAFTMEET AI CHAT BOX INTERACTION LOGIC
+// 🤖 👑 CRAFTMEET SMART MATRIX BOT (API-FREE)
 // ==========================================
 window.sendAMessageToAIBox = function() {
     const aiInput = document.getElementById('ai-box-input');
@@ -766,20 +763,48 @@ window.sendAMessageToAIBox = function() {
     const userPrompt = aiInput.value.trim();
     if (userPrompt === "") return;
 
-    // User ගහපු මැසේජ් එක AI Box එක ඇතුලේ පෙන්වීම
-    aiDisplay.innerHTML += `<div style="color: #fff; margin-bottom: 4px;"><strong style="color: #00ffcc;">You:</strong> ${userPrompt}</div>`;
+    // 1. User ගේ මැසේජ් එක චැට් එකේ පෙන්වීම
+    aiDisplay.innerHTML += `<div style="color: #fff; margin-bottom: 6px;"><strong style="color: #00ffcc;">You:</strong> ${userPrompt}</div>`;
     aiInput.value = "";
     aiDisplay.scrollTop = aiDisplay.scrollHeight;
 
-    // AI Response එක (මොනවා ඇහුවත් මේක Free/Offline නිසා static රිප්ලයි එකක් දෙනවා)
+    // Bot Response එක process කිරීම
     setTimeout(() => {
+        let botResponse = "";
+        const lowerPrompt = userPrompt.toLowerCase();
+
+        // 🧠 SMART RESPONSE LOGIC
+        if (lowerPrompt.includes("hello") || lowerPrompt.includes("hi") || lowerPrompt.includes("මචං")) {
+            botResponse = "👋 Addo! Welcome to <b>CraftMeet Gaming Hub</b>. How can I assist your gaming session today? Type <span style='color:#00ffcc;'>!menu</span> to see what I can do!";
+        } 
+        else if (lowerPrompt === "!menu" || lowerPrompt.includes("help") || lowerPrompt.includes("උදව්")) {
+            botResponse = "🎮 <b>Matrix Bot Terminal Menu:</b><br>🔹 <b>!rules</b> - Server Rules<br>🔹 <b>!xp</b> - XP & Level System<br>🔹 <b>!rank</b> - How to check leaderboard<br>🔹 <b>!dev</b> - Contact Creator";
+        } 
+        else if (lowerPrompt === "!rules") {
+            botResponse = "📜 <b>CraftMeet Rules of Engagement:</b><br>1. No spamming or duplicate messages.<br>2. Respect fellow Sri Lankan gamers.<br>3. Character spamming is blocked by anti-lag protocol.";
+        } 
+        else if (lowerPrompt === "!xp") {
+            botResponse = "⚡ <b>XP Matrix Engine:</b><br>• Short texts = +6 XP<br>• Long texts (>25 chars) = +12 XP<br>• Reach <span style='color:#e5c158;'>500 XP</span> to instantly trigger the <b>Neon Legendary Border</b> reward!";
+        } 
+        else if (lowerPrompt === "!rank") {
+            botResponse = "🏆 <b>Realtime Leaderboard:</b> Check the sidebar! The top 5 gamers with the highest XP are ranked live with special Crowns and Medals.";
+        } 
+        else if (lowerPrompt === "!dev") {
+            botResponse = "👑 <b>Developer Node:</b> This platform is coded by <span style='color:#00ffcc;'>Mr_kaveeya_bro</span>. Use the Developer Portal modal to copy the official Discord contact tag.";
+        } 
+        else {
+            // Default Fallback Message
+            botResponse = "🤖 <b>Matrix Bot Status:</b> Command not recognized. I am currently operating on a localized script node. Type <span style='color:#00ffcc;'>!menu</span> to view authorized protocols.";
+        }
+
+        // 2. බොට්ගේ පිළිතුර Screen එකේ පෙන්වීම
         aiDisplay.innerHTML += `
-            <div style="color: #949ba4; margin-bottom: 4px; line-height: 1.3;">
-                <strong style="color: #ff0055;">🤖 CraftMeet AI:</strong> I am currently running on an <span style="color:#ff0055; font-weight:700;">OFFLINE MATRIX NODE</span>. Online AI responses require a Cloud API Key Subscription. Contact <span style="color:#00ffcc;">Mr_kaveeya_bro</span> to upgrade core infrastructure.
+            <div style="color: #949ba4; margin-bottom: 8px; line-height: 1.3;">
+                <strong style="color: #ff0055;">🤖 CraftMeet AI:</strong> ${botResponse}
             </div>
         `;
         aiDisplay.scrollTop = aiDisplay.scrollHeight;
-    }, 600);
+    }, 500);
 }
 
 window.checkAIBoxEnter = function(e) {
