@@ -161,7 +161,7 @@ function syncUserProfileData(user) {
         const data = snapshot.val();
         if (!data) return;
 
-        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
+        // ⚡ Fast Send කරන්න ඩේටา ටික Memory එකට ගන්නවා (Anti-Lag)
         localUserData = data;
 
         // Border Expiration Check (7 Days)
@@ -723,33 +723,67 @@ function listenToXPLeaderboard() {
             return;
         }
 
-        // Gamers ලා 5 දෙනා ලස්සන UI එකකට Render කිරීම
+        // Gamers ලා 5 දෙනා ලස්សන UI එකකට Render කිරීම
         gamers.forEach((gamer, index) => {
             const rank = index + 1;
             
             // පළවෙනි 3 දෙනාට විශේෂ Medals/Crowns ලබාදීම
             let rankBadge = '';
-            if (rank === 1) rankBadge = '<i class="fa-solid fa-crown" style="color: #e5c158; font-size: 0.9rem;"></i> ';
-            else if (rank === 2) rankBadge = '<i class="fa-solid fa-medal" style="color: #b4b4b4;"></i> ';
-            else if (rank === 3) rankBadge = '<i class="fa-solid fa-medal" style="color: #cd7f32;"></i> ';
-            else rankBadge = `<span style="color: #6c727e; font-weight: 700; width: 14px; display: inline-block;">#${rank}</span> `;
+            if (rank === 1) rankBadge = `<i class="fa-solid fa-crown" style="color: #e5c158; font-size:0.85rem;"></i>`;
+            else if (rank === 2) rankBadge = `<i class="fa-solid fa-medal" style="color: #a1a1a1; font-size:0.85rem;"></i>`;
+            else if (rank === 3) rankBadge = `<i class="fa-solid fa-medal" style="color: #b97a56; font-size:0.85rem;"></i>`;
+            else rankBadge = `<span style="color: #949ba4; font-weight: bold; font-size:0.85rem;">#${rank}</span>`;
 
-            // යූසර්ට Border එකක් ඇත්නම් ඒක ලීඩර්බෝඩ් එකෙත් ලස්සනට පෙන්වන්න
-            const hasBorder = (gamer.xp >= 500 || gamer.decoration === "neon-legendary-border") ? 'border: 1px solid #00ffcc; box-shadow: 0 0 5px #00ffcc;' : 'border: 1px solid rgba(255,255,255,0.1);';
+            // Decoration Check
+            let decoClass = gamer.decoration !== 'none' ? gamer.decoration : '';
+            if (gamer.xp >= 500) decoClass = 'neon-legendary-border';
 
-            const gamerRowHtml = `
-                <li onclick="viewUserProfileCard('${gamer.uid}')" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 6px; border-left: 3px solid ${rank === 1 ? '#e5c158' : '#00ffcc'}; cursor: pointer; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.transform='translateX(4px)';" onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.transform='translateX(0)';">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        ${rankBadge}
-                        <img src="${gamer.avatar}" alt="${gamer.name}" style="width: 26px; height: 26px; border-radius: 50%; ${hasBorder} object-fit: cover;">
-                        <span style="font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #fff; font-size: 0.9rem; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gamer.name}</span>
+            const itemHtml = `
+                <li style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); font-family: 'Rajdhani', sans-serif;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 22px; text-align: center; display: flex; align-items: center; justify-content: center;">${rankBadge}</div>
+                        <div class="deco-frame-container ${decoClass}" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            <img src="${gamer.avatar}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">
+                        </div>
+                        <span style="color: #fff; font-weight: 600; font-size: 0.9rem; cursor: pointer;" onclick="viewUserProfileCard('${gamer.uid}')">${gamer.name}</span>
                     </div>
-                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #00ffcc; font-weight: 700; background: rgba(0, 255, 204, 0.1); padding: 2px 6px; border-radius: 4px;">
-                        ${gamer.xp} <span style="font-size: 0.6rem; color: #949ba4;">XP</span>
-                    </div>
+                    <span style="color: #00ffcc; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700;">${gamer.xp} XP</span>
                 </li>
             `;
-            leaderboardList.insertAdjacentHTML('beforeend', gamerRowHtml);
+            leaderboardList.insertAdjacentHTML('beforeend', itemHtml);
         });
     });
+}
+
+// ==========================================
+// 🤖 👑 CRAFTMEET AI CHAT BOX INTERACTION LOGIC
+// ==========================================
+window.sendAMessageToAIBox = function() {
+    const aiInput = document.getElementById('ai-box-input');
+    const aiDisplay = document.getElementById('ai-box-messages');
+    if (!aiInput || !aiDisplay) return;
+
+    const userPrompt = aiInput.value.trim();
+    if (userPrompt === "") return;
+
+    // User ගහපු මැසේජ් එක AI Box එක ඇතුලේ පෙන්වීම
+    aiDisplay.innerHTML += `<div style="color: #fff; margin-bottom: 4px;"><strong style="color: #00ffcc;">You:</strong> ${userPrompt}</div>`;
+    aiInput.value = "";
+    aiDisplay.scrollTop = aiDisplay.scrollHeight;
+
+    // AI Response එක (මොනවා ඇහුවත් මේක Free/Offline නිසා static රිප්ලයි එකක් දෙනවා)
+    setTimeout(() => {
+        aiDisplay.innerHTML += `
+            <div style="color: #949ba4; margin-bottom: 4px; line-height: 1.3;">
+                <strong style="color: #ff0055;">🤖 CraftMeet AI:</strong> I am currently running on an <span style="color:#ff0055; font-weight:700;">OFFLINE MATRIX NODE</span>. Online AI responses require a Cloud API Key Subscription. Contact <span style="color:#00ffcc;">Mr_kaveeya_bro</span> to upgrade core infrastructure.
+            </div>
+        `;
+        aiDisplay.scrollTop = aiDisplay.scrollHeight;
+    }, 600);
+}
+
+window.checkAIBoxEnter = function(e) {
+    if (e.key === 'Enter') {
+        sendAMessageToAIBox();
+    }
 }
