@@ -154,7 +154,7 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// Profile & XP Engine
+// Profile & XP Engine (🔥 AI UPDATED)
 function syncUserProfileData(user) {
     db.ref(`users/${user.uid}`).on('value', snapshot => {
         const data = snapshot.val();
@@ -194,6 +194,16 @@ function syncUserProfileData(user) {
         
         if (xpFillEl) xpFillEl.style.width = `${barPercent}%`;
         if (xpTextEl) xpTextEl.innerText = `${userXp} / 500 XP`;
+
+        // 👑 AI FIXED: XP 500ට සමාන හෝ වැඩි නම් Claim නොකරත් Border එක Auto පෙන්වන කොටස
+        const userAvatarEl = document.getElementById('user-avatar');
+        if (userAvatarEl) {
+            if (userXp >= 500 || (data.currentDecoration && data.currentDecoration === "neon-legendary-border")) {
+                userAvatarEl.classList.add('neon-legendary-border');
+            } else {
+                userAvatarEl.classList.remove('neon-legendary-border');
+            }
+        }
 
         // Reward Alert Trigger (XP 500 සම්පූර්ණ වුණාම විතරක් පෙන්වන්න)
         const rewardModal = document.getElementById('reward-popup-modal');
@@ -250,15 +260,24 @@ window.viewUserProfileCard = function(targetUid) {
         const data = snapshot.val();
         if (!data) return;
 
-        document.getElementById('view-card-avatar').src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
+        const viewCardAvatar = document.getElementById('view-card-avatar');
+        viewCardAvatar.src = data.profilePic || `https://api.dicebear.com/7.x/bottts/svg?seed=${data.name}`;
+        
+        // 👑 AI FIXED: අනිත් අය ඔයාගේ Profile එක බලද්දිත් ඔයාට XP 500+ නම් Border එක ලස්සනට පේන්න හැදුවා
+        const targetXp = data.xp || 0;
+        if (targetXp >= 500 || (data.currentDecoration && data.currentDecoration === "neon-legendary-border")) {
+            viewCardAvatar.classList.add('neon-legendary-border');
+        } else {
+            viewCardAvatar.classList.remove('neon-legendary-border');
+        }
+
         document.getElementById('view-card-name').innerText = data.name || 'Gamer';
         document.getElementById('view-card-game').innerText = data.gameSpecialty || 'Multi-Game Athlete';
         document.getElementById('view-card-bio').innerText = data.bio || 'No bio available.';
         
-        const userXp = data.xp || 0;
-        const barPercent = Math.min(100, (userXp / 500) * 100);
+        const barPercent = Math.min(100, (targetXp / 500) * 100);
         document.getElementById('view-card-xp-fill').style.width = `${barPercent}%`;
-        document.getElementById('view-card-xp-text').innerText = `${userXp} / 500 XP`;
+        document.getElementById('view-card-xp-text').innerText = `${targetXp} / 500 XP`;
 
         const cardFrame = document.getElementById('view-card-deco-frame');
         if (cardFrame) {
@@ -658,7 +677,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
