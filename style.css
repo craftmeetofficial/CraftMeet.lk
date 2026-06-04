@@ -17,7 +17,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* පරණ Rajdhani වෙනුවට වඩාත් පිරිසිදු Inter ෆොන්ට් එක දැම්මා */
     font-family: 'Inter', sans-serif;
 }
 
@@ -48,7 +47,6 @@ body {
    2. TEXT GLOWS & CYBERPUNK EFFECTS
    ========================================================================== */
 .cyber-title {
-    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
     font-family: 'Krona One', sans-serif;
     font-weight: 900;
     letter-spacing: 2px;
@@ -57,7 +55,6 @@ body {
 }
 
 .cyber-title-short {
-    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
     font-family: 'Krona One', sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
@@ -185,7 +182,7 @@ body {
     letter-spacing: 1px;
     transition: all 0.25s ease;
     margin-top: 5px;
-    font-family: 'Krona One', sans-serif; /* Button එක වඩාත් කැපී පෙනෙන්න Krona One දැම්මා */
+    font-family: 'Krona One', sans-serif;
 }
 .cyber-action-btn:hover {
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
@@ -235,13 +232,12 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 700;
-    font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     transition: all 0.2s;
-    font-family: 'Krona One', sans-serif; /* Google ලොගින් බටන් එකටත් Krona One සෙට් කරා */
+    font-family: 'Krona One', sans-serif;
     font-size: 0.8rem;
 }
 #login-btn:hover {
@@ -448,7 +444,7 @@ body {
 }
 
 .input-container input::placeholder {
-    color: #5865f2; /* Discord style placeholder color */
+    color: #5865f2;
     opacity: 0.6;
 }
 
@@ -598,7 +594,7 @@ body {
 }
 
 .user-card-info h3 {
-    font-family: 'Krona One', sans-serif; /* පරණ Orbitron වෙනුවට Krona One දැම්මා */
+    font-family: 'Krona One', sans-serif;
     font-size: 1.2rem;
     font-weight: 900;
     color: #fff;
@@ -641,7 +637,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-family: 'Krona One', sans-serif; /* DM බටන් එක ගති කරන්න Krona One දැම්මා */
+    font-family: 'Krona One', sans-serif;
     font-size: 0.75rem;
 }
 
@@ -735,16 +731,12 @@ body {
 
 /* 🔥 SUPER NEON USERNAME - නම Neon ලයිට් එකක් වගේ දිලිසෙන කොටස */
 .msg-username {
-    /* පරණ Orbitron වෙනුවට Krona One ෆොන්ට් එක දැම්මා */
     font-family: 'Krona One', sans-serif;
     font-size: 0.85rem;
     font-weight: 800;
     letter-spacing: 1px;
-    
-    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
     color: #fff;
     text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
-    
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -804,7 +796,6 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    /* පරණ Orbitron වෙනුවට Krona One දැම්මා */
     font-family: 'Krona One', sans-serif;
     font-size: 0.7rem;
 }
@@ -894,7 +885,6 @@ body {
     z-index: 10;
 }
 
-/* Magenta සහ Cyan අතර මාරුවෙන් මාරුවට දිලිසෙන Legendary Pulse Animation එක */
 @keyframes neonLegendaryPulse {
     0% {
         border-color: var(--accent-magenta);
@@ -904,4 +894,80 @@ body {
         border-color: var(--accent-cyan);
         box-shadow: 0 0 22px var(--accent-cyan), 0 0 10px var(--accent-magenta);
     }
+}
+
+/* ==========================================================================
+   12. ⚡ INJECTED: SKELETON CHAT LOADER & LEADERBOARD HIGHLIGHTS
+   ========================================================================== */
+
+/* Chat Loading Container */
+.msg-skeleton-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+    width: 100%;
+}
+
+.skeleton-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.skeleton-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+}
+
+.skeleton-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.skeleton-name {
+    width: 120px;
+    height: 14px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.skeleton-line {
+    width: 75%;
+    height: 12px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-line.short {
+    width: 40%;
+}
+
+/* Blinking Animation Flow */
+.skeleton-blink {
+    animation: skeleton-loading-flow 1.5s infinite ease-in-out;
+}
+
+@keyframes skeleton-loading-flow {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.4; }
+}
+
+/* Leaderboard Current User Identity Highlight */
+.leaderboard-item-me {
+    border: 1px solid rgba(0, 255, 204, 0.4) !important;
+    background: rgba(0, 255, 204, 0.06) !important;
+    box-shadow: inset 0 0 8px rgba(0, 255, 204, 0.05);
+}
+
+.leaderboard-item:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    transform: translateX(2px);
 }
