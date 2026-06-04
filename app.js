@@ -22,11 +22,11 @@ let isInitialLoad = true;
 let typingTimeout = null;
 let isMuted = false; 
 let isRegisterMode = false; 
-let appVolume = 1.0; // 👑 NEW: Global App Volume Variable (Range: 0.0 - 1.0)
+let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
-// 👑 UPDATED: SOUND ENGINE WITH GLOBAL VOLUME SCALE
+// 👑 SOUND ENGINE WITH GLOBAL VOLUME SCALE
 function playIncomingSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -485,7 +485,7 @@ function setupScrollToBottomBtn() {
     };
 }
 
-// 👑 NEW: APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
+// 👑 APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
 window.toggleSettingsModal = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
@@ -577,29 +577,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 👑 NEW: DEVELOPER MODAL CONSOLE LOGICS
+// 👑 DEVELOPER DISCORD COPIER PROTOCOL
 // ==========================================
-window.openDevDetails = function() {
-    const devModal = document.getElementById('dev-modal');
-    if (devModal) devModal.classList.remove('hidden');
-}
-
-window.closeDevModal = function() {
-    const devModal = document.getElementById('dev-modal');
-    if (devModal) devModal.classList.add('hidden');
-}
-
 window.copyDevDiscord = function() {
     const discordName = "Mr_kaveeya_bro";
     navigator.clipboard.writeText(discordName).then(() => {
-        const discordSpan = document.getElementById('dev-discord-name');
+        const btnText = document.getElementById("dev-discord-name");
         
-        discordSpan.innerText = "COPIED! ✅";
-        discordSpan.style.color = "#00ffcc";
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
+        // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
         setTimeout(() => {
-            discordSpan.innerText = discordName;
-            discordSpan.style.color = "#5865F2";
+            btnText.innerHTML = "Discord Contact";
         }, 2000);
     }).catch(err => console.log("Copy error:", err));
 }
