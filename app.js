@@ -30,6 +30,14 @@ let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් 
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
+// 👑 DEVELOPER PORTAL MODAL TOGGLE
+window.toggleCraftMeetModal = function() {
+    const craftMeetModal = document.getElementById('craftmeet-modal');
+    if (craftMeetModal) {
+        craftMeetModal.classList.toggle('hidden');
+    }
+}
+
 // 👑 SOUND ENGINE WITH GLOBAL VOLUME SCALE
 function playIncomingSound() {
     try {
