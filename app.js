@@ -182,12 +182,10 @@ function syncUserProfileData(user) {
         document.getElementById('dashboard-xp-fill').style.width = `${barPercent}%`;
         document.getElementById('dashboard-xp-text').innerText = `${userXp} / 500 XP`;
 
-        // ==========================================
-        // 👑 REWARD POPUP AUTOTRIGGER (XP 500+)
-        // ==========================================
+        // Reward Alert Trigger
         const rewardModal = document.getElementById('reward-popup-modal');
         if (rewardModal) {
-            if (userXp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
+            if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 rewardModal.classList.remove('hidden');
             } else {
                 rewardModal.classList.add('hidden');
@@ -218,8 +216,7 @@ window.claimAvatarDecoration = function() {
         }
         return currentData;
     }).then(() => {
-        const rewardModal = document.getElementById('reward-popup-modal');
-        if (rewardModal) rewardModal.classList.add('hidden');
+        document.getElementById('reward-popup-modal').classList.add('hidden');
     });
 }
 
@@ -332,25 +329,28 @@ function listenToTyping(roomName) {
 
 window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
 
-// 🛡️ MESSAGE DISPATCHER & SPAM CONTROLLER
+// ⚡ HIGH-SPEED & ANTI-SPAM SEND MESSAGE PROTOCOL
 window.sendMessage = function() {
     const input = document.getElementById('message-input');
     if (!input || !currentUser) return;
     const text = input.value.trim();
     if (text === "") return;
 
+    // 🛡️ SPAM CONTROL 1: එකම මැසේජ් එක පිට පිට යවනවා නම් බ්ලොක් කිරීම
     if (text.toLowerCase() === lastSentMessage.toLowerCase()) {
         alert("⚠️ Duplicate transmission detected! Repeating the same data will not grant XP.");
         input.value = "";
         return;
     }
 
+    // 🛡️ SPAM CONTROL 2: එකම අකුර දිගටම ගහලා ද කියල Check කිරීම (උදා: "aaaaaaaaaa...")
     if (text.length > 3 && /^([a-zA-Z0-9])\1+$/.test(text)) {
         alert("⚠️ Character spam detected! Quality transmission required for XP.");
         input.value = "";
         return;
     }
 
+    // ⚡ INSTANT WRITE Protocol: Database Read එකක් වෙනුවට Local data පාවිච්චි කර මැසේජ් එක Speed එකෙන් යවයි
     const userData = localUserData || {};
     const myAvatar = userData.profilePic || currentUser.photoURL;
     const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
@@ -364,21 +364,26 @@ window.sendMessage = function() {
         senderSpecialty: mySpecialty
     });
 
+    // XP ලබාදීම
     db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
     db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     
+    // වර්තමාන මැසේජ් එක "අන්තිම මැසේජ් එක" විදිහට Save කරගැනීම
     lastSentMessage = text;
     input.value = "";
 }
 
-// ⚡ REALTIME DISPATCH ENGINE
+// ⚡ ULTRA-OPTIMIZED LAG-FREE MESSAGE LOADER (HIGH-SPEED GPU RENDER)
 function loadMessages(roomName) {
     const chatDisplay = document.getElementById('chat-messages');
     
+    // කලින් රූම් එකේ තිබ්බ Listeners ඔක්කොම අයින් කරලා Screen එක clear කරනවා
     db.ref(`rooms/${roomName}`).off(); 
     chatDisplay.innerHTML = "";
     isInitialLoad = true;
 
+    // ⚡ Optimization 1: අන්තිම මැසේජ් 50 විතරක් සීමා කරනවා (limitToLast)
+    // ⚡ Optimization 2: 'child_added' මඟින් මුළු HTML එකම Reset කරන්නේ නැතිව Document Fragment එකක් ලෙස අලුත් Node එක විතරක් DOM එකට Append කරයි (Super Fluid Rendering)
     db.ref(`rooms/${roomName}`).limitToLast(50).on('child_added', snapshot => {
         const msgId = snapshot.key; 
         const data = snapshot.val(); 
@@ -404,23 +409,29 @@ function loadMessages(roomName) {
             </div>
         `;
         
-        chatDisplay.insertAdjacentHTML('beforeend', msgHtml);
+        // Anti-Lag DOM Insertion Strategy 
+        const fragment = document.createRange().createContextualFragment(msgHtml);
+        chatDisplay.appendChild(fragment);
 
+        // මුල්ම පාරට රූම් එක ලෝඩ් වෙද්දී Notification සවුන්ඩ් ප්ලේ වෙන එක නවත්වනවා
         if (!isInitialLoad && !isOwn) {
             playIncomingSound();
         }
 
+        // Auto Scroll to Bottom Logic
         const isUserAtBottom = chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop < 300;
         if (isInitialLoad || isUserAtBottom) {
             chatDisplay.scrollTop = chatDisplay.scrollHeight;
         }
     });
 
+    // මුල්ම මැසේජ් 50 එකපාර ලෝඩ් වෙලා ඉවර වුන ගමන් initial load එක false කරනවා
     db.ref(`rooms/${roomName}`).limitToLast(50).once('value', () => {
         isInitialLoad = false;
         chatDisplay.scrollTop = chatDisplay.scrollHeight;
     });
 
+    // ⚡ REALTIME DELETE LISTENER: වෙන කෙනෙක් මැසේජ් එකක් ඩිලීට් කලොත් Screen එකෙන් ක්ෂණිකව අයින් වෙන්න
     db.ref(`rooms/${roomName}`).on('child_removed', snapshot => {
         const deletedMsgId = snapshot.key;
         const msgElement = document.getElementById(`msg-${deletedMsgId}`);
@@ -428,6 +439,7 @@ function loadMessages(roomName) {
     });
 }
 
+// 👑 OPTIMIZED DELETE FUNCTION (REALTIME DOM REMOVAL)
 window.deleteMessage = function(roomName, msgId) {
     if (confirm("Are you sure you want to delete this transmission from orbit?")) {
         db.ref(`rooms/${roomName}/${msgId}`).remove().then(() => {
@@ -440,7 +452,9 @@ window.deleteMessage = function(roomName, msgId) {
 window.switchRoom = function(roomName) {
     if (currentUser) db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
     
+    // පරණ රූම් එකේ listeners ඔක්කොම අයින් කරනවා ඩියුප්ලිකේට් නොවෙන්න සහ memory leakage වැලැක්වීමට
     db.ref(`rooms/${currentRoom}`).off();
+    db.ref(`typing/${currentRoom}`).off();
     
     currentRoom = roomName;
     isInitialLoad = true;
@@ -516,7 +530,7 @@ function setupScrollToBottomBtn() {
         } else {
             scrollBtn.classList.remove('show');
         }
-    });
+    }, { passive: true }); // Performance Update: Improves touch/scroll rendering
 
     scrollBtn.onclick = function() {
         chatDisplay.scrollTo({
@@ -526,7 +540,7 @@ function setupScrollToBottomBtn() {
     };
 }
 
-// 👑 APP SETTINGS ENGINE
+// 👑 APP SETTINGS ENGINE (VOLUME & NAME CHANGE 3-DAYS COOLDOWN)
 window.toggleSettingsModal = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
@@ -542,9 +556,10 @@ window.toggleSettingsModal = function() {
             document.getElementById('volume-value').innerText = this.value + "%";
         };
 
+        // Check 3 Days Cooldown Condition
         db.ref(`users/${currentUser.uid}/lastNameChange`).once('value', snapshot => {
             const lastChange = snapshot.val() || 0;
-            const cooldownMS = 3 * 24 * 60 * 60 * 1000; 
+            const cooldownMS = 3 * 24 * 60 * 60 * 1000; // 3 Days in milliseconds
             const timePassed = Date.now() - lastChange;
 
             const inputField = document.getElementById('settings-username');
@@ -573,8 +588,10 @@ window.saveAppSettings = function() {
     const newName = document.getElementById('settings-username').value.trim();
     const inputField = document.getElementById('settings-username');
 
+    // Save Volume
     appVolume = newVolume;
 
+    // Save Username changes if not disabled/cooldown active
     if (!inputField.disabled && newName && newName !== currentUser.displayName) {
         currentUser.updateProfile({ displayName: newName }).then(() => {
             const updates = {};
@@ -588,7 +605,7 @@ window.saveAppSettings = function() {
             });
         }).catch(err => alert("Error updating gamertag: " + err.message));
     } else {
-        toggleSettingsModal(); 
+        toggleSettingsModal(); // Just close modal if volume was adjusted or name unchanged
     }
 }
 
@@ -622,8 +639,10 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
+        // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
         setTimeout(() => {
             btnText.innerHTML = "Discord Contact";
         }, 2000);
