@@ -1,860 +1,860 @@
 /* ==========================================================================
-   1. GLOBAL VARIABLES & BASE STYLES
-   ========================================================================== */
+   1. GLOBAL VARIABLES & BASE STYLES
+   ========================================================================== */
 :root {
-    --bg-primary: #06090e;
-    --bg-secondary: #0b111a;
-    --bg-tertiary: #101724;
-    --text-main: #f0f3f5;
-    --text-muted: #8a939e;
-    --accent-cyan: #00ffcc;
-    --accent-magenta: #ff0055;
-    --neon-blue: #0077ff;
-    --border-soft: rgba(0, 255, 204, 0.08);
+    --bg-primary: #06090e;
+    --bg-secondary: #0b111a;
+    --bg-tertiary: #101724;
+    --text-main: #f0f3f5;
+    --text-muted: #8a939e;
+    --accent-cyan: #00ffcc;
+    --accent-magenta: #ff0055;
+    --neon-blue: #0077ff;
+    --border-soft: rgba(0, 255, 204, 0.08);
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Rajdhani', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 body {
-    background-color: var(--bg-primary);
-    color: var(--text-main);
-    overflow: hidden;
-    height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    overflow: hidden;
+    height: 100vh;
 }
 
 /* Smooth Scrollbar Customization */
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: var(--bg-primary);
+    background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-tertiary);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 204, 0.2);
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 204, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-cyan);
+    background: var(--accent-cyan);
 }
 
 /* ==========================================================================
-   2. TEXT GLOWS & CYBERPUNK EFFECTS
-   ========================================================================== */
+   2. TEXT GLOWS & CYBERPUNK EFFECTS
+   ========================================================================== */
 .cyber-title {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    letter-spacing: 2px;
-    color: #fff;
-    text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px rgba(0, 255, 204, 0.3);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px rgba(0, 255, 204, 0.3);
 }
 
 .cyber-title-short {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    letter-spacing: 1px;
-    background: linear-gradient(45deg, #fff, var(--accent-cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: linear-gradient(45deg, #fff, var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .cyber-glow-text {
-    color: var(--accent-cyan);
-    text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
 }
 
 .cyber-magenta-text {
-    color: var(--accent-magenta);
-    text-shadow: 0 0 10px rgba(255, 0, 85, 0.8);
+    color: var(--accent-magenta);
+    text-shadow: 0 0 10px rgba(255, 0, 85, 0.8);
 }
 
 .neon-border {
-    border: 1px solid var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
+    border: 1px solid var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
 }
 
 .hidden {
-    display: none !important;
+    display: none !important;
 }
 
 /* ==========================================================================
-   3. 🔥 SUPER LASSANA LOGIN SCREEN UPDATE
-   ========================================================================== */
+   3. 🔥 SUPER LASSANA LOGIN SCREEN UPDATE
+   ========================================================================== */
 .auth-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at center, #0b1424 0%, #040609 100%);
-    backdrop-filter: blur(12px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #0b1424 0%, #040609 100%);
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
 .auth-card {
-    background: rgba(11, 17, 26, 0.85);
-    width: 100%;
-    max-width: 430px;
-    padding: 40px;
-    border-radius: 16px;
-    text-align: center;
-    border: 1px solid rgba(0, 255, 204, 0.2);
-    box-shadow: 0 0 30px rgba(0, 255, 204, 0.1), inset 0 0 15px rgba(0, 255, 204, 0.05);
-    backdrop-filter: blur(5px);
+    background: rgba(11, 17, 26, 0.85);
+    width: 100%;
+    max-width: 430px;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.1), inset 0 0 15px rgba(0, 255, 204, 0.05);
+    backdrop-filter: blur(5px);
 }
 
 .brand-logo {
-    font-size: 3.2rem;
-    margin-bottom: 10px;
+    font-size: 3.2rem;
+    margin-bottom: 10px;
 }
 .gaming-glow {
-    color: var(--accent-cyan);
-    animation: pulseGlow 2s infinite alternate;
+    color: var(--accent-cyan);
+    animation: pulseGlow 2s infinite alternate;
 }
 
 @keyframes pulseGlow {
-    0% { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); transform: scale(1); }
-    100% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 35px var(--accent-cyan); transform: scale(1.05); }
+    0% { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); transform: scale(1); }
+    100% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 35px var(--accent-cyan); transform: scale(1.05); }
 }
 
 .auth-card h2 {
-    font-size: 1.8rem;
-    margin-bottom: 5px;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
 }
 
 .auth-card p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 25px;
-    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    font-weight: 500;
 }
 
 /* Login Inputs */
 .form-group {
-    margin-bottom: 20px;
-    text-align: left;
+    margin-bottom: 20px;
+    text-align: left;
 }
 
 .form-group label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--accent-cyan);
-    display: block;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    display: block;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
 }
 
 .form-group input, .form-group textarea, .form-group select {
-    width: 100%;
-    background: #06090e;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 12px 16px;
-    color: var(--text-main);
-    border-radius: 8px;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.3s ease;
+    width: 100%;
+    background: #06090e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    color: var(--text-main);
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
 }
 
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
-    background: #0b111a;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+    background: #0b111a;
 }
 
 /* Primary Buttons */
 .cyber-action-btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent-cyan), #00cca3);
-    color: #000;
-    border: none;
-    padding: 14px;
-    font-size: 1.05rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 8px;
-    letter-spacing: 1px;
-    transition: all 0.25s ease;
-    margin-top: 5px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent-cyan), #00cca3);
+    color: #000;
+    border: none;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 8px;
+    letter-spacing: 1px;
+    transition: all 0.25s ease;
+    margin-top: 5px;
 }
 .cyber-action-btn:hover {
-    box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-    transform: translateY(-1.5px);
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+    transform: translateY(-1.5px);
 }
 
 .auth-switcher {
-    margin-top: 20px;
-    font-size: 0.95rem;
-    color: var(--text-muted);
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
 }
 .auth-switcher a {
-    color: var(--accent-cyan);
-    text-decoration: none;
-    font-weight: 700;
-    margin-left: 5px;
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 5px;
 }
 .auth-switcher a:hover {
-    text-decoration: underline;
+    text-decoration: underline;
 }
 
 .auth-divider {
-    margin: 22px 0;
-    position: relative;
+    margin: 22px 0;
+    position: relative;
 }
 .auth-divider::before {
-    content: "";
-    position: absolute;
-    top: 50%; left: 0; width: 100%; height: 1px;
-    background: rgba(255, 255, 255, 0.1);
+    content: "";
+    position: absolute;
+    top: 50%; left: 0; width: 100%; height: 1px;
+    background: rgba(255, 255, 255, 0.1);
 }
 .auth-divider span {
-    background: #0e1520;
-    padding: 0 15px;
-    position: relative;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 600;
+    background: #0e1520;
+    padding: 0 15px;
+    position: relative;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 #login-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 13px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s;
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
 }
 #login-btn:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #fff;
 }
 
 /* ==========================================================================
-   4. SIDEBAR & NAVIGATION (LASSANA CHANNELS)
-   ========================================================================== */
+   4. SIDEBAR & NAVIGATION (LASSANA CHANNELS)
+   ========================================================================== */
 .dashboard-container {
-    display: grid;
-    grid-template-columns: 250px 1fr 300px;
-    height: 100vh;
-    width: 100vw;
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    height: 100vh;
+    width: 100vw;
 }
 
 .sidebar {
-    background: var(--bg-secondary);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
+    background: var(--bg-secondary);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar-header {
-    padding: 22px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 22px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .logo-area {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.4rem;
 }
 
 .online-counter-box {
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 255, 204, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 255, 204, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .pulse-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent-cyan);
-    border-radius: 50%;
-    box-shadow: 0 0 10px var(--accent-cyan);
-    animation: dotPulse 2s infinite;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-cyan);
+    animation: dotPulse 2s infinite;
 }
 
 @keyframes dotPulse {
-    0% { transform: scale(0.9); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.5; }
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.5; }
 }
 
 .menu-section {
-    padding: 20px 0 10px 0;
+    padding: 20px 0 10px 0;
 }
 
 .section-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    padding: 0 20px 10px 20px;
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 0 20px 10px 20px;
+    letter-spacing: 1px;
 }
 
 .room-item {
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: all 0.25s ease;
-    margin: 2px 10px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    margin: 2px 10px;
+    border-radius: 6px;
 }
 
 .room-item i {
-    font-size: 1.1rem;
-    transition: transform 0.2s;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
 }
 
 .room-item:hover {
-    background: rgba(0, 255, 204, 0.04);
-    color: #fff;
-    padding-left: 25px;
+    background: rgba(0, 255, 204, 0.04);
+    color: #fff;
+    padding-left: 25px;
 }
 
 .room-item:hover i {
-    color: var(--accent-cyan);
+    color: var(--accent-cyan);
 }
 
 .room-item.active {
-    background: linear-gradient(90deg, rgba(0, 255, 204, 0.1) 0%, transparent 100%);
-    color: var(--accent-cyan);
-    border-left: 3px solid var(--accent-cyan);
-    font-weight: 700;
+    background: linear-gradient(90deg, rgba(0, 255, 204, 0.1) 0%, transparent 100%);
+    color: var(--accent-cyan);
+    border-left: 3px solid var(--accent-cyan);
+    font-weight: 700;
 }
 
 /* User Footer Section */
 .user-profile-footer {
-    background: var(--bg-tertiary);
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-tertiary);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .user-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
 }
 
 .user-meta img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--accent-cyan);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-cyan);
 }
 
 /* ==========================================================================
-   5. 💬 TYPE CORANA PLACE / INPUT BOX (SUPER LASSANA UPDATE)
-   ========================================================================== */
+   5. 💬 TYPE CORANA PLACE / INPUT BOX (SUPER LASSANA UPDATE)
+   ========================================================================== */
 .chat-wrapper {
-    background: var(--bg-primary);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Bug Fix */
-.chat-wrapper > img, 
+.chat-wrapper > img, 
 .messages-display img:not(.msg-avatar) {
-    display: none !important;
+    display: none !important;
 }
 
 .panel-header {
-    height: 65px;
-    padding: 0 25px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    background: var(--bg-secondary);
+    height: 65px;
+    padding: 0 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
 }
 
 .messages-display {
-    flex: 1;
-    padding: 25px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* Message Box Container */
 .message-input-box {
-    padding: 0 25px 25px 25px;
-    background: linear-gradient(transparent, var(--bg-primary) 30%);
+    padding: 0 25px 25px 25px;
+    background: linear-gradient(transparent, var(--bg-primary) 30%);
 }
 
 .input-container {
-    background: #0f1622;
-    border: 1px solid rgba(0, 255, 204, 0.15);
-    border-radius: 12px;
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: #0f1622;
+    border: 1px solid rgba(0, 255, 204, 0.15);
+    border-radius: 12px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Type කරද්දී Glow වෙන සුපිරි Effect එක */
 .input-container:focus-within {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 18px rgba(0, 255, 204, 0.25), inset 0 0 8px rgba(0, 255, 204, 0.05);
-    background: #121b2a;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 18px rgba(0, 255, 204, 0.25), inset 0 0 8px rgba(0, 255, 204, 0.05);
+    background: #121b2a;
 }
 
 .input-container input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 12px 10px;
-    color: var(--text-main);
-    outline: none;
-    font-size: 1rem;
-    font-weight: 500;
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 10px;
+    color: var(--text-main);
+    outline: none;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .input-container input::placeholder {
-    color: #5865f2; /* Discord style placeholder color */
-    opacity: 0.6;
+    color: #5865f2; /* Discord style placeholder color */
+    opacity: 0.6;
 }
 
 /* Send Button */
 .send-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 10px;
-    transition: all 0.2s ease;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .send-btn:hover {
-    color: var(--accent-cyan);
-    transform: scale(1.1) rotate(-10deg);
-    text-shadow: 0 0 8px var(--accent-cyan);
+    color: var(--accent-cyan);
+    transform: scale(1.1) rotate(-10deg);
+    text-shadow: 0 0 8px var(--accent-cyan);
 }
 
 /* ==========================================================================
-   6. RIGHT UTILITY PANEL & STREAMS HUB
-   ========================================================================== */
+   6. RIGHT UTILITY PANEL & STREAMS HUB
+   ========================================================================== */
 .right-panel {
-    background: var(--bg-secondary);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    overflow-y: auto;
+    background: var(--bg-secondary);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .voice-status-card {
-    background: var(--bg-tertiary);
-    border: 1px solid rgba(0, 255, 204, 0.1);
-    border-radius: 8px;
-    padding: 20px;
+    background: var(--bg-tertiary);
+    border: 1px solid rgba(0, 255, 204, 0.1);
+    border-radius: 8px;
+    padding: 20px;
 }
 
 .yt-buttons-grid button {
-    background: var(--bg-tertiary);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    background: var(--bg-tertiary);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
 .yt-buttons-grid button:hover {
-    border-color: var(--accent-magenta);
-    background: rgba(255, 0, 85, 0.05);
-    color: var(--accent-magenta);
+    border-color: var(--accent-magenta);
+    background: rgba(255, 0, 85, 0.05);
+    color: var(--accent-magenta);
 }
 
 .dev-link-btn {
-    display: block;
-    background: linear-gradient(135deg, var(--accent-magenta), #b3003b);
-    color: #fff;
-    text-align: center;
-    padding: 10px;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s;
+    display: block;
+    background: linear-gradient(135deg, var(--accent-magenta), #b3003b);
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s;
 }
 
 /* ==========================================================================
-   7. MODAL OVERLAYS
-   ========================================================================== */
+   7. MODAL OVERLAYS
+   ========================================================================== */
 .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(4, 6, 9, 0.85);
-    backdrop-filter: blur(6px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(4, 6, 9, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
 }
 
 /* ==========================================================================
-   8. DISCORD STYLE USER PROFILE CARD
-   ========================================================================== */
+   8. DISCORD STYLE USER PROFILE CARD
+   ========================================================================== */
 .user-view-card {
-    position: relative;
-    padding: 0 !important;
-    overflow: hidden;
-    background: #181f2a !important;
-    width: 100%;
-    max-width: 350px !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
-    animation: cardEntrance 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    position: relative;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #181f2a !important;
+    width: 100%;
+    max-width: 350px !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+    animation: cardEntrance 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes cardEntrance {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 .user-card-banner {
-    height: 105px;
-    background: linear-gradient(135deg, var(--accent-magenta), var(--neon-blue), var(--accent-cyan));
-    background-size: 200% 200%;
-    animation: bannerAnimation 5s ease infinite;
-    width: 100%;
+    height: 105px;
+    background: linear-gradient(135deg, var(--accent-magenta), var(--neon-blue), var(--accent-cyan));
+    background-size: 200% 200%;
+    animation: bannerAnimation 5s ease infinite;
+    width: 100%;
 }
 
 @keyframes bannerAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .user-card-avatar-wrap {
-    position: absolute;
-    top: 55px;
-    left: 22px;
-    background: #181f2a;
-    padding: 6px;
-    border-radius: 50%;
-    z-index: 5;
+    position: absolute;
+    top: 55px;
+    left: 22px;
+    background: #181f2a;
+    padding: 6px;
+    border-radius: 50%;
+    z-index: 5;
 }
 
 #user-card-modal #view-card-avatar {
-    width: 85px !important;
-    height: 85px !important;
-    max-width: 85px !important;
-    max-height: 85px !important;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #181f2a;
-    display: block !important;
+    width: 85px !important;
+    height: 85px !important;
+    max-width: 85px !important;
+    max-height: 85px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #181f2a;
+    display: block !important;
 }
 
 .user-card-info {
-    padding: 55px 22px 22px 22px;
-    background: #181f2a;
+    padding: 55px 22px 22px 22px;
+    background: #181f2a;
 }
 
 .user-card-info h3 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 6px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 6px;
 }
 
 .user-card-badge {
-    font-size: 0.8rem;
-    color: var(--accent-cyan);
-    background: rgba(0, 255, 204, 0.07);
-    border: 1px solid rgba(0, 255, 204, 0.25);
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+    background: rgba(0, 255, 204, 0.07);
+    border: 1px solid rgba(0, 255, 204, 0.25);
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
 #view-card-bio {
-    font-size: 0.9rem;
-    color: #dbdee1;
-    background: #111720;
-    padding: 12px;
-    border-radius: 8px;
-    line-height: 1.4;
-    min-height: 50px;
+    font-size: 0.9rem;
+    color: #dbdee1;
+    background: #111720;
+    padding: 12px;
+    border-radius: 8px;
+    line-height: 1.4;
+    min-height: 50px;
 }
 
 .cyber-dm-btn {
-    width: 100%;
-    background: var(--accent-cyan);
-    color: #000;
-    border: none;
-    padding: 12px;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    width: 100%;
+    background: var(--accent-cyan);
+    color: #000;
+    border: none;
+    padding: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .cyber-dm-btn:hover {
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
 }
 
 .close-card-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: #fff;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 .close-card-btn:hover {
-    background: rgba(255, 0, 85, 0.6);
+    background: rgba(255, 0, 85, 0.6);
 }
 
 /* ==========================================================================
-   9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED TWO-SIDE)
-   ========================================================================== */
+   9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED TWO-SIDE)
+   ========================================================================== */
 
 /* පොදු මැසේජ් ලේඅවුට් එක (Default: වම් පැත්තට) */
 .message-item {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 10px 14px;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-    margin-bottom: 4px;
-    width: 100%;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 4px;
+    width: 100%;
 }
 
 /* 🔥 ඔයා දාන මැසේජ් විතරක් දකුණු පැත්තට (Right Side) කරන කොටස */
 .message-item.own-msg {
-    flex-direction: row-reverse; /* Avatar එකයි Content එකයි මාරු කරනවා */
-    text-align: right;
+    flex-direction: row-reverse; /* Avatar එකයි Content එකයි මාරු කරනවා */
+    text-align: right;
 }
 
 /* මැසේජ් එකක් උඩට මවුස් එක ගෙනිච්චම පොඩි Highlight එකක් */
 .message-item:hover {
-    background-color: rgba(255, 255, 255, 0.02);
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 /* මැසේජ් එක දාපු කෙනාගේ Avatar එක */
 .msg-avatar {
-    width: 42px !important;
-    height: 42px !important;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid rgba(0, 255, 204, 0.25);
-    box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
-    flex-shrink: 0;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(0, 255, 204, 0.25);
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
+    flex-shrink: 0;
 }
 
 /* Content Area */
 .msg-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    max-width: 75%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 75%;
 }
 
 /* දකුණු පැත්තේ මැසේජ් වල Content එක ඇතුළේ තියෙන දේවල් දකුණටම Align කරනවා */
 .message-item.own-msg .msg-content {
-    align-items: flex-end;
+    align-items: flex-end;
 }
 
 /* නම සහ වෙලාව තියෙන Header කොටස */
 .msg-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
 }
 
 /* දකුණු පැත්තේ මැසේජ් වල නමයි වෙලාවයි තියෙන Order එක මාරු කරනවා */
 .message-item.own-msg .msg-header {
-    flex-direction: row-reverse;
+    flex-direction: row-reverse;
 }
 
 /* 🔥 SUPER NEON USERNAME - නම Neon ලයිට් එකක් වගේ දිලිසෙන කොටස */
 .msg-username {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    
-    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
-    color: #fff;
-    text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
-    
-    cursor: pointer;
-    transition: all 0.2s ease;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    
+    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
+    color: #fff;
+    text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
+    
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 /* නම උඩට මවුස් එක ගෙනිච්චම තවත් තදින් Neon එක පත්තු වෙන්න */
 .msg-username:hover {
-    text-shadow: 0 0 6px #00ffcc, 0 0 15px #00ffcc, 0 0 25px #00ffcc, 0 0 35px #00ffcc;
-    color: #ffffff;
+    text-shadow: 0 0 6px #00ffcc, 0 0 15px #00ffcc, 0 0 25px #00ffcc, 0 0 35px #00ffcc;
+    color: #ffffff;
 }
 
 /* වෙලාව (Timestamp) */
 .msg-timestamp {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
 }
 
 /* මැසේජ් එකේ Text එක */
 .msg-text {
-    font-size: 0.96rem;
-    color: #dcddde;
-    line-height: 1.5;
-    word-break: break-word;
+    font-size: 0.96rem;
+    color: #dcddde;
+    line-height: 1.5;
+    word-break: break-word;
 }
 
 /* 👑 Roles අනුව වෙනස් වෙන වෙනම Neon Colors */
 
 /* Admin ලාට Magenta/Pink Neon එකක් */
 .role-admin {
-    color: #fff !important;
-    text-shadow: 0 0 4px #ff0055, 0 0 10px #ff0055, 0 0 18px rgba(255, 0, 85, 0.6) !important;
+    color: #fff !important;
+    text-shadow: 0 0 4px #ff0055, 0 0 10px #ff0055, 0 0 18px rgba(255, 0, 85, 0.6) !important;
 }
 .role-admin:hover {
-    text-shadow: 0 0 6px #ff0055, 0 0 15px #ff0055, 0 0 25px #ff0055 !important;
+    text-shadow: 0 0 6px #ff0055, 0 0 15px #ff0055, 0 0 25px #ff0055 !important;
 }
 
 /* VIP ලාට Yellow/Gold Neon එකක් */
 .role-vip {
-    color: #fff !important;
-    text-shadow: 0 0 4px #ffa502, 0 0 10px #ffa502, 0 0 18px rgba(255, 165, 2, 0.6) !important;
+    color: #fff !important;
+    text-shadow: 0 0 4px #ffa502, 0 0 10px #ffa502, 0 0 18px rgba(255, 165, 2, 0.6) !important;
 }
 .role-vip:hover {
-    text-shadow: 0 0 6px #ffa502, 0 0 15px #ffa502, 0 0 25px #ffa502 !important;
+    text-shadow: 0 0 6px #ffa502, 0 0 15px #ffa502, 0 0 25px #ffa502 !important;
 }
 
 /* ==========================================================================
-   10. ⌨️ "USER IS TYPING" EFFECT & ⬆️ SCROLL TO BOTTOM BUTTON
-   ========================================================================== */
+   10. ⌨️ "USER IS TYPING" EFFECT & ⬆️ SCROLL TO BOTTOM BUTTON
+   ========================================================================== */
 
 /* Typing Indicator Container */
 .typing-indicator-box {
-    padding: 2px 25px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    min-height: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Orbitron', sans-serif;
+    padding: 2px 25px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Orbitron', sans-serif;
 }
 
 /* දිලිසෙන තිත් 3 ඇනිමේෂන් එක */
 .typing-dots {
-    display: inline-flex;
-    gap: 3px;
-    align-items: center;
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
 }
 
 .typing-dots span {
-    width: 5px;
-    height: 5px;
-    background-color: var(--accent-cyan);
-    border-radius: 50%;
-    box-shadow: 0 0 6px var(--accent-cyan);
-    animation: typingBounce 1.4s infinite ease-in-out both;
+    width: 5px;
+    height: 5px;
+    background-color: var(--accent-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent-cyan);
+    animation: typingBounce 1.4s infinite ease-in-out both;
 }
 
 .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
 .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes typingBounce {
-    0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-    40% { transform: scale(1); opacity: 1; }
+    0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
 }
 
 /* Scroll to Bottom Button */
 .scroll-bottom-btn {
-    position: absolute;
-    bottom: 95px;
-    right: 35px;
-    background: rgba(11, 17, 26, 0.9);
-    border: 1px solid var(--accent-cyan);
-    color: var(--accent-cyan);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2), inset 0 0 8px rgba(0, 255, 204, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 99;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(10px);
+    position: absolute;
+    bottom: 95px;
+    right: 35px;
+    background: rgba(11, 17, 26, 0.9);
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2), inset 0 0 8px rgba(0, 255, 204, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
 }
 
 .scroll-bottom-btn.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 .scroll-bottom-btn:hover {
-    background: var(--accent-cyan);
-    color: #000;
-    box-shadow: 0 0 20px var(--accent-cyan);
-    transform: translateY(-3px);
+    background: var(--accent-cyan);
+    color: #000;
+    box-shadow: 0 0 20px var(--accent-cyan);
+    transform: translateY(-3px);
 }
