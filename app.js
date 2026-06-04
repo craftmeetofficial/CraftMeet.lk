@@ -24,8 +24,9 @@ let isMuted = false;
 let isRegisterMode = false; 
 let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
-// 🛡️ SPAM CONTROL GLOBAL VARIABLES
-let lastSentMessage = ""; // යූසර් අන්තිමට යවපු මැසේජ් එක මතක තියාගන්න
+// 🛡️ ANTI-LAG & SPAM MEMORY VARIABLES
+let lastSentMessage = ""; 
+let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් ඩේටා Local එකේ තියාගන්නවා
 
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
@@ -150,6 +151,9 @@ function syncUserProfileData(user) {
     db.ref(`users/${user.uid}`).on('value', snapshot => {
         const data = snapshot.val();
         if (!data) return;
+
+        // ⚡ Fast Send කරන්න ඩේටා ටික Memory එකට ගන්නවා (Anti-Lag)
+        localUserData = data;
 
         // Border Expiration Check (7 Days)
         if (data.currentDecoration && data.currentDecoration !== "none" && data.decorationClaimedAt) {
@@ -325,7 +329,7 @@ function listenToTyping(roomName) {
 
 window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
 
-// 🛡️ ANTI-SPAM UPDATED SEND MESSAGE PROTOCOL
+// ⚡ HIGH-SPEED & ANTI-SPAM SEND MESSAGE PROTOCOL
 window.sendMessage = function() {
     const input = document.getElementById('message-input');
     if (!input || !currentUser) return;
@@ -346,28 +350,27 @@ window.sendMessage = function() {
         return;
     }
 
-    db.ref(`users/${currentUser.uid}`).once('value', snap => {
-        const userData = snap.val() || {};
-        const myAvatar = userData.profilePic || currentUser.photoURL;
-        const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
+    // ⚡ INSTANT WRITE Protocol: Database Read එකක් වෙනුවට Local data පාවිච්චි කර මැසේජ් එක Speed එකෙන් යවයි
+    const userData = localUserData || {};
+    const myAvatar = userData.profilePic || currentUser.photoURL;
+    const mySpecialty = userData.gameSpecialty || "Multi-Game Athlete";
 
-        db.ref(`rooms/${currentRoom}`).push({ 
-            uid: currentUser.uid, 
-            sender: currentUser.displayName, 
-            message: text, 
-            timestamp: Date.now(),
-            senderAvatar: myAvatar,
-            senderSpecialty: mySpecialty
-        });
-
-        // XP ලබාදීම
-        db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
-        db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
-        
-        // 🛡️ අන්තිමට යවපු මැසේජ් එක Global Variable එකට සේව් කිරීම
-        lastSentMessage = text;
-        input.value = "";
+    db.ref(`rooms/${currentRoom}`).push({ 
+        uid: currentUser.uid, 
+        sender: currentUser.displayName, 
+        message: text, 
+        timestamp: Date.now(),
+        senderAvatar: myAvatar,
+        senderSpecialty: mySpecialty
     });
+
+    // XP ලබාදීම
+    db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
+    db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+    
+    // වර්තමාන මැසේජ් එක "අන්තිම මැසේජ් එක" විදිහට Save කරගැනීම
+    lastSentMessage = text;
+    input.value = "";
 }
 
 function loadMessages(roomName) {
