@@ -662,7 +662,7 @@ body {
 }
 
 /* ==========================================================================
-   9. 👑 CHAT MESSAGES & USERNAME STYLING (🆕 NEW UPDATE)
+   9. 👑 CHAT MESSAGES & NEON USERNAME STYLING (🆕 UPDATED)
    ========================================================================== */
 
 /* එක මැසේජ් එකක් ඇතුළේ සම්පූර්ණ ලේඅවුට් එක */
@@ -676,7 +676,7 @@ body {
     margin-bottom: 4px;
 }
 
-/* මැසේජ් එකක් උඩට මවුස් එක ගෙනිච්චම පොඩි Discord Highlight එකක් දීම */
+/* මැසේජ් එකක් උඩට මවුස් එක ගෙනිච්චම පොඩි Highlight එකක් */
 .message-item:hover {
     background-color: rgba(255, 255, 255, 0.02);
 }
@@ -706,22 +706,25 @@ body {
     margin-bottom: 4px;
 }
 
-/* 🔥 USERNAME STYLING - නම පැහැදිලිව පෙනෙන කොටස */
+/* 🔥 SUPER NEON USERNAME - නම Neon ලයිට් එකක් වගේ දිලිසෙන කොටස */
 .msg-username {
-    font-family: 'Orbitron', sans-serif; /* Gaming Font එක */
-    font-size: 0.98rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    
+    /* හැමෝගෙම නම ලස්සන Cyan Neon එකකින් දිලිසෙන්න හදා තියෙන්නේ */
+    color: #fff;
+    text-shadow: 0 0 4px #00ffcc, 0 0 10px #00ffcc, 0 0 18px rgba(0, 255, 204, 0.6);
+    
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
 }
 
-/* නම උඩට මවුස් එක ගෙනිච්චම සයන් කලර් එකෙන් Glow වෙන්න */
+/* නම උඩට මවුස් එක ගෙනිච්චම තවත් තදින් Neon එක පත්තු වෙන්න */
 .msg-username:hover {
-    color: var(--accent-cyan) !important;
-    text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
-    text-decoration: underline;
+    text-shadow: 0 0 6px #00ffcc, 0 0 15px #00ffcc, 0 0 25px #00ffcc, 0 0 35px #00ffcc;
+    color: #ffffff;
 }
 
 /* වෙලාව (Timestamp) */
@@ -739,17 +742,22 @@ body {
     word-break: break-word;
 }
 
-/* 👑 Bonus: Roles අනුව නම් පාට කරන්න Classes (Optional) */
+/* 👑 Roles අනුව වෙනස් වෙන වෙනම Neon Colors */
+
+/* Admin ලාට Magenta/Pink Neon එකක් */
 .role-admin {
-    color: #ff4757 !important; /* Admin ලා රතු */
-    text-shadow: 0 0 8px rgba(255, 71, 87, 0.3);
+    color: #fff !important;
+    text-shadow: 0 0 4px #ff0055, 0 0 10px #ff0055, 0 0 18px rgba(255, 0, 85, 0.6) !important;
+}
+.role-admin:hover {
+    text-shadow: 0 0 6px #ff0055, 0 0 15px #ff0055, 0 0 25px #ff0055 !important;
 }
 
+/* VIP ලාට Yellow/Gold Neon එකක් */
 .role-vip {
-    color: #ffa502 !important; /* VIP ලා රන්වන් */
-    text-shadow: 0 0 8px rgba(255, 165, 2, 0.3);
+    color: #fff !important;
+    text-shadow: 0 0 4px #ffa502, 0 0 10px #ffa502, 0 0 18px rgba(255, 165, 2, 0.6) !important;
 }
-
-.role-gamer {
-    color: var(--accent-cyan) !important; /* Gamers ලා Cyan */
+.role-vip:hover {
+    text-shadow: 0 0 6px #ffa502, 0 0 15px #ffa502, 0 0 25px #ffa502 !important;
 }
