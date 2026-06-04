@@ -24,6 +24,9 @@ let isMuted = false;
 let isRegisterMode = false; 
 let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 
+// 🛡️ SPAM CONTROL GLOBAL VARIABLES
+let lastSentMessage = ""; // යූසර් අන්තිමට යවපු මැසේජ් එක මතක තියාගන්න
+
 const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
 
 // 👑 SOUND ENGINE WITH GLOBAL VOLUME SCALE
@@ -322,11 +325,26 @@ function listenToTyping(roomName) {
 
 window.checkEnter = function(e) { if (e.key === 'Enter') sendMessage(); }
 
+// 🛡️ ANTI-SPAM UPDATED SEND MESSAGE PROTOCOL
 window.sendMessage = function() {
     const input = document.getElementById('message-input');
     if (!input || !currentUser) return;
     const text = input.value.trim();
     if (text === "") return;
+
+    // 🛡️ SPAM CONTROL 1: එකම මැසේජ් එක පිට පිට යවනවා නම් බ්ලොක් කිරීම
+    if (text.toLowerCase() === lastSentMessage.toLowerCase()) {
+        alert("⚠️ Duplicate transmission detected! Repeating the same data will not grant XP.");
+        input.value = "";
+        return;
+    }
+
+    // 🛡️ SPAM CONTROL 2: එකම අකුර දිගටම ගහලා ද කියල Check කිරීම (උදා: "aaaaaaaaaa...")
+    if (text.length > 3 && /^([a-zA-Z0-9])\1+$/.test(text)) {
+        alert("⚠️ Character spam detected! Quality transmission required for XP.");
+        input.value = "";
+        return;
+    }
 
     db.ref(`users/${currentUser.uid}`).once('value', snap => {
         const userData = snap.val() || {};
@@ -342,8 +360,12 @@ window.sendMessage = function() {
             senderSpecialty: mySpecialty
         });
 
+        // XP ලබාදීම
         db.ref(`users/${currentUser.uid}/xp`).transaction(currentXp => { return (currentXp || 0) + (text.length > 25 ? 12 : 6); });
         db.ref(`typing/${currentRoom}/${currentUser.uid}`).remove();
+        
+        // 🛡️ අන්තිමට යවපු මැසේජ් එක Global Variable එකට සේව් කිරීම
+        lastSentMessage = text;
         input.value = "";
     });
 }
@@ -584,7 +606,7 @@ window.copyDevDiscord = function() {
     navigator.clipboard.writeText(discordName).then(() => {
         const btnText = document.getElementById("dev-discord-name");
         
-        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරු කිරීම
+        // සාර්ථකව Copy වූ පසු Icon එකත් එක්කම Text එක මාරু කිරීම
         btnText.innerHTML = `COPIED! <i class="fa-solid fa-check" style="color: #00ffcc;"></i>`;
         
         // තත්පර 2කට පසු නැවත පරණ තත්වයට පත් කිරීම
