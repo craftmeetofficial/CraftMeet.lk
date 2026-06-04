@@ -28,7 +28,7 @@ let appVolume = 1.0; // 👑 Global App Volume Variable (Range: 0.0 - 1.0)
 let lastSentMessage = ""; 
 let localUserData = null; // ⚡ Speed Optimize කරන්න යූසර් ඩේටා Local එකේ තියාගන්නවා
 
-const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star"];
+const decorationsList = ["deco-cyber-neon", "deco-golden-flame", "deco-magic-star", "neon-legendary-border"];
 
 // 👑 DEVELOPER PORTAL MODAL TOGGLE
 window.toggleCraftMeetModal = function() {
@@ -187,13 +187,18 @@ function syncUserProfileData(user) {
         // Sidebar XP Progress
         const userXp = data.xp || 0;
         const barPercent = Math.min(100, (userXp / 500) * 100);
-        document.getElementById('dashboard-xp-fill').style.width = `${barPercent}%`;
-        document.getElementById('dashboard-xp-text').innerText = `${userXp} / 500 XP`;
+        
+        // HTML එකේ ID එක නිවැරදිව Handle කිරීම
+        const xpFillEl = document.getElementById('dashboard-xp-fill') || document.getElementById('view-card-xp-fill');
+        const xpTextEl = document.getElementById('dashboard-xp-text') || document.getElementById('view-card-xp-text');
+        
+        if (xpFillEl) xpFillEl.style.width = `${barPercent}%`;
+        if (xpTextEl) xpTextEl.innerText = `${userXp} / 500 XP`;
 
-        // Reward Alert Trigger
+        // Reward Alert Trigger (XP 500 සම්පූර්ණ වුණාම විතරක් පෙන්වන්න)
         const rewardModal = document.getElementById('reward-popup-modal');
         if (rewardModal) {
-            if (data.xp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
+            if (userXp >= 500 && (!data.currentDecoration || data.currentDecoration === "none")) {
                 rewardModal.classList.remove('hidden');
             } else {
                 rewardModal.classList.add('hidden');
@@ -213,18 +218,27 @@ window.saveUserProfile = function() {
     }).then(() => toggleProfileModal());
 }
 
+// 👑 UPDATED REWARD CLAIM LOGIC FOR XP 500 PROFILE DECORATION
 window.claimAvatarDecoration = function() {
     if (!currentUser) return;
-    const randomDeco = decorationsList[Math.floor(Math.random() * decorationsList.length)];
+    
+    // XP 500 සපුරා ඇති නිසා Profile Decoration එකක් විදිහට 'neon-legendary-border' එක ලබාදීම
+    const legendaryDeco = "neon-legendary-border";
+    
     db.ref(`users/${currentUser.uid}`).transaction(currentData => {
         if (currentData) {
+            // XP 500ක් අඩු කරලා, Decoration එක Claim කළා කියලා Update කරනවා
             currentData.xp = Math.max(0, (currentData.xp || 0) - 500);
-            currentData.currentDecoration = randomDeco;
+            currentData.currentDecoration = legendaryDeco;
             currentData.decorationClaimedAt = Date.now();
         }
         return currentData;
     }).then(() => {
-        document.getElementById('reward-popup-modal').classList.add('hidden');
+        const rewardModal = document.getElementById('reward-popup-modal');
+        if (rewardModal) rewardModal.classList.add('hidden');
+        alert("🎉 LEGENDARY DECORATION UNLOCKED! Your avatar is now glowing!");
+    }).catch(err => {
+        alert("Error claiming decoration: " + err.message);
     });
 }
 
