@@ -41,8 +41,8 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // 🔥 ලිස්ට් එකක් නැතුව, දැනට OpenRouter එකේ ස්ටේබල්ම සහ වේගවත්ම Free Model එක කෙලින්ම දෙනවා
-                model: "google/gemini-2.5-flash:free", 
+                // 🔥 100% ක්ම දැනට OpenRouter එකේ වැඩ කරන නිවැරදි Free Model එක මෙන්න:
+                model: "meta-llama/llama-3.2-3b-instruct:free", 
                 messages: [{ role: "user", content: fullPrompt }]
             })
         });
