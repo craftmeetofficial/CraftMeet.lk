@@ -25,8 +25,8 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // 🔥 දැනට OpenRouter එකේ 100% ක්ම Active වෙලා තියෙන ස්ටේබල්ම Free Model එක:
-                model: "microsoft/phi-3-medium-128k-instruct:free", 
+                // 🎯 FIXED: Updated to Meta LLaMA 3 8B Instruct (100% Free & Active on OpenRouter)
+                model: "meta-llama/llama-3-8b-instruct:free", 
                 messages: [{ role: "user", content: systemInstruction + message }]
             })
         });
