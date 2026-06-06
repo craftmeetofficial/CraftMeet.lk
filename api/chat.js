@@ -25,8 +25,8 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                // 🔥 429 ගහන්නේ නැති, දැනට ලෝකෙම Trend වෙන සිරාම Free AI Model එකක්:
-                model: "deepseek/deepseek-r1:free", 
+                // 🔥 දැනට OpenRouter එකේ 100% ක්ම Active වෙලා තියෙන ස්ටේබල්ම Free Model එක:
+                model: "microsoft/phi-3-medium-128k-instruct:free", 
                 messages: [{ role: "user", content: systemInstruction + message }]
             })
         });
