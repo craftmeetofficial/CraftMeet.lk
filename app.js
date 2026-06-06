@@ -88,7 +88,7 @@ async function sendAMessageToAIBox() {
 
         appendAiBoxMessage("🤖 CraftMeet AI", aiReplyText, "#fff");
 
-        // Firebase එකට චැට් එක සේව් කිරීම
+        // Firebase එකට චැට් එක සේဝ် කිරීම
         if (currentUser) {
             db.ref(`ai_chats/${currentUser.uid}`).push().set({
                 user_prompt: userText,
@@ -137,6 +137,29 @@ window.sendAMessageToAIBox = sendAMessageToAIBox;
 // ==========================================
 // CORE FUNCTIONS
 // ==========================================
+
+// 🎯 FIXED: Missing setupScrollToBottomBtn function safely injected!
+function setupScrollToBottomBtn() {
+    const chatDisplay = document.getElementById('chat-messages');
+    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
+    if (!chatDisplay) return;
+
+    chatDisplay.addEventListener('scroll', () => {
+        if (scrollBtn) {
+            if (chatDisplay.scrollHeight - chatDisplay.clientHeight - chatDisplay.scrollTop > 400) {
+                scrollBtn.classList.remove('hidden');
+            } else {
+                scrollBtn.classList.add('hidden');
+            }
+        }
+    });
+
+    if (scrollBtn) {
+        scrollBtn.onclick = () => {
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        };
+    }
+}
 
 window.toggleCraftMeetModal = function() {
     const craftMeetModal = document.getElementById('craftmeet-modal');
@@ -470,7 +493,7 @@ function listenToXPLeaderboard() {
                     <span style="display: flex; align-items: center; gap: 8px;">
                         <span style="color: ${index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#949ba4'}; font-weight: bold; width: 20px;">#${index + 1}</span>
                         <span style="${isMe ? 'color: #00ffcc; font-weight: 500;' : ''}">${gamer.name}</span>
-                    </span>
+                     Reds</span>
                     <span style="color: #00ffcc; font-weight: bold; font-family: 'JetBrains Mono', monospace;">${gamer.xp} XP</span>
                 </li>
             `;
